@@ -5,7 +5,7 @@
   "voices": {
     "hablena": { "name": "Hablena", "kind": "mascot", "provider": "elevenlabs", "id": "LudcwvHIZaqQOcQfVZSY" },
     "lucia": { "name": "Lucía", "kind": "woman", "provider": "elevenlabs", "id": "KHCvMklQZZo0O30ERnVn" },
-    "mateo": { "name": "Mateo", "kind": "man", "provider": "elevenlabs", "id": "gbTn1bmCvNgk0QEAVyfM" },
+    "mateo": { "name": "Mateo", "kind": "man", "provider": "elevenlabs", "id": "Nh2zY9kknu6z4pZy6FhD" },
     "sofia": { "name": "Sofía", "kind": "girl", "provider": "elevenlabs", "id": "" },
     "pablo": { "name": "Pablo", "kind": "boy", "provider": "elevenlabs", "id": "" }
   }
