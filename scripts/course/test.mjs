@@ -36,6 +36,17 @@ for (const lesson of ALL_LESSONS) {
       check(`${at}: answer among options`, e.options.includes(e.answer));
       check(`${at}: translations`, !!e.tr?.en && !!e.tr?.de);
     }
+    if (e.t === 'type') {
+      if (e.v === undefined) {
+        check(`${at}: sentence + translations`, !!e.es && !!e.tr?.en && !!e.tr?.de);
+      }
+      check(`${at}: alternatives are strings`, (e.alt || []).every((x) => typeof x === 'string' && x));
+    }
+    if (e.t === 'dialogue') {
+      check(`${at}: line`, !!e.line?.es && !!e.line?.tr?.en && !!e.line?.tr?.de);
+      check(`${at}: 3+ distinct options`, Array.isArray(e.options) && e.options.length >= 3 && new Set(e.options).size === e.options.length);
+      check(`${at}: answer among options`, e.options.includes(e.answer));
+    }
     if (e.t === 'build') {
       check(`${at}: translations`, !!e.tr?.en && !!e.tr?.de);
       check(`${at}: 2+ words`, strip(e.es).length >= 2);

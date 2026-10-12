@@ -1,7 +1,7 @@
 // One lesson-player page per lesson and locale (noindex, part of the app).
 import { ALL_LESSONS } from './units.mjs';
-import { lessonAudioMap } from './audio.mjs';
-import { VOICE_CONFIG, withSpeakers } from './voices.mjs';
+import { lessonAudioMap, clipHash } from './audio.mjs';
+import { VOICE_CONFIG, withSpeakers, voiceOf, MAIN } from './voices.mjs';
 import { CHARACTERS } from './characters.mjs';
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -15,15 +15,53 @@ function localize(lesson, lang, index) {
     id: lesson.id,
     title: lesson.title[lang],
     vocab: lesson.vocab.map((v) => ({ es: v.es, tr: v[lang] })),
-    exercises: exercises.map((e) => (e.tr ? { ...e, tr: e.tr[lang] } : e)),
+    exercises: exercises.map((e) => {
+      const out = e.tr ? { ...e, tr: e.tr[lang] } : { ...e };
+      if (e.line) out.line = { es: e.line.es, tr: e.line.tr[lang] };
+      return out;
+    }),
     audio: lessonAudioMap(lesson, index),
     speakers: Object.fromEntries(roles.map((r) => [r, { name: VOICE_CONFIG.voices[r].name, kind: VOICE_CONFIG.voices[r].kind, svg: CHARACTERS[r] || null }])),
   };
 }
 
+// Practice: a mixed review built in the browser from the lessons the learner has finished.
+function practicePage(t, urls, otherLang) {
+  const lang = t.lang;
+  const main = voiceOf(MAIN);
+  const pool = ALL_LESSONS.flatMap((l) => l.vocab.map((v) => ({ lesson: l.id, es: v.es, tr: v[lang] })));
+  const data = {
+    id: 'practice',
+    mode: 'practice',
+    title: t.app.practiceTitle,
+    pool,
+    exercises: [],
+    audio: { [MAIN]: Object.fromEntries(pool.map((v) => [v.es, clipHash(main, v.es)])) },
+    speakers: { [MAIN]: { name: VOICE_CONFIG.voices[MAIN].name, kind: 'mascot', svg: null } },
+  };
+  return {
+    noindex: true,
+    template: 'player',
+    path: urls.practice(lang),
+    alt: urls.practice(otherLang),
+    title: `${t.app.practiceTitle} | Hablena`,
+    description: t.app.practiceText,
+    vars: {
+      appUrl: urls.app(lang),
+      loginUrl: urls.login(lang),
+      lessonId: 'practice',
+      lessonTitle: esc(t.app.practiceTitle),
+      lessonGoal: esc(t.app.practiceText),
+      vocabCount: pool.length,
+      lessonJson: safeJson(data),
+      stringsJson: safeJson(t.learn),
+    },
+  };
+}
+
 export function lessonPages(t, urls, otherLang) {
   const lang = t.lang;
-  return ALL_LESSONS.map((lesson, index) => ({
+  return [practicePage(t, urls, otherLang), ...ALL_LESSONS.map((lesson, index) => ({
     noindex: true,
     template: 'player',
     path: urls.lesson(lang, lesson.id),
@@ -40,5 +78,5 @@ export function lessonPages(t, urls, otherLang) {
       lessonJson: safeJson(localize(lesson, lang, index)),
       stringsJson: safeJson(t.learn),
     },
-  }));
+  }))];
 }

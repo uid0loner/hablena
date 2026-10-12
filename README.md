@@ -108,6 +108,13 @@ provider, model, voice and text, so changing a voice yields new clips automatica
 `GET /api/audio/status` shows progress. Keys are Cloudflare secrets: `TTS_API_KEY` (ElevenLabs),
 `AZURE_TTS_KEY` (+ optional `AZURE_TTS_REGION`), `GOOGLE_TTS_KEY`. Without audio the player falls back to the
 browser voice (with a different pitch per character).
+Exercise types: intro, choice, reverse, listen, match, gap, build, type (write the Spanish; accents via
+on-screen keys, missing accents, articles and one-letter typos count as right with a hint) and dialogue
+(a character speaks, the learner picks the reply). Unit guides live in `scripts/course/guides.mjs` and are
+served at `/app/guide/<unit>/`; practice mode (`/app/practice/`) builds a mixed review in the browser from
+finished lessons and earns XP without touching lesson progress. The landing page shows live course numbers
+(units, lessons, words, exercise types) computed at build time.
+
 `scripts/course/test.mjs` validates all content (indices, translations, every word introduced before it is tested).
 
 ## Local development

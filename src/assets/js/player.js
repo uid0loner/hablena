@@ -35,7 +35,17 @@
     for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
     return a;
   };
-  const norm = (s) => s.toLowerCase().replace(/[¡!¿?.,;:]/g, '').replace(/\s+/g, ' ').trim();
+  const norm = (s) => s.toLowerCase().replace(/[¡!¿?.,;:"“”«»]/g, '').replace(/[’`´]/g, "'").replace(/\s+/g, ' ').trim();
+  const fold = (s) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const editDistance = (a, b) => {
+    if (Math.abs(a.length - b.length) > 1) return 2;
+    const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+    for (let j = 1; j <= b.length; j++) d[0][j] = j;
+    for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) {
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    }
+    return d[a.length][b.length];
+  };
   const words = (s) => s.replace(/[¡!¿?.,;:]/g, '').split(/\s+/).filter(Boolean);
   const replay = (el, cls) => { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); };
 
@@ -95,8 +105,8 @@
     canSpeak ? h('button', { type: 'button', class: `lp-audio ${size}`, 'aria-label': S.play, html: SPEAKER, onclick: (e) => { replay(e.currentTarget, 'is-pulse'); speak(text, role); } }) : null;
 
   // ---------- state ----------
-  const steps = L.exercises;
-  const scored = steps.filter((s) => s.t !== 'intro').length;
+  let steps = L.exercises || [];
+  let scored = steps.filter((s) => s.t !== 'intro').length;
   let index = 0;
   let correct = 0;
   let combo = 0;
@@ -273,6 +283,71 @@
         },
       };
     },
+    // Write the Spanish yourself. Accents and one-letter typos count as right, with a hint.
+    type(step) {
+      const target = step.es || L.vocab[step.v].es;
+      const prompt = step.tr || L.vocab[step.v].tr;
+      const accepted = [target, ...(step.alt || [])];
+      const input = h('textarea', {
+        class: 'lp-input', lang: 'es', rows: '3', autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false',
+        'aria-label': S.yourAnswer, placeholder: S.typePlaceholder,
+      });
+      input.addEventListener('input', () => setPrimary(S.check, phase === 'answer' && input.value.trim().length > 0));
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); e.stopPropagation(); if (!primary.disabled) primary.click(); }
+      });
+      const keys = h('div', { class: 'lp-keys', role: 'group', 'aria-label': S.specialChars },
+        ['á', 'é', 'í', 'ó', 'ú', 'ñ', 'ü', '¿', '¡'].map((ch) => h('button', {
+          type: 'button', class: 'lp-key', lang: 'es',
+          onmousedown: (e) => e.preventDefault(),
+          onclick: () => {
+            if (input.disabled) return;
+            const { selectionStart: a, selectionEnd: b, value } = input;
+            input.value = value.slice(0, a) + ch + value.slice(b);
+            input.selectionStart = input.selectionEnd = a + 1;
+            input.focus();
+            input.dispatchEvent(new Event('input'));
+          },
+        }, ch)));
+      stage.append(heading(S.typeSpanish), say(step.s, h('span', { class: 'lp-bubble__text' }, prompt)), input, keys);
+      setTimeout(() => input.focus({ preventScroll: true }), 50);
+      return {
+        evaluate: () => {
+          const given = norm(input.value);
+          let ok = accepted.some((a) => norm(a) === given);
+          let note = '';
+          if (!ok && accepted.some((a) => fold(norm(a)) === fold(given))) { ok = true; note = S.accentNote.replace('{answer}', target); }
+          if (!ok && target.length >= 5 && accepted.some((a) => editDistance(fold(norm(a)), fold(given)) <= 1)) { ok = true; note = S.typoNote.replace('{answer}', target); }
+          const bare = (x) => x.replace(/^(el|la|los|las|un|una) /, '');
+          if (!ok && accepted.some((a) => bare(fold(norm(a))) !== fold(norm(a)) && bare(fold(norm(a))) === fold(given))) { ok = true; note = S.articleNote.replace('{answer}', target); }
+          input.disabled = true;
+          keys.querySelectorAll('button').forEach((b) => { b.disabled = true; });
+          input.classList.add(ok ? 'is-right' : 'is-wrong');
+          if (!ok) replay(input, 'is-shake');
+          speak(target, step.s);
+          return { ok, answer: target, note };
+        },
+      };
+    },
+    // A character says something; pick the best reply. The chosen reply appears as your message.
+    dialogue(step) {
+      const tr = h('span', { class: 'lp-bubble__tr', hidden: true }, step.line.tr);
+      const toggle = h('button', { type: 'button', class: 'lp-link lp-link--inline', onclick: (e) => { tr.hidden = false; e.currentTarget.remove(); } }, S.showTranslation);
+      const thread = h('div', { class: 'lp-chat' },
+        say(step.s, audioButton(step.line.es, step.s), h('span', { class: 'lp-bubble__text', lang: 'es' }, step.line.es), tr, toggle));
+      stage.append(heading(S.dialogueHeading), thread);
+      const list = optionList(shuffle(step.options), step.answer, { lang: 'es', layout: 'stack' });
+      stage.append(list.el);
+      if (canSpeak) setTimeout(() => speak(step.line.es, step.s), 300);
+      const evaluate = list.evaluate;
+      list.evaluate = () => {
+        const r = evaluate();
+        thread.append(h('div', { class: 'lp-chat__me' }, h('span', { class: 'lp-chat__who' }, S.you), h('div', { class: 'lp-chat__bubble', lang: 'es' }, step.answer)));
+        speak(step.answer, 'hablena');
+        return r;
+      };
+      return list;
+    },
     match(step) {
       const items = step.v.map((i) => L.vocab[i]);
       let selected = null;
@@ -320,6 +395,8 @@
     const texts = refs.map((i) => L.vocab[i].es);
     if (step.t === 'gap') texts.push(step.es.replace('___', step.answer));
     if (step.t === 'build') texts.push(step.es, ...words(step.es), ...(step.extra || []));
+    if (step.t === 'type' && step.es) texts.push(step.es);
+    if (step.t === 'dialogue') { texts.push(step.line.es); clip(step.answer, 'hablena'); }
     texts.forEach((t) => clip(t, step.s));
   }
 
@@ -330,6 +407,9 @@
     resetSheet();
     setProgress();
     const step = steps[i];
+    root.dataset.step = String(i);
+    root.__steps = steps; // read by the end-to-end tests
+    root.__vocab = L.vocab;
     preloadStep(step);
     if (steps[i + 1]) preloadStep(steps[i + 1]);
     current = render[step.t](step);
@@ -358,15 +438,15 @@
   primary.addEventListener('click', () => {
     if (primary.disabled) return;
     if (current.intro || phase === 'feedback') return next();
-    const { ok, answer } = current.evaluate();
+    const { ok, answer, note } = current.evaluate();
     registerResult(ok);
     phase = 'feedback';
-    showFeedback(ok, answer);
+    showFeedback(ok, answer, note);
     setPrimary(S.continue, true, ok ? 'green' : 'red');
   });
 
   document.addEventListener('keydown', (e) => {
-    if (!done.hidden) return;
+    if (!done.hidden || e.target?.tagName === 'TEXTAREA') return;
     if (e.key === 'Enter' && !primary.disabled && !primary.hidden && document.activeElement?.tagName !== 'BUTTON') { e.preventDefault(); primary.click(); }
     if (/^[1-4]$/.test(e.key) && phase === 'answer') stage.querySelector(`.lp-opt[data-key="${e.key}"]`)?.click();
   });
@@ -469,7 +549,43 @@
     }
   }
 
-  $('[data-restart]').addEventListener('click', () => {
+  // ---------- practice mode: a fresh mixed review from the lessons you have finished ----------
+  async function buildPractice() {
+    let doneIds = [];
+    try {
+      const res = await fetch('/api/progress', { credentials: 'same-origin' });
+      if (res.ok) doneIds = (await res.json()).progress.map((p) => p.lessonId);
+    } catch {}
+    let pool = L.pool.filter((v) => doneIds.includes(v.lesson));
+    if (pool.length < 8) pool = L.pool.filter((v) => v.lesson === L.pool[0].lesson);
+    const chosen = shuffle(pool).slice(0, 12);
+    L.vocab = chosen.map(({ es, tr }) => ({ es, tr }));
+    const typeable = (v) => !/[,…]/.test(v.es);
+    const order = ['choice', 'listen', 'reverse', 'type', 'choice', 'match', 'listen', 'type', 'reverse', 'choice'];
+    let k = 0;
+    const exercises = [];
+    for (const t of order) {
+      if (t === 'match') {
+        const seen = new Set();
+        const four = [];
+        L.vocab.forEach((v, i) => { if (four.length < 4 && !seen.has(v.tr)) { seen.add(v.tr); four.push(i); } });
+        if (four.length === 4) exercises.push({ t: 'match', v: four, s: 'hablena' });
+        continue;
+      }
+      let i = k++ % L.vocab.length;
+      if (t === 'type') {
+        const j = L.vocab.findIndex((v, n) => n >= i && typeable(v));
+        if (j < 0) continue;
+        i = j;
+      }
+      exercises.push({ t, v: i, s: 'hablena' });
+    }
+    steps = exercises;
+    scored = steps.length;
+  }
+
+  $('[data-restart]').addEventListener('click', async () => {
+    if (L.mode === 'practice') await buildPractice();
     correct = 0;
     combo = 0;
     startedAt = Date.now();
@@ -481,5 +597,6 @@
   });
 
   stage.setAttribute('tabindex', '-1');
-  show(0);
+  if (L.mode === 'practice') buildPractice().then(() => { startedAt = Date.now(); show(0); });
+  else show(0);
 })();

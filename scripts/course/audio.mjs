@@ -3,7 +3,8 @@
 // and identical clips are shared between roles that use the same voice.
 import { createHash } from 'node:crypto';
 import { ALL_LESSONS } from './units.mjs';
-import { VOICE_CONFIG, voiceOf, withSpeakers } from './voices.mjs';
+import { VOICE_CONFIG, voiceOf, withSpeakers, MAIN } from './voices.mjs';
+import { guideTexts } from './guides.mjs';
 
 const modelOf = (provider) => VOICE_CONFIG.models[provider] || '';
 export const clipHash = ({ provider, id }, text) =>
@@ -22,6 +23,8 @@ export function speakableTexts(lesson, lessonIndex) {
     if (e.t === 'reverse') add(e.s, ...allEs); // distractors are picked at random from the lesson
     if (e.t === 'gap') add(e.s, e.es.replace('___', e.answer));
     if (e.t === 'build') add(e.s, e.es, ...wordsOf(e.es), ...(e.extra || []));
+    if (e.t === 'type') add(e.s, e.es || lesson.vocab[e.v].es);
+    if (e.t === 'dialogue') { add(e.s, e.line.es); add('hablena', e.answer); }
   }
   return Object.fromEntries(Object.entries(out).map(([r, s]) => [r, [...s]]));
 }
@@ -43,6 +46,10 @@ export function audioManifest() {
       for (const t of texts) clips[clipHash(voice, t)] = [t, voice.provider, voice.id];
     }
   });
+  const main = voiceOf(MAIN);
+  for (const t of guideTexts()) clips[clipHash(main, t)] = [t, main.provider, main.id];
+  // practice mode speaks every word in Hablena's voice
+  for (const lesson of ALL_LESSONS) for (const v of lesson.vocab) clips[clipHash(main, v.es)] = [v.es, main.provider, main.id];
   // voice id → speaker names, so /api/audio/status can report progress per voice
   const voices = {};
   for (const [role, v] of Object.entries(VOICE_CONFIG.voices)) {

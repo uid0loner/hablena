@@ -16,7 +16,18 @@ import { grammarPages } from './grammar/pages.mjs';
 import { legalPages } from './legal/pages.mjs';
 import { accountPages } from './account/pages.mjs';
 import { lessonPages } from './course/pages.mjs';
+import { guidePages } from './course/guide-pages.mjs';
 import { audioManifest } from './course/audio.mjs';
+import { UNITS, ALL_LESSONS } from './course/units.mjs';
+import { CHARACTERS } from './course/characters.mjs';
+
+// Real course numbers for the marketing pages, so they never drift from the content.
+const COURSE = {
+  units: UNITS.length,
+  lessons: ALL_LESSONS.length,
+  words: new Set(ALL_LESSONS.flatMap((l) => l.vocab.map((v) => v.es))).size,
+  types: new Set(ALL_LESSONS.flatMap((l) => l.exercises.filter((e) => e.t !== 'intro').map((e) => e.t))).size,
+};
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = join(root, 'src');
@@ -92,6 +103,8 @@ function makeCtx(dict, lang, paths, extra = {}) {
     hero: extra.hero ?? '',
     robots: extra.noindex ? '<meta name="robots" content="noindex">' : '',
     content: extra.content ?? '',
+    course: COURSE,
+    cast: CHARACTERS,
     ...(extra.vars || {}),
   };
 }
@@ -147,12 +160,14 @@ async function build() {
     login: (l) => `${prefix(l)}${dict[l].auth.loginSlug}/`,
     app: (l) => `${prefix(l)}app/`,
     lesson: (l, id) => `${prefix(l)}app/learn/${id}/`,
+    guide: (l, id) => `${prefix(l)}app/guide/${id}/`,
+    practice: (l) => `${prefix(l)}app/practice/`,
   };
   const site = JSON.parse(await readFile(join(SRC, 'config', 'site.json'), 'utf8'));
   let generated = 0;
   for (const lang of LOCALES) {
     const other = LOCALES.find((l) => l !== lang);
-    for (const p of [...conjugatorPages(dict[lang], urls, other), ...grammarPages(dict[lang], urls, other), ...legalPages(dict[lang], urls, other, site), ...accountPages(dict[lang], urls, other, site), ...lessonPages(dict[lang], urls, other)]) {
+    for (const p of [...conjugatorPages(dict[lang], urls, other), ...grammarPages(dict[lang], urls, other), ...legalPages(dict[lang], urls, other, site), ...accountPages(dict[lang], urls, other, site), ...lessonPages(dict[lang], urls, other), ...guidePages(dict[lang], urls, other)]) {
       const tpl = compiled[p.template || 'tool'];
       if (!tpl) throw new Error(`Unknown template "${p.template}" for ${p.path}`);
       const html = render(tpl, makeCtx(dict, lang, { [lang]: p.path, [other]: p.alt }, p), `${p.template || 'tool'}.html`);

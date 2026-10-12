@@ -40,7 +40,7 @@
     "listening": "Hablena hört zu …"
   },
   "method": {
-    "kicker": "01 — Die Methode",
+    "kicker": "02 — Die Methode",
     "title1": "Sprechen ab Tag eins.",
     "title2": "Der Rest folgt.",
     "text": "Sprechen, Hören, Lesen, Schreiben, Grammatik und Wortschatz. Sechs Fähigkeiten, ein Lernpfad, der sich nach jeder Einheit an dich anpasst.",
@@ -87,7 +87,7 @@
     }
   },
   "path": {
-    "kicker": "02 — Dein Weg",
+    "kicker": "03 — Dein Weg",
     "title": "Von hola bis fließend.",
     "text": "Aufgebaut auf den offiziellen europäischen GER-Niveaus, damit du immer genau weißt, wo du stehst. Bereit für die DELE-Prüfung, wenn du es bist.",
     "levels": [
@@ -119,7 +119,7 @@
     ]
   },
   "tutor": {
-    "kicker": "03 — Hablena",
+    "kicker": "04 — Hablena",
     "title1": "Deine Tutorin.",
     "title2": "Immer da.",
     "text": "Hablena spricht mit dir über deinen Tag, deine Arbeit und deine Pläne. Sie erklärt jeden Fehler auf Deutsch und merkt sich, was du als Nächstes üben solltest.",
@@ -142,7 +142,7 @@
     ]
   },
   "plans": {
-    "kicker": "04 — Preise",
+    "kicker": "05 — Preise",
     "title1": "Kostenlos starten.",
     "title2": "Voll durchstarten.",
     "billingLabel": "Abrechnungszeitraum",
@@ -356,7 +356,7 @@
     "greetingNoName": "¡Hola!",
     "courseLabel": "Als Nächstes",
     "courseTitle": "Weitere Einheiten sind unterwegs.",
-    "courseText": "Einheit 1 und 2 sind fertig. Als Nächstes: unterwegs in der Stadt, Einkaufen und echte Gespräche mit Hablena.",
+    "courseText": "Fünf Einheiten sind fertig, vom ersten „hola“ bis zum Erzählen übers Wochenende. Als Nächstes: Vergangenheit, Reisegeschichten und echte Gespräche mit Hablena.",
     "grammarTitle": "Grammatik-Themen",
     "grammarText": "Ser oder estar, por oder para und mehr, mit Quiz.",
     "conjTitle": "Verb-Konjugator",
@@ -425,7 +425,16 @@
     ],
     "introHeading": "Hör zu und merk es dir",
     "almost": "Fast!",
-    "streakDays": "{n}-Tage-Streak"
+    "streakDays": "{n}-Tage-Streak",
+    "typeSpanish": "Schreib das auf Spanisch",
+    "typePlaceholder": "Auf Spanisch tippen …",
+    "specialChars": "Sonderzeichen",
+    "accentNote": "Achte auf die Akzente: {answer}",
+    "typoNote": "Kleiner Tippfehler. Richtig geschrieben: {answer}",
+    "dialogueHeading": "Wähle die passende Antwort",
+    "showTranslation": "Übersetzung zeigen",
+    "you": "Du",
+    "articleNote": "Denk an den Artikel: {answer}"
   },
   "app": {
     "learnTab": "Lernen",
@@ -442,6 +451,69 @@
     "locked": "Schließ zuerst die Lektionen davor ab, um diese freizuschalten.",
     "lessonOf": "Lektion {n} von {total}",
     "bestScore": "Bestes Ergebnis: {n}/{total}",
-    "more": "Mehr üben"
+    "more": "Mehr üben",
+    "guide": "Leitfaden",
+    "guideKicker": "Leitfaden zur Einheit",
+    "guideLead": "Die wichtigsten Regeln dieser Einheit in zwei Minuten. Tipp auf den Lautsprecher, um jedes Beispiel zu hören.",
+    "startUnit": "Einheit starten",
+    "backToCourse": "Zurück zum Kurs",
+    "practiceTitle": "Üben",
+    "practiceText": "Eine schnelle gemischte Wiederholung der Wörter aus deinen fertigen Lektionen. Zählt für dein Tagesziel.",
+    "practiceButton": "Jetzt üben"
+  },
+  "course": {
+    "kicker": "01 — Der Kurs",
+    "title1": "Kurze Lektionen.",
+    "title2": "Echte Stimmen.",
+    "text": "Jede Lektion dauert etwa fünf Minuten und mischt Hören, Zuordnen, Sätze bauen, Schreiben und echte Dialoge. Fortschritt, Streak und Tagesziel halten dich dran, ohne Werbung und ohne Herzen, die ausgehen.",
+    "stats": {
+      "units": "Einheiten",
+      "lessons": "Lektionen",
+      "words": "Wörter und Wendungen",
+      "types": "Übungsarten"
+    },
+    "castTitle": "Das sind wir",
+    "castText": "Hablena stellt dir jedes neue Wort vor. Lucía, Mateo, Sofía und Pablo sprechen die Übungen, damit du dich vom ersten Tag an verschiedene Stimmen gewöhnst.",
+    "cast": [
+      {
+        "name": "Hablena",
+        "role": "Deine Begleiterin"
+      },
+      {
+        "name": "Lucía",
+        "role": "Hat ein Café"
+      },
+      {
+        "name": "Mateo",
+        "role": "Fußballfan"
+      },
+      {
+        "name": "Sofía",
+        "role": "Tanzt für ihr Leben gern"
+      },
+      {
+        "name": "Pablo",
+        "role": "Hat immer Hunger"
+      }
+    ],
+    "features": [
+      {
+        "title": "Selbst schreiben",
+        "text": "Tipp deine Antworten, Akzente mit einem Fingertipp. Fehlt ein Akzent oder ist es nur ein kleiner Tippfehler, sagt Hablena es dir, ohne es als falsch zu werten."
+      },
+      {
+        "title": "Echte Dialoge",
+        "text": "Antworte den Figuren so, wie du es in Spanien tun würdest: im Café, im Hotel, auf dem Markt."
+      },
+      {
+        "title": "Ein Leitfaden pro Einheit",
+        "text": "Die paar Regeln, auf die es ankommt, in zwei Minuten erklärt, mit Beispielen zum Anhören."
+      },
+      {
+        "title": "Üben, wann du willst",
+        "text": "Gemischte Wiederholungen aus deinen fertigen Lektionen, immer wenn du fünf Minuten hast."
+      }
+    ],
+    "cta": "Erste Lektion kostenlos testen"
   }
 }

@@ -73,13 +73,16 @@ export function accountPages(t, urls, otherLang, site) {
   const ap = t.app;
 
   const unitHtml = (u, ui) => `
-    <section class="punit punit--${ui % 3}" aria-labelledby="unit-${u.id}" data-unit="${u.id}">
+    <section class="punit punit--${ui % 5}" aria-labelledby="unit-${u.id}" data-unit="${u.id}">
       <header class="punit__banner">
         <div>
           <p class="punit__kicker">${esc(a.unit)} ${ui + 1} · ${u.level}</p>
           <h2 id="unit-${u.id}">${esc(u.title[lang])}</h2>
         </div>
-        <span class="punit__count" data-unit-count>0/${u.lessons.length}</span>
+        <div class="punit__side">
+          <span class="punit__count" data-unit-count>0/${u.lessons.length}</span>
+          <a class="punit__guide" href="${urls.guide(lang, u.id)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5C6.5 4 9.5 4 12 5.5 14.5 4 17.5 4 20 5.5V19c-2.5-1.5-5.5-1.5-8 0-2.5-1.5-5.5-1.5-8 0z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M12 5.5V19" stroke="currentColor" stroke-width="2.2"/></svg><span>${esc(ap.guide)}</span></a>
+        </div>
       </header>
       <ol class="path">
         ${u.lessons.map((l, li) => {
@@ -140,6 +143,12 @@ export function accountPages(t, urls, otherLang, site) {
       <div class="side-card__head"><h2>${esc(ap.dailyGoal)}</h2><span class="side-card__xp"><span data-stat-xptoday>0</span>/<span data-stat-goal>20</span> XP</span></div>
       <div class="goalbar" role="progressbar" aria-label="${esc(ap.dailyGoal)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-goalbar><span></span></div>
       <p data-goal-msg>${esc(ap.goalText.replace('{xp}', '0').replace('{goal}', '20'))}</p>
+    </section>
+
+    <section class="side-card side-card--practice">
+      <div class="side-card__head"><h2>${esc(ap.practiceTitle)}</h2></div>
+      <p>${esc(ap.practiceText)}</p>
+      <a class="lp-cta lp-cta--ghost side-card__cta" href="${urls.practice(lang)}">${esc(ap.practiceButton)}</a>
     </section>
 
     <section class="side-card">

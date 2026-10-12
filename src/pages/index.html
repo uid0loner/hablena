@@ -56,6 +56,58 @@
 </div>
 
 <main id="main">
+  <section class="section course-sec" id="course" aria-labelledby="course-title">
+    <div class="container">
+      <div class="course-grid">
+        <div class="course-copy">
+          <p class="kicker">{{t.course.kicker}}</p>
+          <h2 class="display display--l" id="course-title">{{t.course.title1}}<br>{{t.course.title2}}</h2>
+          <p class="lead">{{t.course.text}}</p>
+          <dl class="stat-row">
+            <div><dt>{{t.course.stats.units}}</dt><dd>{{course.units}}</dd></div>
+            <div><dt>{{t.course.stats.lessons}}</dt><dd>{{course.lessons}}</dd></div>
+            <div><dt>{{t.course.stats.words}}</dt><dd>{{course.words}}</dd></div>
+            <div><dt>{{t.course.stats.types}}</dt><dd>{{course.types}}</dd></div>
+          </dl>
+          <a class="btn btn--red btn--lg" href="{{t.links.signup}}">{{t.course.cta}}</a>
+        </div>
+        <div class="cast-card">
+          <h3>{{t.course.castTitle}}</h3>
+          <p>{{t.course.castText}}</p>
+          <ul class="cast">
+            <li class="cast__item"><span class="cast__face cast__face--hablena">{{> mascot}}</span><strong>{{t.course.cast.0.name}}</strong><span>{{t.course.cast.0.role}}</span></li>
+            <li class="cast__item"><span class="cast__face cast__face--lucia">{{cast.lucia}}</span><strong>{{t.course.cast.1.name}}</strong><span>{{t.course.cast.1.role}}</span></li>
+            <li class="cast__item"><span class="cast__face cast__face--mateo">{{cast.mateo}}</span><strong>{{t.course.cast.2.name}}</strong><span>{{t.course.cast.2.role}}</span></li>
+            <li class="cast__item"><span class="cast__face cast__face--sofia">{{cast.sofia}}</span><strong>{{t.course.cast.3.name}}</strong><span>{{t.course.cast.3.role}}</span></li>
+            <li class="cast__item"><span class="cast__face cast__face--pablo">{{cast.pablo}}</span><strong>{{t.course.cast.4.name}}</strong><span>{{t.course.cast.4.role}}</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="feature-grid">
+        <article class="feature">
+          <span class="feature__icon feature__icon--0" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M13 7l4 4" stroke="currentColor" stroke-width="2.2"/></svg></span>
+          <h3>{{t.course.features.0.title}}</h3>
+          <p>{{t.course.features.0.text}}</p>
+        </article>
+        <article class="feature">
+          <span class="feature__icon feature__icon--1" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h11a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9l-4 3v-3H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M19 9h1a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-1v3l-4-3h-3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></span>
+          <h3>{{t.course.features.1.title}}</h3>
+          <p>{{t.course.features.1.text}}</p>
+        </article>
+        <article class="feature">
+          <span class="feature__icon feature__icon--2" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5.5C6.5 4 9.5 4 12 5.5 14.5 4 17.5 4 20 5.5V19c-2.5-1.5-5.5-1.5-8 0-2.5-1.5-5.5-1.5-8 0z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M12 5.5V19" stroke="currentColor" stroke-width="2.2"/></svg></span>
+          <h3>{{t.course.features.2.title}}</h3>
+          <p>{{t.course.features.2.text}}</p>
+        </article>
+        <article class="feature">
+          <span class="feature__icon feature__icon--3" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v4h-4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <h3>{{t.course.features.3.title}}</h3>
+          <p>{{t.course.features.3.text}}</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
   <section class="section" id="method" aria-labelledby="method-title">
     <div class="container">
       <div class="section-head">

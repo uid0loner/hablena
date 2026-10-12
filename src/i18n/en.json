@@ -40,7 +40,7 @@
     "listening": "Hablena is listening…"
   },
   "method": {
-    "kicker": "01 — The method",
+    "kicker": "02 — The method",
     "title1": "Talk from day one.",
     "title2": "Everything else follows.",
     "text": "Speaking, listening, reading, writing, grammar and vocabulary. Six skills, one learning path that adapts to you after every session.",
@@ -87,7 +87,7 @@
     }
   },
   "path": {
-    "kicker": "02 — Your path",
+    "kicker": "03 — Your path",
     "title": "From hola to fluent.",
     "text": "Built on the official European CEFR levels, so you always know exactly where you stand. Ready for the DELE exam when you are.",
     "levels": [
@@ -119,7 +119,7 @@
     ]
   },
   "tutor": {
-    "kicker": "03 — Hablena",
+    "kicker": "04 — Hablena",
     "title1": "Your tutor.",
     "title2": "Always on.",
     "text": "Hablena talks with you about your day, your work and your plans. She explains every mistake in your language and keeps track of what you need to practise next.",
@@ -142,7 +142,7 @@
     ]
   },
   "plans": {
-    "kicker": "04 — Plans",
+    "kicker": "05 — Pricing",
     "title1": "Start free.",
     "title2": "Go all in.",
     "billingLabel": "Billing period",
@@ -356,7 +356,7 @@
     "greetingNoName": "¡Hola!",
     "courseLabel": "Coming next",
     "courseTitle": "More units are on their way.",
-    "courseText": "Units 1 and 2 are ready. Next up: getting around town, shopping and spoken conversations with Hablena.",
+    "courseText": "Five units are ready, from your first “hola” to talking about your weekend. Next up: past tense, travel stories and spoken conversations with Hablena.",
     "grammarTitle": "Grammar guides",
     "grammarText": "Ser vs. estar, por vs. para and more, with quizzes.",
     "conjTitle": "Verb conjugator",
@@ -425,7 +425,16 @@
     ],
     "introHeading": "Listen and remember",
     "almost": "Almost!",
-    "streakDays": "{n}-day streak"
+    "streakDays": "{n}-day streak",
+    "typeSpanish": "Write this in Spanish",
+    "typePlaceholder": "Type in Spanish…",
+    "specialChars": "Special characters",
+    "accentNote": "Watch the accents: {answer}",
+    "typoNote": "Small typo. It’s spelled: {answer}",
+    "dialogueHeading": "Choose the best reply",
+    "showTranslation": "Show translation",
+    "you": "You",
+    "articleNote": "Don’t forget the article: {answer}"
   },
   "app": {
     "learnTab": "Learn",
@@ -442,6 +451,69 @@
     "locked": "Finish the lessons before this one to unlock it.",
     "lessonOf": "Lesson {n} of {total}",
     "bestScore": "Best result: {n}/{total}",
-    "more": "More practice"
+    "more": "More practice",
+    "guide": "Guide",
+    "guideKicker": "Unit guide",
+    "guideLead": "The key rules of this unit in two minutes. Tap the speaker to hear each example.",
+    "startUnit": "Start this unit",
+    "backToCourse": "Back to the course",
+    "practiceTitle": "Practice",
+    "practiceText": "A quick mixed review of the words from your finished lessons. Earns XP for your daily goal.",
+    "practiceButton": "Start practice"
+  },
+  "course": {
+    "kicker": "01 — The course",
+    "title1": "Short lessons.",
+    "title2": "Real voices.",
+    "text": "Every lesson takes about five minutes and mixes listening, matching, building sentences, writing and real dialogues. Your progress, streak and daily goal keep you going, without ads and without hearts that run out.",
+    "stats": {
+      "units": "units",
+      "lessons": "lessons",
+      "words": "words and phrases",
+      "types": "exercise types"
+    },
+    "castTitle": "Meet the cast",
+    "castText": "Hablena introduces every new word. Lucía, Mateo, Sofía and Pablo speak the exercises, so you get used to different voices from day one.",
+    "cast": [
+      {
+        "name": "Hablena",
+        "role": "Your guide"
+      },
+      {
+        "name": "Lucía",
+        "role": "Café owner"
+      },
+      {
+        "name": "Mateo",
+        "role": "Football fan"
+      },
+      {
+        "name": "Sofía",
+        "role": "Loves to dance"
+      },
+      {
+        "name": "Pablo",
+        "role": "Always hungry"
+      }
+    ],
+    "features": [
+      {
+        "title": "Write it yourself",
+        "text": "Type your answers with one-tap accents. Forget an accent or make a tiny typo and Hablena tells you, without failing you for it."
+      },
+      {
+        "title": "Real dialogues",
+        "text": "Answer the characters the way you would in Spain: at the café, the hotel, the market."
+      },
+      {
+        "title": "A guide for every unit",
+        "text": "The few rules that matter, explained in two minutes, with examples you can listen to."
+      },
+      {
+        "title": "Practice that adapts",
+        "text": "Mixed reviews from the lessons you have finished, whenever you have five minutes."
+      }
+    ],
+    "cta": "Try the first lesson free"
   }
 }

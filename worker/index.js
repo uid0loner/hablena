@@ -192,11 +192,13 @@ async function saveProgress(request, env) {
   const lessonId = body && typeof body.lessonId === 'string' ? body.lessonId : '';
   const total = body ? Number(body.total) : NaN;
   const correct = body ? Number(body.correct) : NaN;
-  if (!/^u\d{1,3}-l\d{1,3}$/.test(lessonId) || !Number.isInteger(total) || !Number.isInteger(correct) || total < 1 || total > 100 || correct < 0 || correct > total) {
+  const practice = lessonId === 'practice';
+  if ((!practice && !/^u\d{1,3}-l\d{1,3}$/.test(lessonId)) || !Number.isInteger(total) || !Number.isInteger(correct) || total < 1 || total > 100 || correct < 0 || correct > total) {
     return json({ error: 'invalid_request' }, 400);
   }
   const now = Date.now();
-  await env.DB.prepare(
+  // A practice session earns XP but is not a lesson, so it leaves the lesson progress alone.
+  if (!practice) await env.DB.prepare(
     `INSERT INTO progress (user_id, lesson_id, best_correct, total, attempts, first_completed_at, last_completed_at)
      VALUES (?, ?, ?, ?, 1, ?, ?)
      ON CONFLICT (user_id, lesson_id) DO UPDATE SET

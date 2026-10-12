@@ -275,3 +275,48 @@
     showError(box, messages, res ? res.data.error || 'server_error' : 'network');
   });
 })();
+
+// Listen buttons on guide pages: natural voice recording, browser speech as fallback.
+(() => {
+  const buttons = document.querySelectorAll('[data-say]');
+  if (!buttons.length) return;
+  let current = null;
+  const fallback = (text) => {
+    if (!('speechSynthesis' in window)) return;
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text.replace(/[¿¡]/g, ''));
+    u.lang = 'es-ES';
+    u.rate = 0.9;
+    speechSynthesis.speak(u);
+  };
+  buttons.forEach((btn) => btn.addEventListener('click', () => {
+    if (current) current.pause();
+    const a = new Audio(btn.dataset.src);
+    current = a;
+    let fell = false;
+    const fail = () => { if (!fell) { fell = true; fallback(btn.dataset.say); } };
+    a.play().catch((err) => { if (!err || err.name !== 'NotAllowedError') fail(); });
+    a.addEventListener('error', fail, { once: true });
+  }));
+})();
+
+// App header on pages outside the learning path (guides): streak, XP and avatar.
+(() => {
+  if (!document.querySelector('.ah') || document.querySelector('[data-app]')) return;
+  const d = new Date();
+  const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  fetch('/api/me', { credentials: 'same-origin' }).then((r) => (r.ok ? r.json() : null)).then((me) => {
+    if (!me) return;
+    const avatar = document.querySelector('[data-avatar]');
+    if (avatar) {
+      avatar.textContent = (me.user.name || me.user.email || '?').trim().charAt(0).toUpperCase();
+      avatar.href = document.querySelector('.ah__brand')?.getAttribute('href') + '#account';
+    }
+    return fetch(`/api/stats?today=${today}`, { credentials: 'same-origin' }).then((r) => (r.ok ? r.json() : null));
+  }).then((s) => {
+    if (!s) return;
+    document.querySelectorAll('[data-stat-streak]').forEach((el) => { el.textContent = String(s.streak); });
+    document.querySelectorAll('[data-stat-xptotal]').forEach((el) => { el.textContent = String(s.xpTotal); });
+    document.querySelector('[data-chip-streak]')?.classList.toggle('is-active', s.activeToday);
+  }).catch(() => {});
+})();

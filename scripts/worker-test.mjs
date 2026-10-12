@@ -114,6 +114,10 @@ await call('POST', '/api/progress', { cookie: li.cookie, body: { lessonId: 'u1-l
   const forged = (await call('GET', '/api/stats?today=2001-01-01', { cookie: li.cookie })).data;
   check('implausible client date ignored', forged.xpToday > 0);
   check('stats need login', (await call('GET', '/api/stats')).status === 401);
+  const before = (await call('GET', '/api/progress', { cookie: li.cookie })).data.progress.length;
+  const pr = await call('POST', '/api/progress', { cookie: li.cookie, body: { lessonId: 'practice', correct: 8, total: 10, today: day(0) } });
+  const after = (await call('GET', '/api/progress', { cookie: li.cookie })).data.progress.length;
+  check('practice earns XP without lesson progress', pr.status === 200 && pr.data.xp === 13 && after === before);
 }
 
 // Account deletion
