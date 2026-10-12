@@ -1,18 +1,22 @@
 {{> head}}
 <body class="home">
-<div class="hh">
-  {{> header}}
-  <div class="hh__bg" aria-hidden="true" lang="es">¡Hola!</div>
+<div class="hh" data-spot>
+  <div class="hh__grain" aria-hidden="true"></div>
+  <div class="hh__headslot">{{> header}}</div>
+  <div class="hh__bg" aria-hidden="true" lang="es"><span class="is-on">¡Hola!</span><span>¡Vamos!</span><span>¡Olé!</span></div>
   <div class="container hh__inner">
     <div class="hh__copy">
-      <h1 class="hh__title"><span>{{t.home.heroTitle1}}</span> <span class="text-gold">{{t.home.heroTitle2}}</span></h1>
+      <h1 class="hh__title"><span class="hh__line"><span>{{t.home.heroTitle1}}</span></span> <span class="hh__line"><span class="text-gold">{{t.home.heroTitle2}}</span></span></h1>
       <p class="hh__lead">{{t.home.heroLead}}</p>
-      <a class="btn3d btn3d--gold btn3d--lg" href="{{t.links.signup}}">{{t.home.cta}}</a>
+      <a class="btn3d btn3d--gold btn3d--lg btn3d--shine" href="{{t.links.signup}}">{{t.home.cta}}</a>
       <ul class="hh__note">{{#each t.home.ctaNote}}<li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>{{this}}</li>{{/each}}</ul>
     </div>
 
     <div class="hh__demo">
       <div class="demo" data-demo>
+        <span class="sticker sticker--ok" aria-hidden="true" data-depth="18"><span class="sticker__tick"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>{{t.home.stickers.right}}</span>
+        <span class="sticker sticker--xp" aria-hidden="true" data-depth="-26"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z" fill="#F2B200"/></svg>{{t.home.stickers.xp}}</span>
+        <span class="sticker sticker--fire" aria-hidden="true" data-depth="30"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 1.5-5 3-6 0 2 1 3 2 3 0-3-1-6 1-9z" fill="#FF8A00"/><path d="M12 12c.5 2 3 3 3 6a3 3 0 0 1-6 0c0-1.6 1-2.7 2-3.2 0 1 .4 1.6 1 1.6 0-1.6-.6-3 0-4.4z" fill="#FFC400"/></svg>{{t.home.stickers.streak}}</span>
         <div class="demo__mascot" aria-hidden="true">{{> mascot}}</div>
         <div class="demo__card">
           <div class="demo__top">
@@ -43,93 +47,156 @@
 </div>
 
 <main id="main">
-  <section class="hsec" id="why" aria-labelledby="why-title">
+  <section class="story" id="why" aria-labelledby="story-title">
     <div class="container">
       <div class="hsec__head" data-reveal>
-        <p class="kicker">{{t.home.whyKicker}}</p>
-        <h2 class="display display--l" id="why-title">{{t.home.whyTitle}}</h2>
+        <p class="kicker">{{t.home.storyKicker}}</p>
+        <h2 class="display display--l" id="story-title">{{t.home.storyTitle}}</h2>
       </div>
-
-      <div class="why-row" data-reveal>
-        <div class="why-row__copy">
-          <span class="why-row__num">01</span>
-          <p class="why-row__kicker">{{t.home.rows.0.kicker}}</p>
-          <h3>{{t.home.rows.0.title}}</h3>
-          <p>{{t.home.rows.0.text}}</p>
+      <div class="story__grid">
+        <div class="story__steps">
+        <article class="story-step" data-story-step="0">
+          <span class="story-step__num">01</span>
+          <p class="story-step__kicker">{{t.home.story.0.kicker}}</p>
+          <h3>{{t.home.story.0.title}}</h3>
+          <p class="story-step__text">{{t.home.story.0.text}}</p>
+          <div class="story-step__visual" aria-hidden="true"><div class="phone phone--mini"><div class="phone__screen"><div class="screen is-active"><div class="ps ps--path">
+          <div class="pm__bar"><span class="pm-chip pm-chip--fire"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 1.5-5 3-6 0 2 1 3 2 3 0-3-1-6 1-9z" fill="#FF8A00"/><path d="M12 12c.5 2 3 3 3 6a3 3 0 0 1-6 0c0-1.6 1-2.7 2-3.2 0 1 .4 1.6 1 1.6 0-1.6-.6-3 0-4.4z" fill="#FFC400"/></svg><b>12</b></span><span class="pm-chip pm-chip--xp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z" fill="#F2B200"/></svg><b>340</b><small>XP</small></span></div>
+          <div class="ps__unit"><small>{{t.auth.unit}} 1 · A1</small><b>{{t.course.unitTitle}}</b></div>
+          <div class="pm__goal"><div class="pm__goal-head"><span>{{t.home.mock.goal}}</span><b>15/20 XP</b></div><div class="goalbar"><span style="width:75%"></span></div></div>
+          <ol class="path pm__path" style="--u: var(--red); --u-dark: var(--red-dark)"><li class="node is-done" style="--x:0"><span class="node__btn"><svg class="node__icon node__icon--check" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></li><li class="node is-done" style="--x:-0.9"><span class="node__btn"><svg class="node__icon node__icon--check" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></li><li class="node is-current" style="--x:-1.2"><span class="node__btn"><svg class="node__icon node__icon--star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9z" fill="currentColor"/></svg></span><span class="node__start" aria-hidden="true">START</span></li><li class="node is-locked" style="--x:-0.5"><span class="node__btn"><svg class="node__icon node__icon--lock" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="currentColor"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" stroke-width="2.6"/></svg></span></li><li class="node is-locked" style="--x:0.4"><span class="node__btn"><svg class="node__icon node__icon--lock" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="currentColor"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" stroke-width="2.6"/></svg></span></li></ol>
+        </div></div></div></div></div>
+        </article>
+        <article class="story-step" data-story-step="1">
+          <span class="story-step__num">02</span>
+          <p class="story-step__kicker">{{t.home.story.1.kicker}}</p>
+          <h3>{{t.home.story.1.title}}</h3>
+          <p class="story-step__text">{{t.home.story.1.text}}</p>
+          <div class="story-step__visual" aria-hidden="true"><div class="phone phone--mini"><div class="phone__screen"><div class="screen is-active"><div class="ps ps--chat">
+          <div class="ps__top"><span class="ps__x"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg></span><span class="ps__bar"><span style="width:55%"></span></span><span class="ps__fire"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 1.5-5 3-6 0 2 1 3 2 3 0-3-1-6 1-9z" fill="#FF8A00"/><path d="M12 12c.5 2 3 3 3 6a3 3 0 0 1-6 0c0-1.6 1-2.7 2-3.2 0 1 .4 1.6 1 1.6 0-1.6-.6-3 0-4.4z" fill="#FFC400"/></svg><b>4</b></span></div>
+          <p class="ps__h">{{t.learn.dialogueHeading}}</p>
+          <div class="lp-say"><div class="lp-say__mascot lp-say__mascot--person"><div class="lp-say__face lp-say__face--lucia">{{cast.lucia}}</div><span class="lp-say__name">Lucía</span></div><div class="lp-bubble"><span class="lp-audio ps__audio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4zM15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg></span><span class="lp-bubble__text" lang="es">¿Cómo te llamas?</span></div></div>
+          <div class="lp-chat__me ps__me"><span class="lp-chat__who">{{t.learn.you}}</span><div class="lp-chat__bubble" lang="es">Me llamo Ana.</div></div>
+          <div class="ps__opts"><span class="lp-opt is-right"><span class="lp-opt__text">Me llamo Ana.</span></span><span class="lp-opt"><span class="lp-opt__text">Soy de España.</span></span></div>
+          <div class="ps__sheet ps__sheet--ok"><span class="tm__tick"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span><b>¡Perfecto!</b></div>
+        </div></div></div></div></div>
+        </article>
+        <article class="story-step" data-story-step="2">
+          <span class="story-step__num">03</span>
+          <p class="story-step__kicker">{{t.home.story.2.kicker}}</p>
+          <h3>{{t.home.story.2.title}}</h3>
+          <p class="story-step__text">{{t.home.story.2.text}}</p>
+          <div class="story-step__visual" aria-hidden="true"><div class="phone phone--mini"><div class="phone__screen"><div class="screen is-active"><div class="ps ps--type">
+          <div class="ps__top"><span class="ps__x"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg></span><span class="ps__bar"><span style="width:78%"></span></span><span class="ps__fire"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 1.5-5 3-6 0 2 1 3 2 3 0-3-1-6 1-9z" fill="#FF8A00"/><path d="M12 12c.5 2 3 3 3 6a3 3 0 0 1-6 0c0-1.6 1-2.7 2-3.2 0 1 .4 1.6 1 1.6 0-1.6-.6-3 0-4.4z" fill="#FFC400"/></svg><b>4</b></span></div>
+          <p class="ps__h">{{t.home.mock.typeQ}}</p>
+          <div class="lp-say"><div class="lp-say__mascot lp-say__mascot--person"><div class="lp-say__face lp-say__face--mateo">{{cast.mateo}}</div><span class="lp-say__name">Mateo</span></div><div class="lp-bubble"><span class="lp-bubble__text">{{t.home.mock.typePrompt}}</span></div></div>
+          <div class="lp-input is-right tm__input" lang="es">Espana</div>
+          <div class="ps__keys"><span>á</span><span>é</span><span>í</span><span>ó</span><span>ú</span><span>ñ</span></div>
+          <div class="ps__sheet ps__sheet--ok"><span class="tm__tick"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><b>¡Muy bien!</b><small>{{t.home.mock.typeHint}}</small></div></div>
+        </div></div></div></div></div>
+        </article>
+        <article class="story-step" data-story-step="3">
+          <span class="story-step__num">04</span>
+          <p class="story-step__kicker">{{t.home.story.3.kicker}}</p>
+          <h3>{{t.home.story.3.title}}</h3>
+          <p class="story-step__text">{{t.home.story.3.text}}</p>
+          <div class="story-step__visual" aria-hidden="true"><div class="phone phone--mini"><div class="phone__screen"><div class="screen is-active"><div class="ps ps--done">
+          <div class="ps__confetti" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="ps__mascot">{{> mascot}}</div>
+          <p class="ps__win">¡Perfecto!</p>
+          <div class="ps__stats">
+            <div class="lp-stat lp-stat--gold"><span class="lp-stat__label">{{t.home.doneStats.xp}}</span><span class="lp-stat__value">15</span></div>
+            <div class="lp-stat lp-stat--green"><span class="lp-stat__label">{{t.home.doneStats.acc}}</span><span class="lp-stat__value">100%</span></div>
+            <div class="lp-stat lp-stat--navy"><span class="lp-stat__label">{{t.home.doneStats.time}}</span><span class="lp-stat__value">4:12</span></div>
+          </div>
+          <p class="lp-streak"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 1.5-5 3-6 0 2 1 3 2 3 0-3-1-6 1-9z" fill="#FF8A00"/><path d="M12 12c.5 2 3 3 3 6a3 3 0 0 1-6 0c0-1.6 1-2.7 2-3.2 0 1 .4 1.6 1 1.6 0-1.6-.6-3 0-4.4z" fill="#FFC400"/></svg><span>{{t.home.stickers.streak}}</span></p>
+        </div></div></div></div></div>
+        </article>
         </div>
-        <div class="why-visual why-visual--red">
-          <div class="pm">
-            <div class="pm__bar">
-              <span class="pm-chip pm-chip--fire"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 1.5-5 3-6 0 2 1 3 2 3 0-3-1-6 1-9z" fill="#FF8A00"/><path d="M12 12c.5 2 3 3 3 6a3 3 0 0 1-6 0c0-1.6 1-2.7 2-3.2 0 1 .4 1.6 1 1.6 0-1.6-.6-3 0-4.4z" fill="#FFC400"/></svg><b>12</b><small>{{t.home.mock.streak}}</small></span>
-              <span class="pm-chip pm-chip--xp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z" fill="#F2B200"/></svg><b>340</b><small>XP</small></span>
+        <div class="story__stage" aria-hidden="true">
+          <div class="story__glow"></div>
+          <div class="phone" data-phone>
+            <div class="phone__notch"></div>
+            <div class="phone__screen">
+            <div class="screen is-active" data-screen="0"><div class="ps ps--path">
+          <div class="pm__bar"><span class="pm-chip pm-chip--fire"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 1.5-5 3-6 0 2 1 3 2 3 0-3-1-6 1-9z" fill="#FF8A00"/><path d="M12 12c.5 2 3 3 3 6a3 3 0 0 1-6 0c0-1.6 1-2.7 2-3.2 0 1 .4 1.6 1 1.6 0-1.6-.6-3 0-4.4z" fill="#FFC400"/></svg><b>12</b></span><span class="pm-chip pm-chip--xp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z" fill="#F2B200"/></svg><b>340</b><small>XP</small></span></div>
+          <div class="ps__unit"><small>{{t.auth.unit}} 1 · A1</small><b>{{t.course.unitTitle}}</b></div>
+          <div class="pm__goal"><div class="pm__goal-head"><span>{{t.home.mock.goal}}</span><b>15/20 XP</b></div><div class="goalbar"><span style="width:75%"></span></div></div>
+          <ol class="path pm__path" style="--u: var(--red); --u-dark: var(--red-dark)"><li class="node is-done" style="--x:0"><span class="node__btn"><svg class="node__icon node__icon--check" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></li><li class="node is-done" style="--x:-0.9"><span class="node__btn"><svg class="node__icon node__icon--check" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></li><li class="node is-current" style="--x:-1.2"><span class="node__btn"><svg class="node__icon node__icon--star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9z" fill="currentColor"/></svg></span><span class="node__start" aria-hidden="true">START</span></li><li class="node is-locked" style="--x:-0.5"><span class="node__btn"><svg class="node__icon node__icon--lock" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="currentColor"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" stroke-width="2.6"/></svg></span></li><li class="node is-locked" style="--x:0.4"><span class="node__btn"><svg class="node__icon node__icon--lock" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="currentColor"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" stroke-width="2.6"/></svg></span></li></ol>
+        </div></div>
+            <div class="screen" data-screen="1"><div class="ps ps--chat">
+          <div class="ps__top"><span class="ps__x"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg></span><span class="ps__bar"><span style="width:55%"></span></span><span class="ps__fire"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 1.5-5 3-6 0 2 1 3 2 3 0-3-1-6 1-9z" fill="#FF8A00"/><path d="M12 12c.5 2 3 3 3 6a3 3 0 0 1-6 0c0-1.6 1-2.7 2-3.2 0 1 .4 1.6 1 1.6 0-1.6-.6-3 0-4.4z" fill="#FFC400"/></svg><b>4</b></span></div>
+          <p class="ps__h">{{t.learn.dialogueHeading}}</p>
+          <div class="lp-say"><div class="lp-say__mascot lp-say__mascot--person"><div class="lp-say__face lp-say__face--lucia">{{cast.lucia}}</div><span class="lp-say__name">Lucía</span></div><div class="lp-bubble"><span class="lp-audio ps__audio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4zM15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg></span><span class="lp-bubble__text" lang="es">¿Cómo te llamas?</span></div></div>
+          <div class="lp-chat__me ps__me"><span class="lp-chat__who">{{t.learn.you}}</span><div class="lp-chat__bubble" lang="es">Me llamo Ana.</div></div>
+          <div class="ps__opts"><span class="lp-opt is-right"><span class="lp-opt__text">Me llamo Ana.</span></span><span class="lp-opt"><span class="lp-opt__text">Soy de España.</span></span></div>
+          <div class="ps__sheet ps__sheet--ok"><span class="tm__tick"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span><b>¡Perfecto!</b></div>
+        </div></div>
+            <div class="screen" data-screen="2"><div class="ps ps--type">
+          <div class="ps__top"><span class="ps__x"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg></span><span class="ps__bar"><span style="width:78%"></span></span><span class="ps__fire"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 1.5-5 3-6 0 2 1 3 2 3 0-3-1-6 1-9z" fill="#FF8A00"/><path d="M12 12c.5 2 3 3 3 6a3 3 0 0 1-6 0c0-1.6 1-2.7 2-3.2 0 1 .4 1.6 1 1.6 0-1.6-.6-3 0-4.4z" fill="#FFC400"/></svg><b>4</b></span></div>
+          <p class="ps__h">{{t.home.mock.typeQ}}</p>
+          <div class="lp-say"><div class="lp-say__mascot lp-say__mascot--person"><div class="lp-say__face lp-say__face--mateo">{{cast.mateo}}</div><span class="lp-say__name">Mateo</span></div><div class="lp-bubble"><span class="lp-bubble__text">{{t.home.mock.typePrompt}}</span></div></div>
+          <div class="lp-input is-right tm__input" lang="es">Espana</div>
+          <div class="ps__keys"><span>á</span><span>é</span><span>í</span><span>ó</span><span>ú</span><span>ñ</span></div>
+          <div class="ps__sheet ps__sheet--ok"><span class="tm__tick"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><b>¡Muy bien!</b><small>{{t.home.mock.typeHint}}</small></div></div>
+        </div></div>
+            <div class="screen" data-screen="3"><div class="ps ps--done">
+          <div class="ps__confetti" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="ps__mascot">{{> mascot}}</div>
+          <p class="ps__win">¡Perfecto!</p>
+          <div class="ps__stats">
+            <div class="lp-stat lp-stat--gold"><span class="lp-stat__label">{{t.home.doneStats.xp}}</span><span class="lp-stat__value">15</span></div>
+            <div class="lp-stat lp-stat--green"><span class="lp-stat__label">{{t.home.doneStats.acc}}</span><span class="lp-stat__value">100%</span></div>
+            <div class="lp-stat lp-stat--navy"><span class="lp-stat__label">{{t.home.doneStats.time}}</span><span class="lp-stat__value">4:12</span></div>
+          </div>
+          <p class="lp-streak"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 1.5-5 3-6 0 2 1 3 2 3 0-3-1-6 1-9z" fill="#FF8A00"/><path d="M12 12c.5 2 3 3 3 6a3 3 0 0 1-6 0c0-1.6 1-2.7 2-3.2 0 1 .4 1.6 1 1.6 0-1.6-.6-3 0-4.4z" fill="#FFC400"/></svg><span>{{t.home.stickers.streak}}</span></p>
+        </div></div>
             </div>
-            <div class="pm__goal">
-              <div class="pm__goal-head"><span>{{t.home.mock.goal}}</span><b>15/20 XP</b></div>
-              <div class="goalbar"><span style="width:75%"></span></div>
-            </div>
-            <ol class="path pm__path" style="--u: var(--red); --u-dark: var(--red-dark)"><li class="node is-done" style="--x:0"><span class="node__btn"><svg class="node__icon node__icon--check" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></li><li class="node is-done" style="--x:-0.9"><span class="node__btn"><svg class="node__icon node__icon--check" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></li><li class="node is-current" style="--x:-1.2"><span class="node__btn"><svg class="node__icon node__icon--star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9z" fill="currentColor"/></svg></span><span class="node__start" aria-hidden="true">START</span></li><li class="node is-locked" style="--x:-0.5"><span class="node__btn"><svg class="node__icon node__icon--lock" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="currentColor"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" stroke-width="2.6"/></svg></span></li><li class="node is-locked" style="--x:0.4"><span class="node__btn"><svg class="node__icon node__icon--lock" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="currentColor"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" stroke-width="2.6"/></svg></span></li></ol>
           </div>
         </div>
       </div>
+    </div>
+  </section>
 
-      <div class="why-row why-row--flip" data-reveal>
-        <div class="why-row__copy">
-          <span class="why-row__num">02</span>
-          <p class="why-row__kicker">{{t.home.rows.1.kicker}}</p>
-          <h3>{{t.home.rows.1.title}}</h3>
-          <p>{{t.home.rows.1.text}}</p>
-        </div>
-        <div class="why-visual why-visual--navy">
-          <ul class="cast-grid">
-            <li><button class="cast-btn" type="button" data-say="{{intro.hablena.text}}" data-src="{{intro.hablena.src}}" aria-label="{{t.home.demo.listen}}: {{t.course.cast.0.name}}">
-              <span class="cast__face cast__face--hablena">{{> mascot}}</span>
-              <span class="cast-btn__play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg></span>
-              <strong>{{t.course.cast.0.name}}</strong><span>{{t.course.cast.0.role}}</span>
-            </button></li>
-            <li><button class="cast-btn" type="button" data-say="{{intro.lucia.text}}" data-src="{{intro.lucia.src}}" aria-label="{{t.home.demo.listen}}: {{t.course.cast.1.name}}">
-              <span class="cast__face cast__face--lucia">{{cast.lucia}}</span>
-              <span class="cast-btn__play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg></span>
-              <strong>{{t.course.cast.1.name}}</strong><span>{{t.course.cast.1.role}}</span>
-            </button></li>
-            <li><button class="cast-btn" type="button" data-say="{{intro.mateo.text}}" data-src="{{intro.mateo.src}}" aria-label="{{t.home.demo.listen}}: {{t.course.cast.2.name}}">
-              <span class="cast__face cast__face--mateo">{{cast.mateo}}</span>
-              <span class="cast-btn__play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg></span>
-              <strong>{{t.course.cast.2.name}}</strong><span>{{t.course.cast.2.role}}</span>
-            </button></li>
-            <li><button class="cast-btn" type="button" data-say="{{intro.sofia.text}}" data-src="{{intro.sofia.src}}" aria-label="{{t.home.demo.listen}}: {{t.course.cast.3.name}}">
-              <span class="cast__face cast__face--sofia">{{cast.sofia}}</span>
-              <span class="cast-btn__play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg></span>
-              <strong>{{t.course.cast.3.name}}</strong><span>{{t.course.cast.3.role}}</span>
-            </button></li>
-            <li><button class="cast-btn" type="button" data-say="{{intro.pablo.text}}" data-src="{{intro.pablo.src}}" aria-label="{{t.home.demo.listen}}: {{t.course.cast.4.name}}">
-              <span class="cast__face cast__face--pablo">{{cast.pablo}}</span>
-              <span class="cast-btn__play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg></span>
-              <strong>{{t.course.cast.4.name}}</strong><span>{{t.course.cast.4.role}}</span>
-            </button></li>
-          </ul>
-          <p class="cast-grid__hint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4zM15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>{{t.home.mock.tapHint}}</p>
-        </div>
+  <section class="voices" aria-labelledby="voices-title">
+    <div class="container">
+      <div class="hsec__head hsec__head--center" data-reveal>
+        <p class="kicker kicker--gold">{{t.home.castKicker}}</p>
+        <h2 class="display display--l" id="voices-title">{{t.home.castTitle}}</h2>
+        <p class="voices__text">{{t.home.castText}}</p>
       </div>
-
-      <div class="why-row" data-reveal>
-        <div class="why-row__copy">
-          <span class="why-row__num">03</span>
-          <p class="why-row__kicker">{{t.home.rows.2.kicker}}</p>
-          <h3>{{t.home.rows.2.title}}</h3>
-          <p>{{t.home.rows.2.text}}</p>
-        </div>
-        <div class="why-visual why-visual--gold">
-          <div class="tm">
-            <p class="tm__q">{{t.home.mock.typeQ}}</p>
-            <div class="lp-say">
-              <div class="lp-say__mascot lp-say__mascot--person"><div class="lp-say__face lp-say__face--mateo">{{cast.mateo}}</div></div>
-              <div class="lp-bubble"><span class="lp-bubble__text">{{t.home.mock.typePrompt}}</span></div>
-            </div>
-            <div class="lp-input is-right tm__input" lang="es">Espana</div>
-            <div class="tm__hint"><span class="tm__tick"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><b>¡Muy bien!</b><span>{{t.home.mock.typeHint}}</span></div></div>
-          </div>
-        </div>
-      </div>
+      <ul class="vgrid" data-reveal>
+          <li><button class="vcard vcard--hablena" type="button" data-say="{{intro.hablena.text}}" data-src="{{intro.hablena.src}}" aria-label="{{t.home.demo.listen}}: {{t.course.cast.0.name}}">
+            <span class="vcard__face">{{> mascot}}</span>
+            <span class="vcard__wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+            <strong>{{t.course.cast.0.name}}</strong><span class="vcard__role">{{t.course.cast.0.role}}</span>
+            <span class="vcard__play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg></span>
+          </button></li>
+          <li><button class="vcard vcard--lucia" type="button" data-say="{{intro.lucia.text}}" data-src="{{intro.lucia.src}}" aria-label="{{t.home.demo.listen}}: {{t.course.cast.1.name}}">
+            <span class="vcard__face">{{cast.lucia}}</span>
+            <span class="vcard__wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+            <strong>{{t.course.cast.1.name}}</strong><span class="vcard__role">{{t.course.cast.1.role}}</span>
+            <span class="vcard__play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg></span>
+          </button></li>
+          <li><button class="vcard vcard--mateo" type="button" data-say="{{intro.mateo.text}}" data-src="{{intro.mateo.src}}" aria-label="{{t.home.demo.listen}}: {{t.course.cast.2.name}}">
+            <span class="vcard__face">{{cast.mateo}}</span>
+            <span class="vcard__wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+            <strong>{{t.course.cast.2.name}}</strong><span class="vcard__role">{{t.course.cast.2.role}}</span>
+            <span class="vcard__play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg></span>
+          </button></li>
+          <li><button class="vcard vcard--sofia" type="button" data-say="{{intro.sofia.text}}" data-src="{{intro.sofia.src}}" aria-label="{{t.home.demo.listen}}: {{t.course.cast.3.name}}">
+            <span class="vcard__face">{{cast.sofia}}</span>
+            <span class="vcard__wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+            <strong>{{t.course.cast.3.name}}</strong><span class="vcard__role">{{t.course.cast.3.role}}</span>
+            <span class="vcard__play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg></span>
+          </button></li>
+          <li><button class="vcard vcard--pablo" type="button" data-say="{{intro.pablo.text}}" data-src="{{intro.pablo.src}}" aria-label="{{t.home.demo.listen}}: {{t.course.cast.4.name}}">
+            <span class="vcard__face">{{cast.pablo}}</span>
+            <span class="vcard__wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+            <strong>{{t.course.cast.4.name}}</strong><span class="vcard__role">{{t.course.cast.4.role}}</span>
+            <span class="vcard__play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg></span>
+          </button></li>
+      </ul>
     </div>
   </section>
 
@@ -166,7 +233,7 @@
           <p class="plan2__price"><b>{{t.home.premium.price}}</b><span>{{t.home.premium.per}}</span></p>
           <p class="plan2__yearly">{{t.home.premium.yearly}}</p>
           <ul class="plan2__list">{{#each t.home.premium.items}}<li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg><span>{{this}}</span></li>{{/each}}</ul>
-          <a class="btn3d btn3d--gold" href="{{t.links.signup}}">{{t.home.premium.cta}}</a>
+          <a class="btn3d btn3d--gold btn3d--shine" href="{{t.links.signup}}">{{t.home.premium.cta}}</a>
         </div>
       </div>
     </div>
@@ -181,13 +248,13 @@
     </div>
   </section>
 
-  <section class="cta" aria-labelledby="cta-title">
-    <div class="container cta__inner">
-      <div class="cta__copy">
-        <h2 class="display display--xxl" id="cta-title" lang="es">¿Hablamos?</h2>
-        <p>{{t.home.finalText}}</p>
-      </div>
-      <a class="btn3d btn3d--gold btn3d--lg" href="{{t.links.signup}}">{{t.home.finalCta}}</a>
+  <section class="finale" aria-labelledby="cta-title">
+    <div class="hh__grain" aria-hidden="true"></div>
+    <div class="container finale__inner" data-reveal>
+      <div class="finale__mascot" aria-hidden="true">{{> mascot}}</div>
+      <h2 class="finale__title" id="cta-title" lang="es">¿Hablamos?</h2>
+      <p>{{t.home.finalText}}</p>
+      <a class="btn3d btn3d--gold btn3d--lg btn3d--shine" href="{{t.links.signup}}">{{t.home.finalCta}}</a>
     </div>
   </section>
 </main>

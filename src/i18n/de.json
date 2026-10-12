@@ -364,7 +364,8 @@
         "text": "Gemischte Wiederholungen aus deinen fertigen Lektionen, immer wenn du fünf Minuten hast."
       }
     ],
-    "cta": "Erste Lektion kostenlos testen"
+    "cta": "Erste Lektion kostenlos testen",
+    "unitTitle": "Erste Schritte"
   },
   "home": {
     "heroTitle1": "Sprich Spanisch.",
@@ -431,25 +432,6 @@
         "tr": "Bis später!"
       }
     ],
-    "whyKicker": "Warum es funktioniert",
-    "whyTitle": "Lernen, das hängen bleibt.",
-    "rows": [
-      {
-        "kicker": "5 Minuten am Tag",
-        "title": "Eine Lektion passt in jede Kaffeepause.",
-        "text": "Kurze Lektionen, ein klarer Lernpfad und ein Tagesziel. Dein Streak zeigt dir, wie weit du schon bist, und hält dich dran."
-      },
-      {
-        "kicker": "Echte Stimmen",
-        "title": "Hör Spanisch, wie es wirklich klingt.",
-        "text": "Keine Roboterstimme: Hablena und ihre Freunde sprechen jedes Wort. Tipp auf eine Figur und hör selbst."
-      },
-      {
-        "kicker": "Fehler erlaubt",
-        "title": "Du schreibst. Hablena hilft.",
-        "text": "Akzent vergessen, kleiner Tippfehler? Zählt trotzdem, und du lernst nebenbei, wie es richtig geht. Zu jeder Einheit gibt es einen Leitfaden mit den wichtigsten Regeln zum Anhören."
-      }
-    ],
     "mock": {
       "streak": "Tage Streak",
       "goal": "Tagesziel",
@@ -514,6 +496,43 @@
       }
     ],
     "finalText": "Dein erstes Gespräch ist fünf Minuten entfernt.",
-    "finalCta": "Kostenlos starten"
+    "finalCta": "Kostenlos starten",
+    "storyKicker": "So lernst du mit Hablena",
+    "storyTitle": "Fünf Minuten. Jeden Tag. Echte Fortschritte.",
+    "story": [
+      {
+        "kicker": "Dein Lernpfad",
+        "title": "Eine Lektion passt in jede Kaffeepause.",
+        "text": "Kurze Lektionen auf einem klaren Pfad. Dein Tagesziel und dein Streak zeigen dir, wie weit du schon bist, und halten dich dran."
+      },
+      {
+        "kicker": "Echte Dialoge",
+        "title": "Du redest mit Menschen, nicht mit Karteikarten.",
+        "text": "Lucía, Mateo, Sofía und Pablo sprechen dich an, mit echten Stimmen. Du antwortest wie im echten Leben: im Café, im Hotel, auf dem Markt."
+      },
+      {
+        "kicker": "Fehler erlaubt",
+        "title": "Du schreibst. Hablena hilft.",
+        "text": "Akzent vergessen, kleiner Tippfehler? Zählt trotzdem, und du lernst nebenbei, wie es richtig geht."
+      },
+      {
+        "kicker": "Jeden Tag ein Erfolg",
+        "title": "Jede Lektion endet mit einem Gewinn.",
+        "text": "XP, Genauigkeit, Streak: Du siehst sofort, was du geschafft hast. Und morgen willst du wieder."
+      }
+    ],
+    "castKicker": "Die Stimmen",
+    "castTitle": "Hör rein. Echt jetzt.",
+    "castText": "Keine Roboterstimme. Tipp auf eine Figur und hör, wie sie sich vorstellt.",
+    "stickers": {
+      "right": "¡Muy bien!",
+      "xp": "+15 XP",
+      "streak": "12 Tage"
+    },
+    "doneStats": {
+      "xp": "XP",
+      "acc": "Genauigkeit",
+      "time": "Zeit"
+    }
   }
 }

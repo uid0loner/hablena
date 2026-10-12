@@ -364,7 +364,8 @@
         "text": "Mixed reviews from the lessons you have finished, whenever you have five minutes."
       }
     ],
-    "cta": "Try the first lesson free"
+    "cta": "Try the first lesson free",
+    "unitTitle": "First steps"
   },
   "home": {
     "heroTitle1": "Speak Spanish.",
@@ -431,25 +432,6 @@
         "tr": "See you later!"
       }
     ],
-    "whyKicker": "Why it works",
-    "whyTitle": "Learning that sticks.",
-    "rows": [
-      {
-        "kicker": "5 minutes a day",
-        "title": "A lesson fits into any coffee break.",
-        "text": "Short lessons, a clear path and a daily goal. Your streak shows how far you have come and keeps you going."
-      },
-      {
-        "kicker": "Real voices",
-        "title": "Hear Spanish the way it really sounds.",
-        "text": "No robot voice: Hablena and her friends speak every word. Tap a character and hear for yourself."
-      },
-      {
-        "kicker": "Mistakes welcome",
-        "title": "You write. Hablena helps.",
-        "text": "Forgot an accent, made a tiny typo? Still counts, and you pick up the right spelling along the way. Every unit comes with a short guide to the rules that matter, with examples to listen to."
-      }
-    ],
     "mock": {
       "streak": "day streak",
       "goal": "Daily goal",
@@ -514,6 +496,43 @@
       }
     ],
     "finalText": "Your first conversation is five minutes away.",
-    "finalCta": "Start for free"
+    "finalCta": "Start for free",
+    "storyKicker": "How you learn with Hablena",
+    "storyTitle": "Five minutes. Every day. Real progress.",
+    "story": [
+      {
+        "kicker": "Your path",
+        "title": "A lesson fits into any coffee break.",
+        "text": "Short lessons on a clear path. Your daily goal and streak show how far you have come and keep you going."
+      },
+      {
+        "kicker": "Real dialogues",
+        "title": "You talk to people, not flashcards.",
+        "text": "Lucía, Mateo, Sofía and Pablo talk to you with real voices. You answer like in real life: at the café, the hotel, the market."
+      },
+      {
+        "kicker": "Mistakes welcome",
+        "title": "You write. Hablena helps.",
+        "text": "Forgot an accent, made a tiny typo? Still counts, and you pick up the right spelling along the way."
+      },
+      {
+        "kicker": "A win every day",
+        "title": "Every lesson ends with a win.",
+        "text": "XP, accuracy, streak: you see right away what you achieved. And tomorrow you will want more."
+      }
+    ],
+    "castKicker": "The voices",
+    "castTitle": "Have a listen. For real.",
+    "castText": "No robot voice. Tap a character and hear them introduce themselves.",
+    "stickers": {
+      "right": "¡Muy bien!",
+      "xp": "+15 XP",
+      "streak": "12 days"
+    },
+    "doneStats": {
+      "xp": "XP",
+      "acc": "Accuracy",
+      "time": "Time"
+    }
   }
 }

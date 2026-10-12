@@ -353,3 +353,63 @@ document.documentElement.classList.add('js');
   }), { threshold: 0.18 });
   items.forEach((el) => io.observe(el));
 })();
+
+// Homepage motion: floating header, hero spotlight + parallax stickers, cycling background word,
+// and the scroll story that drives the phone screens.
+(() => {
+  if (!document.body.classList.contains('home')) return;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const fine = window.matchMedia('(pointer: fine)').matches;
+
+  const header = document.querySelector('[data-header]');
+  const onScroll = () => header?.classList.toggle('is-floating', window.scrollY > 160);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  const hero = document.querySelector('[data-spot]');
+  const stickers = [...document.querySelectorAll('[data-depth]')];
+  if (hero && fine && !reduce) {
+    let raf = 0;
+    hero.addEventListener('pointermove', (e) => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const r = hero.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width;
+        const y = (e.clientY - r.top) / r.height;
+        hero.style.setProperty('--mx', `${x * 100}%`);
+        hero.style.setProperty('--my', `${y * 100}%`);
+        stickers.forEach((s) => {
+          const d = Number(s.dataset.depth);
+          s.style.translate = `${(x - 0.5) * d}px ${(y - 0.5) * d}px`;
+        });
+      });
+    });
+  }
+
+  const words = [...document.querySelectorAll('.hh__bg span')];
+  if (words.length > 1 && !reduce) {
+    let i = 0;
+    setInterval(() => {
+      words[i].classList.remove('is-on');
+      i = (i + 1) % words.length;
+      words[i].classList.add('is-on');
+    }, 3400);
+  }
+
+  const steps = [...document.querySelectorAll('[data-story-step]')];
+  const screens = [...document.querySelectorAll('[data-screen]')];
+  if (steps.length && screens.length && 'IntersectionObserver' in window) {
+    const show = (n) => {
+      steps.forEach((s, i) => s.classList.toggle('is-active', i === n));
+      screens.forEach((s, i) => {
+        s.classList.toggle('is-active', i === n);
+        s.classList.toggle('is-past', i < n);
+      });
+    };
+    const io = new IntersectionObserver((entries) => entries.forEach((e) => {
+      if (e.isIntersecting) show(Number(e.target.dataset.storyStep));
+    }), { rootMargin: '-45% 0px -45% 0px' });
+    steps.forEach((s) => io.observe(s));
+    show(0);
+  }
+})();
