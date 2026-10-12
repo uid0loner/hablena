@@ -3,18 +3,16 @@
   // Build command: npm run build
   // Deploy command: npx wrangler d1 migrations apply hablena --remote && npx wrangler deploy
   //
-  // Pronunciation audio: provider and voice are set below in "vars".
-  // The API key is a Cloudflare secret (Worker → Settings → Variables and Secrets → TTS_API_KEY),
-  // never in this file.
+  // Pronunciation audio: voices are set in src/config/voices.json (one per speaker).
+  // API keys are Cloudflare secrets (Worker → Settings → Variables and Secrets), never in this file:
+  //   TTS_API_KEY (ElevenLabs), optional AZURE_TTS_KEY (Azure Speech), GOOGLE_TTS_KEY (Google TTS).
+  // The cron trigger below generates missing clips every 5 minutes; progress: /api/audio/status
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "hablena",
   "main": "worker/index.js",
   "compatibility_date": "2026-10-01",
-  "vars": {
-    "TTS_PROVIDER": "elevenlabs",
-    "TTS_VOICE": "LudcwvHIZaqQOcQfVZSY"
-  },
   "keep_vars": true,
+  "triggers": { "crons": ["*/5 * * * *"] },
   "routes": [
     { "pattern": "hablena.com", "custom_domain": true },
     { "pattern": "www.hablena.com", "custom_domain": true }

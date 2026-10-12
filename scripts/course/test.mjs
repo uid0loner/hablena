@@ -1,5 +1,8 @@
 // Validates course content so a typo can never break a lesson. Run as part of npm test.
 import { UNITS, ALL_LESSONS } from './units.mjs';
+import { VOICE_CONFIG, CAST, MAIN, withSpeakers } from './voices.mjs';
+import { CHARACTERS } from './characters.mjs';
+import { lessonAudioMap } from './audio.mjs';
 
 let failures = 0;
 let checks = 0;
@@ -42,5 +45,25 @@ for (const lesson of ALL_LESSONS) {
   check(`${id}: has scored exercises`, lesson.exercises.some((e) => e.t !== 'intro'));
 }
 check('at least one unit', UNITS.length > 0);
+
+// Voices: every role is configured, characters have a portrait, every spoken text has a clip
+for (const role of [MAIN, ...CAST]) {
+  const v = VOICE_CONFIG.voices[role];
+  check(`voice ${role}: configured`, !!v && ['elevenlabs', 'azure', 'google'].includes(v.provider) && typeof v.id === 'string');
+  if (role !== MAIN) check(`voice ${role}: portrait`, typeof CHARACTERS[role] === 'string' && CHARACTERS[role].startsWith('<svg'));
+}
+check('main voice has an id', !!VOICE_CONFIG.voices[MAIN].id);
+ALL_LESSONS.forEach((lesson, li) => {
+  const map = lessonAudioMap(lesson, li);
+  const ex = withSpeakers(lesson, li);
+  const used = new Set(ex.filter((e) => e.t !== 'intro').map((e) => e.s));
+  check(`${lesson.id}: intros spoken by Hablena`, ex.filter((e) => e.t === 'intro').every((e) => e.s === MAIN));
+  check(`${lesson.id}: at least 3 different character voices`, used.size >= Math.min(3, ex.filter((e) => e.t !== 'intro').length));
+  for (const e of ex) {
+    const refs = Array.isArray(e.v) ? e.v : e.v === undefined ? [] : [e.v];
+    for (const i of refs) check(`${lesson.id} ${e.t}: clip for "${lesson.vocab[i].es}" (${e.s})`, !!map[e.s]?.[lesson.vocab[i].es]);
+    if (e.t === 'build') check(`${lesson.id} build: sentence clip`, !!map[e.s]?.[e.es]);
+  }
+});
 console.log(`${checks - failures}/${checks} course checks passed`);
 if (failures) process.exit(1);

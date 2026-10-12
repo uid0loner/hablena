@@ -2,7 +2,7 @@
 // Run: npm run test:worker
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import worker from '../worker/index.js';
+import worker, { warmAudio } from '../worker/index.js';
 import { createD1 } from './lib/d1-sqlite.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -130,40 +130,81 @@ check('unknown route → 404', (await call('GET', '/api/nothing')).status === 40
 // Audio
 {
   const text = 'buenos días';
-  const hash = 'a'.repeat(24);
+  const h = (c) => c.repeat(24);
+  const manifest = {
+    version: 2,
+    models: { elevenlabs: 'eleven_multilingual_v2' },
+    azureRegion: 'westeurope',
+    clips: {
+      [h('a')]: [text, 'elevenlabs', 'voice123'],
+      [h('c')]: ['hola', 'elevenlabs', 'voice456'],
+      [h('d')]: ['adiós', 'azure', 'es-ES-ElviraNeural'],
+      [h('e')]: ['gracias', 'google', 'es-ES-Chirp3-HD-Aoede'],
+    },
+  };
   const manifestEnv = (extra) => ({
     ...env,
-    ASSETS: { fetch: async (req) => (new URL(req.url).pathname === '/audio/manifest.json' ? Response.json({ [hash]: text }) : new Response('static')) },
+    ASSETS: { fetch: async (req) => (new URL(req.url).pathname === '/audio/manifest.json' ? Response.json(manifest) : new Response('static')) },
     ...extra,
   });
-  const get = async (e, h = hash) => worker.fetch(new Request(`${ORIGIN}/api/audio/${h}.mp3`), e);
+  const get = async (e, hash = h('a')) => worker.fetch(new Request(`${ORIGIN}/api/audio/${hash}.mp3`), e);
+  env.DB.raw.exec('DELETE FROM audio_cache');
   check('audio: not configured → 503', (await get(manifestEnv({}))).status === 503);
-  check('audio: unknown hash → 404', (await get(manifestEnv({ TTS_API_KEY: 'k', TTS_VOICE: 'v' }), 'b'.repeat(24))).status === 404);
+  check('audio: unknown hash → 404', (await get(manifestEnv({ TTS_API_KEY: 'k' }), h('b'))).status === 404);
   check('audio: malformed hash → 404', (await worker.fetch(new Request(`${ORIGIN}/api/audio/not-a-hash.mp3`), env)).status === 404);
 
   const realFetch = globalThis.fetch;
   let calls = 0;
-  let sent = null;
-  globalThis.fetch = async (url, init) => { calls++; sent = { url: String(url), init }; return new Response(new Uint8Array([73, 68, 51, 4]), { headers: { 'Content-Type': 'audio/mpeg' } }); };
+  let sent = [];
+  const mp3 = () => new Response(new Uint8Array([73, 68, 51, 4]), { headers: { 'Content-Type': 'audio/mpeg' } });
+  globalThis.fetch = async (url, init) => { calls++; sent.push({ url: String(url), init }); return String(url).includes('googleapis') ? Response.json({ audioContent: btoa('ID3x') }) : mp3(); };
   try {
-    const e = manifestEnv({ TTS_API_KEY: 'secret', TTS_VOICE: 'voice123' });
+    const e = manifestEnv({ TTS_API_KEY: 'secret' });
     const r1 = await get(e);
     const bytes = new Uint8Array(await r1.arrayBuffer());
     check('audio: generated', r1.status === 200 && r1.headers.get('Content-Type') === 'audio/mpeg' && bytes[0] === 73);
     check('audio: immutable caching', /immutable/.test(r1.headers.get('Cache-Control') || ''));
-    check('audio: ElevenLabs request', sent.url.includes('api.elevenlabs.io') && sent.url.includes('voice123') && sent.init.headers['xi-api-key'] === 'secret' && JSON.parse(sent.init.body).text === text);
+    const body = JSON.parse(sent[0].init.body);
+    check('audio: ElevenLabs request uses the clip voice', sent[0].url.includes('api.elevenlabs.io') && sent[0].url.includes('voice123') && sent[0].init.headers['xi-api-key'] === 'secret' && body.text === text && body.model_id === 'eleven_multilingual_v2');
     const r2 = await get(e);
     check('audio: second request served from DB', r2.status === 200 && calls === 1 && new Uint8Array(await r2.arrayBuffer())[0] === 73);
+    check('audio: azure clip without key → 503', (await get(e, h('d'))).status === 503);
 
+    // Status + cron warm-up
+    const st = await (await worker.fetch(new Request(`${ORIGIN}/api/audio/status`), e)).json();
+    check('audio status: counts', st.total === 4 && st.ready === 1 && st.providers.elevenlabs.total === 2 && st.providers.azure.configured === false);
+    env.DB.raw.prepare('INSERT INTO audio_cache (hash, provider, voice, data, created_at) VALUES (?, ?, ?, ?, ?)').run(h('f'), 'elevenlabs', 'old', new Uint8Array([1]), 1);
+    sent = [];
+    const all = manifestEnv({ TTS_API_KEY: 'secret', AZURE_TTS_KEY: 'akey', GOOGLE_TTS_KEY: 'gkey' });
+    const warm = await warmAudio(all);
+    check('warm: generated all missing clips', warm.made === 3 && warm.ready === 4 && warm.total === 4);
+    check('warm: removed clip no longer in the course', warm.removed === 1 && !env.DB.raw.prepare('SELECT 1 FROM audio_cache WHERE hash = ?').get(h('f')));
+    const az = sent.find((x) => x.url.includes('tts.speech.microsoft.com'));
+    check('warm: Azure request', !!az && az.url.startsWith('https://westeurope.') && az.init.headers['Ocp-Apim-Subscription-Key'] === 'akey' && az.init.body.includes('es-ES-ElviraNeural') && az.init.body.includes('adiós'));
+    const gg = sent.find((x) => x.url.includes('googleapis'));
+    check('warm: Google request', !!gg && gg.url.includes('key=gkey') && JSON.parse(gg.init.body).voice.languageCode === 'es-ES');
+    const again = await warmAudio(all);
+    check('warm: nothing left to do', again.made === 0 && again.ready === 4);
+    const st2 = await (await worker.fetch(new Request(`${ORIGIN}/api/audio/status`), all)).json();
+    check('audio status: done', st2.done === true);
+
+    // Errors: reported per request, and the warm-up stops early on a bad key
     env.DB.raw.exec('DELETE FROM audio_cache');
-    globalThis.fetch = async () => Response.json({ detail: { status: 'invalid_api_key', message: 'Invalid API key' } }, { status: 401 });
+    calls = 0;
+    globalThis.fetch = async () => { calls++; return Response.json({ detail: { status: 'invalid_api_key', message: 'Invalid API key' } }, { status: 401 }); };
     const bad = await get(e);
     const badBody = await bad.json();
     check('audio: provider error is reported', bad.status === 502 && badBody.status === 401 && badBody.detail.includes('invalid_api_key'));
+    calls = 0;
+    const w2 = await warmAudio(all);
+    check('warm: stops after an auth error', calls === 1 && w2.made === 0 && w2.error.status === 401);
 
-    globalThis.fetch = async (url, init) => { sent = { url: String(url), init }; return Response.json({ audioContent: btoa('ID3x') }); };
-    const g = await get(manifestEnv({ TTS_PROVIDER: 'google', TTS_API_KEY: 'gkey' }));
-    check('audio: Google provider', g.status === 200 && sent.url.includes('texttospeech.googleapis.com') && JSON.parse(sent.init.body).voice.languageCode === 'es-ES');
+    // Cron entry point
+    let waited = null;
+    globalThis.fetch = async (url) => (String(url).includes('googleapis') ? Response.json({ audioContent: btoa('ID3x') }) : mp3());
+    await worker.scheduled({}, all, { waitUntil: (p) => { waited = p; } });
+    await waited;
+    check('cron: scheduled handler warms audio', env.DB.raw.prepare('SELECT COUNT(*) AS n FROM audio_cache').get().n >= 3);
   } finally {
     globalThis.fetch = realFetch;
   }

@@ -32,6 +32,12 @@ export default {
     }
     return env.ASSETS.fetch(request);
   },
+
+  // Cron trigger (see wrangler.jsonc): pre-generates lesson audio in the background.
+  async scheduled(event, env, ctx) {
+    if (!env.DB || !env.ASSETS) return;
+    ctx.waitUntil(warmAudio(env).then((r) => console.log('audio_warm', JSON.stringify(r))));
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -59,6 +65,7 @@ async function handleApi(request, env, url, ctx) {
     case 'GET /api/progress': return getProgress(request, env);
     case 'POST /api/progress': return saveProgress(request, env);
     case 'GET /api/stats': return getStats(request, env, url);
+    case 'GET /api/audio/status': return audioStatus(env);
     default: return json({ error: 'not_found' }, 404);
   }
 }
@@ -239,20 +246,37 @@ async function getStats(request, env, url) {
 }
 
 // ---------------------------------------------------------------------------
-// Pronunciation audio: generated once per text by a neural TTS provider, then stored in D1
-// and cached at the edge. Only texts listed in /audio/manifest.json (built from the course) are allowed.
+// Pronunciation audio. Every clip (text + voice) the course needs is listed in /audio/manifest.json,
+// built from the course and src/config/voices.json. A clip is generated once by its TTS provider,
+// stored in D1 and cached at the edge. A cron trigger generates missing clips in the background, so
+// nobody has to play through the lessons first. Only manifest clips can be synthesised.
 
-let manifestCache = null;
-async function loadManifest(env, url) {
-  if (manifestCache) return manifestCache;
-  const res = await env.ASSETS.fetch(new Request(new URL('/audio/manifest.json', url.origin)));
-  if (!res.ok) return {};
-  manifestCache = await res.json();
-  return manifestCache;
+const SITE_ORIGIN = 'https://hablena.com';
+const WARM_BATCH = 20; // clips per cron run (stays well inside the subrequest limit)
+const PROVIDER_KEYS = { elevenlabs: 'TTS_API_KEY', azure: 'AZURE_TTS_KEY', google: 'GOOGLE_TTS_KEY' };
+const providerKey = (env, provider) => env[PROVIDER_KEYS[provider]];
+
+const manifests = new WeakMap();
+async function loadManifest(env) {
+  const cached = manifests.get(env.ASSETS);
+  if (cached) return cached;
+  const res = await env.ASSETS.fetch(new Request(new URL('/audio/manifest.json', SITE_ORIGIN)));
+  const data = res.ok ? await res.json().catch(() => null) : null;
+  const manifest = data && data.clips ? data : { clips: {} };
+  manifests.set(env.ASSETS, manifest);
+  return manifest;
 }
 
 const audioResponse = (data) =>
   new Response(data, { headers: { 'Content-Type': 'audio/mpeg', 'Cache-Control': 'public, max-age=31536000, immutable' } });
+
+async function generateClip(env, hash, [text, provider, voice], manifest) {
+  const data = await synthesize(env, { text, provider, voice }, manifest);
+  await env.DB.prepare('INSERT OR IGNORE INTO audio_cache (hash, provider, voice, data, created_at) VALUES (?, ?, ?, ?, ?)')
+    .bind(hash, provider, voice, data, Date.now())
+    .run();
+  return data;
+}
 
 async function audio(request, env, url, ctx, hash) {
   const cache = globalThis.caches?.default;
@@ -272,22 +296,62 @@ async function audio(request, env, url, ctx, hash) {
   const row = await env.DB.prepare('SELECT data FROM audio_cache WHERE hash = ?').bind(hash).first();
   if (row) return keep(audioResponse(new Uint8Array(row.data)));
 
-  const text = (await loadManifest(env, url))[hash];
-  if (!text) return json({ error: 'not_found' }, 404);
-  if (!ttsConfigured(env)) return json({ error: 'audio_not_configured' }, 503);
+  const manifest = await loadManifest(env);
+  const clip = manifest.clips[hash];
+  if (!clip) return json({ error: 'not_found' }, 404);
+  if (!providerKey(env, clip[1])) return json({ error: 'audio_not_configured' }, 503);
 
-  let result;
   try {
-    result = await synthesize(env, text);
+    return keep(audioResponse(await generateClip(env, hash, clip, manifest)));
   } catch (err) {
     if (!(err instanceof TtsError)) throw err;
     console.error('tts_failed', err.provider, err.status, err.detail);
     return json({ error: 'tts_failed', provider: err.provider, status: err.status, detail: err.detail }, 502);
   }
-  await env.DB.prepare('INSERT OR IGNORE INTO audio_cache (hash, provider, voice, data, created_at) VALUES (?, ?, ?, ?, ?)')
-    .bind(hash, result.provider, result.voice, result.data, Date.now())
-    .run();
-  return keep(audioResponse(result.data));
+}
+
+// Generates up to `limit` missing clips and removes clips the course no longer uses.
+export async function warmAudio(env, limit = WARM_BATCH) {
+  const manifest = await loadManifest(env);
+  const { results } = await env.DB.prepare('SELECT hash FROM audio_cache').all();
+  const stored = new Set(results.map((r) => r.hash));
+  const wanted = Object.entries(manifest.clips);
+  const missing = wanted.filter(([hash]) => !stored.has(hash));
+  const orphans = [...stored].filter((hash) => !manifest.clips[hash]).slice(0, 50);
+  if (orphans.length) await env.DB.batch(orphans.map((hash) => env.DB.prepare('DELETE FROM audio_cache WHERE hash = ?').bind(hash)));
+
+  let made = 0;
+  let failed = 0;
+  let error = null;
+  for (const [hash, clip] of missing.filter(([, c]) => providerKey(env, c[1])).slice(0, limit)) {
+    try {
+      await generateClip(env, hash, clip, manifest);
+      made++;
+    } catch (err) {
+      if (!(err instanceof TtsError)) throw err;
+      failed++;
+      error = { provider: err.provider, status: err.status, detail: err.detail };
+      console.error('tts_warm_failed', err.provider, err.status, err.detail);
+      // Bad key, quota or rate limit: stop for this run instead of burning through the batch.
+      if ([401, 402, 403, 429].includes(err.status) || failed >= 3) break;
+    }
+  }
+  return { total: wanted.length, ready: wanted.length - missing.length + made, made, removed: orphans.length, error };
+}
+
+async function audioStatus(env) {
+  const manifest = await loadManifest(env);
+  const { results } = await env.DB.prepare('SELECT hash FROM audio_cache').all();
+  const stored = new Set(results.map((r) => r.hash));
+  const clips = Object.entries(manifest.clips);
+  const byProvider = {};
+  for (const [hash, [, provider]] of clips) {
+    const p = (byProvider[provider] ||= { total: 0, ready: 0, configured: !!providerKey(env, provider) });
+    p.total++;
+    if (stored.has(hash)) p.ready++;
+  }
+  const ready = clips.filter(([hash]) => stored.has(hash)).length;
+  return json({ total: clips.length, ready, done: ready === clips.length, providers: byProvider }, 200, { 'Cache-Control': 'no-store' });
 }
 
 class TtsError extends Error {
@@ -300,33 +364,42 @@ class TtsError extends Error {
   }
 }
 
-const ttsConfigured = (env) => !!env.TTS_API_KEY && (env.TTS_PROVIDER === 'google' || !!env.TTS_VOICE);
+const escXml = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
 
-export async function synthesize(env, text) {
-  const provider = env.TTS_PROVIDER === 'google' ? 'google' : 'elevenlabs';
+export async function synthesize(env, { text, provider, voice }, manifest = {}) {
+  const key = providerKey(env, provider);
   if (provider === 'elevenlabs') {
-    const voice = env.TTS_VOICE;
+    const model = manifest.models?.elevenlabs || 'eleven_multilingual_v2';
     const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voice)}?output_format=mp3_44100_128`, {
       method: 'POST',
-      headers: { 'xi-api-key': env.TTS_API_KEY, 'Content-Type': 'application/json', Accept: 'audio/mpeg' },
-      body: JSON.stringify({
-        text,
-        model_id: env.TTS_MODEL || 'eleven_multilingual_v2',
-        voice_settings: { stability: 0.5, similarity_boost: 0.75 },
-      }),
+      headers: { 'xi-api-key': key, 'Content-Type': 'application/json', Accept: 'audio/mpeg' },
+      body: JSON.stringify({ text, model_id: model, voice_settings: { stability: 0.5, similarity_boost: 0.75 } }),
     });
     if (!res.ok) throw new TtsError('elevenlabs', res.status, await res.text().catch(() => ''));
-    return { provider, voice, data: new Uint8Array(await res.arrayBuffer()) };
+    return new Uint8Array(await res.arrayBuffer());
   }
-  const voice = env.TTS_VOICE || 'es-ES-Chirp3-HD-Aoede';
-  const res = await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${encodeURIComponent(env.TTS_API_KEY)}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ input: { text }, voice: { languageCode: voice.slice(0, 5), name: voice }, audioConfig: { audioEncoding: 'MP3' } }),
-  });
-  if (!res.ok) throw new TtsError('google', res.status, await res.text().catch(() => ''));
-  const { audioContent } = await res.json();
-  return { provider, voice, data: Uint8Array.from(atob(audioContent), (c) => c.charCodeAt(0)) };
+  if (provider === 'azure') {
+    const region = env.AZURE_TTS_REGION || manifest.azureRegion || 'westeurope';
+    const ssml = `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="${escXml(voice.slice(0, 5))}"><voice name="${escXml(voice)}">${escXml(text)}</voice></speak>`;
+    const res = await fetch(`https://${encodeURIComponent(region)}.tts.speech.microsoft.com/cognitiveservices/v1`, {
+      method: 'POST',
+      headers: { 'Ocp-Apim-Subscription-Key': key, 'Content-Type': 'application/ssml+xml', 'X-Microsoft-OutputFormat': 'audio-24khz-96kbitrate-mono-mp3', 'User-Agent': 'hablena' },
+      body: ssml,
+    });
+    if (!res.ok) throw new TtsError('azure', res.status, await res.text().catch(() => ''));
+    return new Uint8Array(await res.arrayBuffer());
+  }
+  if (provider === 'google') {
+    const res = await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${encodeURIComponent(key)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ input: { text }, voice: { languageCode: voice.slice(0, 5), name: voice }, audioConfig: { audioEncoding: 'MP3' } }),
+    });
+    if (!res.ok) throw new TtsError('google', res.status, await res.text().catch(() => ''));
+    const { audioContent } = await res.json();
+    return Uint8Array.from(atob(audioContent), (c) => c.charCodeAt(0));
+  }
+  throw new TtsError(String(provider), 400, 'unknown provider');
 }
 
 // ---------------------------------------------------------------------------

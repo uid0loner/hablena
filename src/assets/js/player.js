@@ -40,11 +40,13 @@
   const replay = (el, cls) => { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); };
 
   // ---------- audio: natural voice recordings from the server, browser speech only as fallback ----------
+  // L.audio: { role: { text: hash } }. Each role (Hablena + four characters) has its own voice.
   const AUDIO = L.audio || {};
+  const SPEAKERS = L.speakers || {};
   let serverAudio = Object.keys(AUDIO).length > 0;
   const clips = new Map();
-  const clip = (text) => {
-    const hash = AUDIO[text];
+  const clip = (text, role = 'hablena') => {
+    const hash = AUDIO[role]?.[text] || AUDIO.hablena?.[text];
     if (!hash || !serverAudio) return null;
     if (!clips.has(hash)) {
       const a = new Audio(`/api/audio/${hash}.mp3`);
@@ -63,32 +65,34 @@
     esVoice = es.sort((a, b) => score(b) - score(a))[0] || null;
   };
   if (speech) { pickVoice(); speech.addEventListener?.('voiceschanged', pickVoice); }
-  const browserSpeak = (text) => {
+  const PITCH = { man: 0.8, woman: 1.08, girl: 1.5, boy: 1.35 };
+  const browserSpeak = (text, role) => {
     if (!speech) return;
     speech.cancel();
     const u = new SpeechSynthesisUtterance(text.replace(/[¿¡]/g, '').replace('…', ''));
     u.lang = 'es-ES';
     if (esVoice) u.voice = esVoice;
     u.rate = 0.9;
+    u.pitch = PITCH[SPEAKERS[role]?.kind] || 1;
     speech.speak(u);
   };
   let playing = null;
-  const speak = (text) => {
-    const a = clip(text);
+  const speak = (text, role = 'hablena') => {
+    const a = clip(text, role);
     if (playing && playing !== a) playing.pause();
-    if (!a) return browserSpeak(text);
+    if (!a) return browserSpeak(text, role);
     playing = a;
     a.currentTime = 0;
     a.play().catch((err) => {
       if (err && err.name === 'NotAllowedError') return; // autoplay blocked before the first tap
       serverAudio = false;
-      browserSpeak(text);
+      browserSpeak(text, role);
     });
   };
   const canSpeak = serverAudio || !!speech;
   const SPEAKER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4zM15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
-  const audioButton = (text, size = '') =>
-    canSpeak ? h('button', { type: 'button', class: `lp-audio ${size}`, 'aria-label': S.play, html: SPEAKER, onclick: (e) => { replay(e.currentTarget, 'is-pulse'); speak(text); } }) : null;
+  const audioButton = (text, role, size = '') =>
+    canSpeak ? h('button', { type: 'button', class: `lp-audio ${size}`, 'aria-label': S.play, html: SPEAKER, onclick: (e) => { replay(e.currentTarget, 'is-pulse'); speak(text, role); } }) : null;
 
   // ---------- state ----------
   const steps = L.exercises;
@@ -142,8 +146,14 @@
 
   // ---------- building blocks ----------
   const heading = (text) => h('h1', { class: 'lp-heading' }, text);
-  const mascotSays = (...content) =>
-    h('div', { class: 'lp-say' }, h('div', { class: 'lp-say__mascot', html: MASCOT }), h('div', { class: 'lp-bubble' }, ...content));
+  // A character (or Hablena) with a speech bubble. Characters show their name under the avatar.
+  const say = (role, ...content) => {
+    const who = SPEAKERS[role];
+    const avatar = who?.svg
+      ? h('div', { class: 'lp-say__mascot lp-say__mascot--person' }, h('div', { class: `lp-say__face lp-say__face--${role}`, html: who.svg }), h('span', { class: 'lp-say__name' }, who.name))
+      : h('div', { class: 'lp-say__mascot', html: MASCOT });
+    return h('div', { class: 'lp-say' }, avatar, h('div', { class: 'lp-bubble' }, ...content));
+  };
 
   function optionList(options, answer, { lang, onPick, layout = 'grid' }) {
     let picked = null;
@@ -187,49 +197,49 @@
       const cards = step.v.map((i) => {
         const v = L.vocab[i];
         return h('div', { class: 'lp-card' },
-          audioButton(v.es),
+          audioButton(v.es, step.s),
           h('div', { class: 'lp-card__text' }, h('span', { class: 'lp-card__es', lang: 'es' }, v.es), h('span', { class: 'lp-card__tr' }, v.tr)));
       });
       stage.append(h('span', { class: 'lp-badge' }, step.v.length > 1 ? S.newWords : S.newWord), heading(S.introHeading), h('div', { class: 'lp-cards' }, cards));
-      if (canSpeak) setTimeout(() => speak(L.vocab[step.v[0]].es), 300);
+      if (canSpeak) setTimeout(() => speak(L.vocab[step.v[0]].es, step.s), 300);
       return { intro: true };
     },
     choice(step) {
       const v = L.vocab[step.v];
-      stage.append(heading(S.chooseTranslation), mascotSays(audioButton(v.es), h('span', { class: 'lp-bubble__text', lang: 'es' }, v.es)));
+      stage.append(heading(S.chooseTranslation), say(step.s, audioButton(v.es, step.s), h('span', { class: 'lp-bubble__text', lang: 'es' }, v.es)));
       const list = optionList(shuffle([v.tr, ...distractors(v.tr, 'tr')]), v.tr, {});
       stage.append(list.el);
-      if (canSpeak) setTimeout(() => speak(v.es), 300);
+      if (canSpeak) setTimeout(() => speak(v.es, step.s), 300);
       return list;
     },
     reverse(step) {
       const v = L.vocab[step.v];
-      stage.append(heading(S.chooseSpanish), mascotSays(h('span', { class: 'lp-bubble__text' }, v.tr)));
-      const list = optionList(shuffle([v.es, ...distractors(v.es, 'es')]), v.es, { lang: 'es', onPick: (t) => speak(t) });
+      stage.append(heading(S.chooseSpanish), say(step.s, h('span', { class: 'lp-bubble__text' }, v.tr)));
+      const list = optionList(shuffle([v.es, ...distractors(v.es, 'es')]), v.es, { lang: 'es', onPick: (t) => speak(t, step.s) });
       stage.append(list.el);
       return list;
     },
     listen(step) {
       const v = L.vocab[step.v];
       const reveal = h('button', { type: 'button', class: 'lp-link', onclick: (e) => e.currentTarget.replaceWith(h('span', { class: 'lp-reveal', lang: 'es' }, v.es)) }, S.noAudio);
-      stage.append(heading(S.whatDidYouHear), h('div', { class: 'lp-listen' }, audioButton(v.es, 'lp-audio--xl'), reveal));
+      stage.append(heading(S.whatDidYouHear), say(step.s, h('div', { class: 'lp-listen' }, audioButton(v.es, step.s, 'lp-audio--xl'), reveal)));
       const list = optionList(shuffle([v.es, ...distractors(v.es, 'es')]), v.es, { lang: 'es' });
       stage.append(list.el);
-      if (canSpeak) setTimeout(() => speak(v.es), 350);
+      if (canSpeak) setTimeout(() => speak(v.es, step.s), 350);
       return list;
     },
     gap(step) {
       const blank = h('span', { class: 'lp-blank' }, ' ');
       const [before, after] = step.es.split('___');
       const full = step.es.replace('___', step.answer);
-      stage.append(heading(S.fillGap), mascotSays(h('span', { class: 'lp-bubble__text', lang: 'es' }, before, blank, after), h('span', { class: 'lp-bubble__tr' }, step.tr)));
+      stage.append(heading(S.fillGap), say(step.s, h('span', { class: 'lp-bubble__text', lang: 'es' }, before, blank, after), h('span', { class: 'lp-bubble__tr' }, step.tr)));
       const list = optionList(shuffle(step.options), step.answer, {
         lang: 'es', layout: 'row',
         onPick: (t) => { blank.textContent = t; blank.classList.add('is-filled'); },
       });
       stage.append(list.el);
       const evaluate = list.evaluate;
-      list.evaluate = () => { const r = evaluate(); blank.textContent = step.answer; speak(full); return { ...r, answer: full }; };
+      list.evaluate = () => { const r = evaluate(); blank.textContent = step.answer; speak(full, step.s); return { ...r, answer: full }; };
       return list;
     },
     build(step) {
@@ -245,20 +255,20 @@
         tile.addEventListener('click', () => {
           if (phase !== 'answer') return;
           sfx('tap');
-          if (tile.parentElement === slot) { answerRow.append(tile); chosen.push(tile); speak(word); }
+          if (tile.parentElement === slot) { answerRow.append(tile); chosen.push(tile); speak(word, step.s); }
           else { slot.append(tile); chosen.splice(chosen.indexOf(tile), 1); }
           setPrimary(S.check, chosen.length > 0);
         });
         pool.append(slot);
       });
-      stage.append(heading(S.buildSentence), mascotSays(h('span', { class: 'lp-bubble__text' }, step.tr)), h('div', { class: 'lp-build' }, answerRow, pool));
+      stage.append(heading(S.buildSentence), say(step.s, h('span', { class: 'lp-bubble__text' }, step.tr)), h('div', { class: 'lp-build' }, answerRow, pool));
       return {
         evaluate: () => {
           const ok = norm(chosen.map((t) => t.textContent).join(' ')) === norm(step.es);
           stage.querySelectorAll('.lp-tile').forEach((t) => { t.disabled = true; });
           answerRow.classList.add(ok ? 'is-right' : 'is-wrong');
           if (!ok) replay(answerRow, 'is-shake');
-          speak(step.es);
+          speak(step.es, step.s);
           return { ok, answer: step.es };
         },
       };
@@ -279,7 +289,7 @@
           selected = btn;
           btn.classList.add('is-picked');
           sfx('tap');
-          if (btn.dataset.side === 'es') speak(btn.textContent);
+          if (btn.dataset.side === 'es') speak(btn.textContent, step.s);
           return;
         }
         if (selected.dataset.key === btn.dataset.key) {
@@ -310,7 +320,7 @@
     const texts = refs.map((i) => L.vocab[i].es);
     if (step.t === 'gap') texts.push(step.es.replace('___', step.answer));
     if (step.t === 'build') texts.push(step.es, ...words(step.es), ...(step.extra || []));
-    texts.forEach((t) => clip(t));
+    texts.forEach((t) => clip(t, step.s));
   }
 
   function show(i) {

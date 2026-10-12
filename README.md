@@ -96,10 +96,18 @@ learning path: lessons unlock one after another, with streak, XP and daily goal 
 Sound effects (`src/assets/js/sfx.js`) are synthesised with the Web Audio API, so there are no audio files
 or licences. The mute setting is kept in `localStorage` (`hablena-sfx-muted`), which the privacy policy lists.
 
-Audio: every Spanish text the player can pronounce is listed in `dist/audio/manifest.json` at build time.
-`GET /api/audio/<hash>.mp3` generates it once with a neural TTS provider (ElevenLabs or Google, see the
-variables in `wrangler.jsonc`), stores it in D1 and caches it at the edge. Only manifest texts can be
-synthesised, so costs stay bounded. Without a provider the player falls back to the browser voice.
+Voices: Hablena (the mascot) introduces new words; four characters take turns speaking the exercises:
+Lucía (woman), Mateo (man), Sofía (girl) and Pablo (boy). Speakers and voice IDs live in
+`src/config/voices.json` (provider `elevenlabs`, `azure` or `google` per voice; an empty ID falls back to the
+Hablena voice). Portraits are in `scripts/course/characters.mjs`, the rotation in `scripts/course/voices.mjs`.
+
+Audio: every clip (text + voice) the player can play is listed in `dist/audio/manifest.json` at build time.
+`GET /api/audio/<hash>.mp3` serves it from D1 (or generates it once) and caches it at the edge. The hash covers
+provider, model, voice and text, so changing a voice yields new clips automatically. A cron trigger
+(every 5 minutes, see `wrangler.jsonc`) pre-generates missing clips in batches of 20 and removes unused ones;
+`GET /api/audio/status` shows progress. Keys are Cloudflare secrets: `TTS_API_KEY` (ElevenLabs),
+`AZURE_TTS_KEY` (+ optional `AZURE_TTS_REGION`), `GOOGLE_TTS_KEY`. Without audio the player falls back to the
+browser voice (with a different pitch per character).
 `scripts/course/test.mjs` validates all content (indices, translations, every word introduced before it is tested).
 
 ## Local development

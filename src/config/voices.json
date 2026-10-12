@@ -1,0 +1,12 @@
+{
+  "_help": "Voices for the lesson audio. 'hablena' is the main voice (new words, the mascot). The four characters speak the exercises. Voice IDs are not secret. An empty id falls back to the Hablena voice until a real one is set. Providers: elevenlabs (key: TTS_API_KEY), azure (key: AZURE_TTS_KEY, region below), google (key: GOOGLE_TTS_KEY). Keys are Cloudflare secrets, never in this file.",
+  "models": { "elevenlabs": "eleven_multilingual_v2" },
+  "azureRegion": "westeurope",
+  "voices": {
+    "hablena": { "name": "Hablena", "kind": "mascot", "provider": "elevenlabs", "id": "LudcwvHIZaqQOcQfVZSY" },
+    "lucia": { "name": "Lucía", "kind": "woman", "provider": "elevenlabs", "id": "" },
+    "mateo": { "name": "Mateo", "kind": "man", "provider": "elevenlabs", "id": "" },
+    "sofia": { "name": "Sofía", "kind": "girl", "provider": "elevenlabs", "id": "" },
+    "pablo": { "name": "Pablo", "kind": "boy", "provider": "elevenlabs", "id": "" }
+  }
+}
