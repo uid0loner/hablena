@@ -1,280 +1,182 @@
 {{> head}}
-<body>
-<div class="hero">
+<body class="home">
+<div class="hh">
   {{> header}}
-  <div class="container hero__inner">
-    <div class="hero__copy">
-      <p class="hero__kicker">{{t.hero.kicker}}</p>
-      <h1 class="display display--xl hero__title">{{t.hero.title1}}<br>{{t.hero.title2}}<br><span class="text-gold">{{t.hero.title3}}</span></h1>
-      <p class="hero__lead">{{t.hero.lead}}</p>
-      <div class="hero__ctas">
-        <a class="btn btn--gold btn--lg" href="{{t.links.signup}}">{{t.hero.cta}}</a>
-        <a class="btn btn--ghost-light btn--lg" href="{{t.links.signup}}">{{t.hero.cta2}}</a>
-      </div>
-      <p class="hero__note">{{t.hero.note}}</p>
+  <div class="hh__bg" aria-hidden="true" lang="es">¡Hola!</div>
+  <div class="container hh__inner">
+    <div class="hh__copy">
+      <h1 class="hh__title"><span>{{t.home.heroTitle1}}</span> <span class="text-gold">{{t.home.heroTitle2}}</span></h1>
+      <p class="hh__lead">{{t.home.heroLead}}</p>
+      <a class="btn3d btn3d--gold btn3d--lg" href="{{t.links.signup}}">{{t.home.cta}}</a>
+      <ul class="hh__note">{{#each t.home.ctaNote}}<li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>{{this}}</li>{{/each}}</ul>
     </div>
 
-    <div class="hero__visual">
-      <figure class="mock" aria-label="{{t.mock.aria}}" style="margin:0">
-        <div class="mock__top">
-          <div class="mock__meta">
-            <span class="mock__eyebrow">{{t.mock.eyebrow}}</span>
-            <span class="mock__scene">En el café</span>
+    <div class="hh__demo">
+      <div class="demo" data-demo>
+        <div class="demo__mascot" aria-hidden="true">{{> mascot}}</div>
+        <div class="demo__card">
+          <div class="demo__top">
+            <span class="demo__kicker">{{t.home.demo.kicker}}</span>
+            <span class="demo__dots" aria-hidden="true"><i></i><i></i><i></i></span>
           </div>
-          <span class="badge">A2</span>
-        </div>
-        <div class="progress"><span style="width:62%"></span></div>
-        <div class="mock__chat">
-          <div class="bubble bubble--tutor" lang="es">¿Qué te pongo?<small lang="{{lang}}">{{t.mock.q}}</small></div>
-          <div class="bubble bubble--user">
-            <div class="wave" aria-hidden="true">
-              <span style="height:8px"></span><span style="height:14px"></span><span style="height:20px"></span><span style="height:12px"></span><span style="height:18px"></span><span style="height:22px"></span><span style="height:10px"></span><span style="height:16px"></span><span style="height:21px"></span><span style="height:9px"></span><span style="height:13px"></span><span style="height:19px"></span><span style="height:22px"></span><span style="height:15px"></span><span style="height:8px"></span><span style="height:12px"></span><span style="height:20px"></span><span style="height:17px"></span><span class="is-rest" style="height:10px"></span><span class="is-rest" style="height:22px"></span><span class="is-rest" style="height:14px"></span><span class="is-rest" style="height:9px"></span><span class="is-rest" style="height:18px"></span><span class="is-rest" style="height:12px"></span><span class="is-rest" style="height:6px"></span><span class="is-rest" style="height:10px"></span><span class="is-rest" style="height:7px"></span><span class="is-rest" style="height:5px"></span>
-            </div>
-            <span lang="es">Me pones un café con leche, por favor.</span>
-          </div>
-          <div class="feedback">
-            <div class="feedback__row">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFC400" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>
-              <span>{{t.mock.feedback}}</span>
-            </div>
-            <div class="meter">
-              <span class="meter__label">{{t.mock.pron}}</span>
-              <span class="meter__track"><span style="width:92%"></span></span>
-              <span class="meter__value">92</span>
+          <div class="demo__body" data-demo-body aria-live="polite">
+            <div class="demo__start">
+              <div class="demo__faces" aria-hidden="true">
+                <span class="cast__face cast__face--lucia">{{cast.lucia}}</span><span class="cast__face cast__face--mateo">{{cast.mateo}}</span><span class="cast__face cast__face--sofia">{{cast.sofia}}</span>
+              </div>
+              <h2>{{t.home.demo.startTitle}}</h2>
+              <p>{{t.home.demo.startText}}</p>
+              <button class="lp-cta lp-cta--red demo__go" type="button" data-demo-start>{{t.home.demo.start}}</button>
             </div>
           </div>
         </div>
-        <div class="mock__bottom">
-          <span>{{t.mock.listening}}</span>
-          <span class="mic" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span>
-        </div>
-      </figure>
+      </div>
     </div>
   </div>
-  <div class="kit-stripe" aria-hidden="true"></div>
-  <div class="kit-stripe kit-stripe--navy" aria-hidden="true"></div>
+</div>
+
+<div class="marquee" aria-hidden="true">
+  <div class="marquee__track">
+    {{#each t.home.marquee}}<span class="marquee__item"><b lang="es">{{this.es}}</b><em>{{this.tr}}</em></span>{{/each}}
+    {{#each t.home.marquee}}<span class="marquee__item"><b lang="es">{{this.es}}</b><em>{{this.tr}}</em></span>{{/each}}
+  </div>
 </div>
 
 <main id="main">
-  <section class="section course-sec" id="course" aria-labelledby="course-title">
+  <section class="hsec" id="why" aria-labelledby="why-title">
     <div class="container">
-      <div class="course-grid">
-        <div class="course-copy">
-          <p class="kicker">{{t.course.kicker}}</p>
-          <h2 class="display display--l" id="course-title">{{t.course.title1}}<br>{{t.course.title2}}</h2>
-          <p class="lead">{{t.course.text}}</p>
-          <dl class="stat-row">
-            <div><dt>{{t.course.stats.units}}</dt><dd>{{course.units}}</dd></div>
-            <div><dt>{{t.course.stats.lessons}}</dt><dd>{{course.lessons}}</dd></div>
-            <div><dt>{{t.course.stats.words}}</dt><dd>{{course.words}}</dd></div>
-            <div><dt>{{t.course.stats.types}}</dt><dd>{{course.types}}</dd></div>
-          </dl>
-          <a class="btn btn--red btn--lg" href="{{t.links.signup}}">{{t.course.cta}}</a>
+      <div class="hsec__head" data-reveal>
+        <p class="kicker">{{t.home.whyKicker}}</p>
+        <h2 class="display display--l" id="why-title">{{t.home.whyTitle}}</h2>
+      </div>
+
+      <div class="why-row" data-reveal>
+        <div class="why-row__copy">
+          <span class="why-row__num">01</span>
+          <p class="why-row__kicker">{{t.home.rows.0.kicker}}</p>
+          <h3>{{t.home.rows.0.title}}</h3>
+          <p>{{t.home.rows.0.text}}</p>
         </div>
-        <div class="cast-card">
-          <h3>{{t.course.castTitle}}</h3>
-          <p>{{t.course.castText}}</p>
-          <ul class="cast">
-            <li class="cast__item"><span class="cast__face cast__face--hablena">{{> mascot}}</span><strong>{{t.course.cast.0.name}}</strong><span>{{t.course.cast.0.role}}</span></li>
-            <li class="cast__item"><span class="cast__face cast__face--lucia">{{cast.lucia}}</span><strong>{{t.course.cast.1.name}}</strong><span>{{t.course.cast.1.role}}</span></li>
-            <li class="cast__item"><span class="cast__face cast__face--mateo">{{cast.mateo}}</span><strong>{{t.course.cast.2.name}}</strong><span>{{t.course.cast.2.role}}</span></li>
-            <li class="cast__item"><span class="cast__face cast__face--sofia">{{cast.sofia}}</span><strong>{{t.course.cast.3.name}}</strong><span>{{t.course.cast.3.role}}</span></li>
-            <li class="cast__item"><span class="cast__face cast__face--pablo">{{cast.pablo}}</span><strong>{{t.course.cast.4.name}}</strong><span>{{t.course.cast.4.role}}</span></li>
+        <div class="why-visual why-visual--red">
+          <div class="pm">
+            <div class="pm__bar">
+              <span class="pm-chip pm-chip--fire"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 1.5-5 3-6 0 2 1 3 2 3 0-3-1-6 1-9z" fill="#FF8A00"/><path d="M12 12c.5 2 3 3 3 6a3 3 0 0 1-6 0c0-1.6 1-2.7 2-3.2 0 1 .4 1.6 1 1.6 0-1.6-.6-3 0-4.4z" fill="#FFC400"/></svg><b>12</b><small>{{t.home.mock.streak}}</small></span>
+              <span class="pm-chip pm-chip--xp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z" fill="#F2B200"/></svg><b>340</b><small>XP</small></span>
+            </div>
+            <div class="pm__goal">
+              <div class="pm__goal-head"><span>{{t.home.mock.goal}}</span><b>15/20 XP</b></div>
+              <div class="goalbar"><span style="width:75%"></span></div>
+            </div>
+            <ol class="path pm__path" style="--u: var(--red); --u-dark: var(--red-dark)"><li class="node is-done" style="--x:0"><span class="node__btn"><svg class="node__icon node__icon--check" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></li><li class="node is-done" style="--x:-0.9"><span class="node__btn"><svg class="node__icon node__icon--check" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></li><li class="node is-current" style="--x:-1.2"><span class="node__btn"><svg class="node__icon node__icon--star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9z" fill="currentColor"/></svg></span><span class="node__start" aria-hidden="true">START</span></li><li class="node is-locked" style="--x:-0.5"><span class="node__btn"><svg class="node__icon node__icon--lock" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="currentColor"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" stroke-width="2.6"/></svg></span></li><li class="node is-locked" style="--x:0.4"><span class="node__btn"><svg class="node__icon node__icon--lock" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="currentColor"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" stroke-width="2.6"/></svg></span></li></ol>
+          </div>
+        </div>
+      </div>
+
+      <div class="why-row why-row--flip" data-reveal>
+        <div class="why-row__copy">
+          <span class="why-row__num">02</span>
+          <p class="why-row__kicker">{{t.home.rows.1.kicker}}</p>
+          <h3>{{t.home.rows.1.title}}</h3>
+          <p>{{t.home.rows.1.text}}</p>
+        </div>
+        <div class="why-visual why-visual--navy">
+          <ul class="cast-grid">
+            <li><button class="cast-btn" type="button" data-say="{{intro.hablena.text}}" data-src="{{intro.hablena.src}}" aria-label="{{t.home.demo.listen}}: {{t.course.cast.0.name}}">
+              <span class="cast__face cast__face--hablena">{{> mascot}}</span>
+              <span class="cast-btn__play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg></span>
+              <strong>{{t.course.cast.0.name}}</strong><span>{{t.course.cast.0.role}}</span>
+            </button></li>
+            <li><button class="cast-btn" type="button" data-say="{{intro.lucia.text}}" data-src="{{intro.lucia.src}}" aria-label="{{t.home.demo.listen}}: {{t.course.cast.1.name}}">
+              <span class="cast__face cast__face--lucia">{{cast.lucia}}</span>
+              <span class="cast-btn__play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg></span>
+              <strong>{{t.course.cast.1.name}}</strong><span>{{t.course.cast.1.role}}</span>
+            </button></li>
+            <li><button class="cast-btn" type="button" data-say="{{intro.mateo.text}}" data-src="{{intro.mateo.src}}" aria-label="{{t.home.demo.listen}}: {{t.course.cast.2.name}}">
+              <span class="cast__face cast__face--mateo">{{cast.mateo}}</span>
+              <span class="cast-btn__play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg></span>
+              <strong>{{t.course.cast.2.name}}</strong><span>{{t.course.cast.2.role}}</span>
+            </button></li>
+            <li><button class="cast-btn" type="button" data-say="{{intro.sofia.text}}" data-src="{{intro.sofia.src}}" aria-label="{{t.home.demo.listen}}: {{t.course.cast.3.name}}">
+              <span class="cast__face cast__face--sofia">{{cast.sofia}}</span>
+              <span class="cast-btn__play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg></span>
+              <strong>{{t.course.cast.3.name}}</strong><span>{{t.course.cast.3.role}}</span>
+            </button></li>
+            <li><button class="cast-btn" type="button" data-say="{{intro.pablo.text}}" data-src="{{intro.pablo.src}}" aria-label="{{t.home.demo.listen}}: {{t.course.cast.4.name}}">
+              <span class="cast__face cast__face--pablo">{{cast.pablo}}</span>
+              <span class="cast-btn__play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg></span>
+              <strong>{{t.course.cast.4.name}}</strong><span>{{t.course.cast.4.role}}</span>
+            </button></li>
           </ul>
+          <p class="cast-grid__hint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4zM15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>{{t.home.mock.tapHint}}</p>
         </div>
       </div>
-      <div class="feature-grid">
-        <article class="feature">
-          <span class="feature__icon feature__icon--0" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M13 7l4 4" stroke="currentColor" stroke-width="2.2"/></svg></span>
-          <h3>{{t.course.features.0.title}}</h3>
-          <p>{{t.course.features.0.text}}</p>
-        </article>
-        <article class="feature">
-          <span class="feature__icon feature__icon--1" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h11a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9l-4 3v-3H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M19 9h1a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-1v3l-4-3h-3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></span>
-          <h3>{{t.course.features.1.title}}</h3>
-          <p>{{t.course.features.1.text}}</p>
-        </article>
-        <article class="feature">
-          <span class="feature__icon feature__icon--2" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5.5C6.5 4 9.5 4 12 5.5 14.5 4 17.5 4 20 5.5V19c-2.5-1.5-5.5-1.5-8 0-2.5-1.5-5.5-1.5-8 0z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M12 5.5V19" stroke="currentColor" stroke-width="2.2"/></svg></span>
-          <h3>{{t.course.features.2.title}}</h3>
-          <p>{{t.course.features.2.text}}</p>
-        </article>
-        <article class="feature">
-          <span class="feature__icon feature__icon--3" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v4h-4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-          <h3>{{t.course.features.3.title}}</h3>
-          <p>{{t.course.features.3.text}}</p>
-        </article>
+
+      <div class="why-row" data-reveal>
+        <div class="why-row__copy">
+          <span class="why-row__num">03</span>
+          <p class="why-row__kicker">{{t.home.rows.2.kicker}}</p>
+          <h3>{{t.home.rows.2.title}}</h3>
+          <p>{{t.home.rows.2.text}}</p>
+        </div>
+        <div class="why-visual why-visual--gold">
+          <div class="tm">
+            <p class="tm__q">{{t.home.mock.typeQ}}</p>
+            <div class="lp-say">
+              <div class="lp-say__mascot lp-say__mascot--person"><div class="lp-say__face lp-say__face--mateo">{{cast.mateo}}</div></div>
+              <div class="lp-bubble"><span class="lp-bubble__text">{{t.home.mock.typePrompt}}</span></div>
+            </div>
+            <div class="lp-input is-right tm__input" lang="es">Espana</div>
+            <div class="tm__hint"><span class="tm__tick"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><b>¡Muy bien!</b><span>{{t.home.mock.typeHint}}</span></div></div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
-  <section class="section" id="method" aria-labelledby="method-title">
+  <section class="stats-band" aria-label="{{t.home.statsTitle}}">
+    <div class="container stats-band__inner" data-reveal>
+      <p class="stats-band__title">{{t.home.statsTitle}}</p>
+      <dl class="stats-band__list">
+        <div><dd data-count="{{course.units}}">{{course.units}}</dd><dt>{{t.course.stats.units}}</dt></div>
+        <div><dd data-count="{{course.lessons}}">{{course.lessons}}</dd><dt>{{t.course.stats.lessons}}</dt></div>
+        <div><dd data-count="{{course.words}}">{{course.words}}</dd><dt>{{t.course.stats.words}}</dt></div>
+        <div><dd data-count="{{course.types}}">{{course.types}}</dd><dt>{{t.course.stats.types}}</dt></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="hsec" id="plans" aria-labelledby="plans-title">
     <div class="container">
-      <div class="section-head">
-        <div class="section-head__title">
-          <p class="kicker">{{t.method.kicker}}</p>
-          <h2 class="display display--l" id="method-title">{{t.method.title1}}<br>{{t.method.title2}}</h2>
-        </div>
-        <p class="section-head__text lead">{{t.method.text}}</p>
+      <div class="hsec__head hsec__head--center" data-reveal>
+        <p class="kicker">{{t.home.plansKicker}}</p>
+        <h2 class="display display--l" id="plans-title">{{t.home.plansTitle}}</h2>
+        <p class="launch">{{t.home.launch}}</p>
       </div>
-
-      <div class="bento">
-        <article class="tile tile--wide tile--dark">
-          <div>
-            <p class="label">{{t.method.speak.label}}</p>
-            <h3>{{t.method.speak.title}}</h3>
-            <p class="tile__text">{{t.method.speak.text}}</p>
-          </div>
-          <div class="chips">
-            {{#each t.method.speak.scenes}}<span class="chip">{{this}}</span>{{/each}}
-            <span class="chip chip--gold">{{t.method.speak.own}}</span>
-          </div>
-        </article>
-
-        <article class="tile">
-          <div>
-            <p class="label">{{t.method.conj.label}}</p>
-            <h3>{{t.method.conj.title}}</h3>
-          </div>
-          <div class="tile__card" lang="es">
-            <div class="conj__head"><span class="word" style="font-size:22px">tener</span><span class="conj__tense">Presente</span></div>
-            <dl class="conj">
-              <dt>yo</dt><dd>tengo</dd>
-              <dt>tú</dt><dd>tienes</dd>
-              <dt>él / ella</dt><dd>tiene</dd>
-              <dt>nosotros</dt><dd>tenemos</dd>
-              <dt>vosotros</dt><dd>tenéis</dd>
-              <dt>ellos</dt><dd>tienen</dd>
-            </dl>
-          </div>
-        </article>
-
-        <article class="tile">
-          <div>
-            <p class="label">{{t.method.vocab.label}}</p>
-            <h3>{{t.method.vocab.title}}</h3>
-          </div>
-          <div class="tile__card" style="display:flex;flex-direction:column;gap:14px">
-            <span class="word" lang="es">la cuenta</span>
-            <span style="font-size:15px;color:var(--ink-2)">{{t.method.vocab.meaning}} · <em lang="es">¿Nos trae la cuenta, por favor?</em></span>
-            <div class="pills">
-              <span class="pill pill--red">{{t.method.vocab.today}}</span>
-              <span class="pill">{{t.method.vocab.d3}}</span>
-              <span class="pill">{{t.method.vocab.w1}}</span>
-              <span class="pill">{{t.method.vocab.m1}}</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="tile">
-          <div>
-            <p class="label">{{t.method.write.label}}</p>
-            <h3>{{t.method.write.title}}</h3>
-          </div>
-          <div class="tile__card" style="display:flex;flex-direction:column;gap:12px;font-size:16px;line-height:1.55">
-            <span lang="es">Ayer <span class="strike">soy</span> <span class="mark">estuve</span> en Madrid con mis amigos.</span>
-            <span style="font-size:14px;color:var(--ink-2)">{{t.method.write.explain}}</span>
-          </div>
-        </article>
-
-        <article class="tile">
-          <div>
-            <p class="label">{{t.method.listen.label}}</p>
-            <h3>{{t.method.listen.title}}</h3>
-          </div>
-          <div class="tile__card">
-            <div class="aplayer">
-              <span class="aplayer__btn" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="#FFFFFF"><path d="M7 4l13 8-13 8z"/></svg></span>
-              <span class="aplayer__track"><span></span></span>
-            </div>
-            <div class="pills">
-              <span class="pill pill--navy">0.75×</span>
-              <span class="pill">1×</span>
-              <span class="pill">{{t.method.listen.transcript}}</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="tile">
-          <div>
-            <p class="label">{{t.method.grammar.label}}</p>
-            <h3>{{t.method.grammar.title}}</h3>
-          </div>
-          <div class="tile__card duo">
-            <div><strong lang="es" style="color:var(--red)">ser</strong><p>{{t.method.grammar.ser}}</p></div>
-            <div><strong lang="es">estar</strong><p>{{t.method.grammar.estar}}</p></div>
-          </div>
-        </article>
+      <div class="plans2" data-reveal>
+        <div class="plan2">
+          <h3>{{t.home.free.name}}</h3>
+          <p class="plan2__desc">{{t.home.free.desc}}</p>
+          <p class="plan2__price"><b>{{t.home.free.price}}</b></p>
+          <ul class="plan2__list">{{#each t.home.free.items}}<li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg><span>{{this}}</span></li>{{/each}}</ul>
+          <a class="btn3d btn3d--ghost" href="{{t.links.signup}}">{{t.home.free.cta}}</a>
+        </div>
+        <div class="plan2 plan2--premium">
+          <div class="plan2__head"><h3>{{t.home.premium.name}}</h3><span class="plan2__tag">{{t.home.premium.tag}}</span></div>
+          <p class="plan2__desc">{{t.home.premium.desc}}</p>
+          <p class="plan2__price"><b>{{t.home.premium.price}}</b><span>{{t.home.premium.per}}</span></p>
+          <p class="plan2__yearly">{{t.home.premium.yearly}}</p>
+          <ul class="plan2__list">{{#each t.home.premium.items}}<li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg><span>{{this}}</span></li>{{/each}}</ul>
+          <a class="btn3d btn3d--gold" href="{{t.links.signup}}">{{t.home.premium.cta}}</a>
+        </div>
       </div>
     </div>
   </section>
 
-  <section class="section section--surface" id="path" aria-labelledby="path-title">
-    <div class="container">
-      <p class="kicker">{{t.path.kicker}}</p>
-      <h2 class="display display--l" id="path-title" style="margin:18px 0 20px">{{t.path.title}}</h2>
-      <p class="lead" style="max-width:620px;margin-bottom:56px">{{t.path.text}}</p>
-      <div class="levels">
-        {{#each t.path.levels}}<div class="level"><span class="level__code">{{this.code}}</span><span class="level__name">{{this.name}}</span><span class="level__text">{{this.text}}</span></div>{{/each}}
-      </div>
-    </div>
-  </section>
-
-  <section class="section section--navy" id="tutor" aria-labelledby="tutor-title">
-    <div class="container split">
-      <div>
-        <p class="kicker">{{t.tutor.kicker}}</p>
-        <h2 class="display display--l" id="tutor-title" style="margin:18px 0 24px">{{t.tutor.title1}}<br>{{t.tutor.title2}}</h2>
-        <p class="lead" style="max-width:480px">{{t.tutor.text}}</p>
-      </div>
-      <ol class="steps">
-        {{#each t.tutor.points}}<li><span class="steps__num" aria-hidden="true">{{this.n}}</span><div><h3>{{this.title}}</h3><p>{{this.text}}</p></div></li>{{/each}}
-      </ol>
-    </div>
-  </section>
-
-  <section class="section" id="plans" aria-labelledby="plans-title">
-    <div class="container">
-      <div class="section-head" style="margin-bottom:48px">
-        <div class="section-head__title">
-          <p class="kicker">{{t.plans.kicker}}</p>
-          <h2 class="display display--l" id="plans-title">{{t.plans.title1}}<br>{{t.plans.title2}}</h2>
-        </div>
-        <div class="billing" role="group" aria-label="{{t.plans.billingLabel}}" data-billing>
-          <button type="button" aria-pressed="true" data-period="monthly">{{t.plans.monthly}}</button>
-          <button type="button" aria-pressed="false" data-period="yearly">{{t.plans.yearly}}</button>
-        </div>
-      </div>
-      <div class="plans">
-        <div class="plan">
-          <div>
-            <h3 class="plan__name">{{t.plans.free.name}}</h3>
-            <p class="plan__desc">{{t.plans.free.desc}}</p>
-          </div>
-          <span class="plan__amount">{{t.plans.free.price}}</span>
-          <ul class="checks">
-            {{#each t.plans.free.items}}<li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0A1633" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg><span>{{this}}</span></li>{{/each}}
-          </ul>
-          <a class="btn btn--outline btn--lg btn--block" href="{{t.links.signup}}">{{t.plans.free.cta}}</a>
-        </div>
-        <div class="plan plan--premium">
-          <div class="plan__head">
-            <div>
-              <h3 class="plan__name">{{t.plans.premium.name}}</h3>
-              <p class="plan__desc">{{t.plans.premium.desc}}</p>
-            </div>
-            <span class="plan__tag">{{t.plans.premium.tag}}</span>
-          </div>
-          <div class="plan__price">
-            <span class="plan__amount" data-price data-monthly="{{t.plans.premium.priceMonthly}}" data-yearly="{{t.plans.premium.priceYearly}}">{{t.plans.premium.priceMonthly}}</span>
-            <span class="plan__per" data-per data-monthly="{{t.plans.premium.perMonth}}" data-yearly="{{t.plans.premium.perYear}}">{{t.plans.premium.perMonth}}</span>
-          </div>
-          <p class="plan__note" data-note data-monthly="{{t.plans.premium.noteMonthly}}" data-yearly="{{t.plans.premium.noteYearly}}">{{t.plans.premium.noteMonthly}}</p>
-          <ul class="checks">
-            {{#each t.plans.premium.items}}<li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFC400" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg><span>{{this}}</span></li>{{/each}}
-          </ul>
-          <a class="btn btn--gold btn--lg btn--block" href="{{t.links.signup}}">{{t.plans.premium.cta}}</a>
-        </div>
+  <section class="hsec hsec--surface" id="faq" aria-labelledby="faq-title">
+    <div class="container faq-wrap">
+      <h2 class="display display--l" id="faq-title" data-reveal>{{t.home.faqTitle}}</h2>
+      <div class="faq" data-reveal>
+        {{#each t.home.faq}}<details class="faq__item"><summary>{{this.q}}<span class="faq__icon" aria-hidden="true"></span></summary><p>{{this.a}}</p></details>{{/each}}
       </div>
     </div>
   </section>
@@ -283,13 +185,16 @@
     <div class="container cta__inner">
       <div class="cta__copy">
         <h2 class="display display--xxl" id="cta-title" lang="es">¿Hablamos?</h2>
-        <p>{{t.cta.text}}</p>
+        <p>{{t.home.finalText}}</p>
       </div>
-      <a class="btn btn--gold btn--lg" href="{{t.links.signup}}">{{t.cta.button}}</a>
+      <a class="btn3d btn3d--gold btn3d--lg" href="{{t.links.signup}}">{{t.home.finalCta}}</a>
     </div>
   </section>
 </main>
 
 {{> footer}}
+<script type="application/json" id="demo-data">{{demoJson}}</script>
+<script src="/assets/js/sfx.js" defer></script>
+<script src="/assets/js/demo.js" defer></script>
 </body>
 </html>

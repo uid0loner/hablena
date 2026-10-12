@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Hablena – Speak Spanish. For real.",
-    "description": "The complete Spanish course with an AI tutor you actually talk to. Every lesson, every tool, every level from A1 to C1. Start free.",
+    "description": "Speak Spanish in five minutes a day: short lessons, real voices and real dialogues. Free to start, no app needed.",
     "ogLocale": "en_US"
   },
   "a11y": {
@@ -19,7 +19,8 @@
     "login": "Log in",
     "start": "Start free",
     "conjugator": "Conjugator",
-    "grammar": "Grammar"
+    "grammar": "Grammar",
+    "course": "Course"
   },
   "hero": {
     "kicker": "Spanish · A1 to C1 · AI tutor included",
@@ -30,157 +31,6 @@
     "cta": "Start learning free",
     "cta2": "Find your level",
     "note": "Free to start. No credit card."
-  },
-  "mock": {
-    "aria": "Example: a speaking scene with Hablena in a café",
-    "eyebrow": "Unit 4 · Live scene",
-    "q": "What can I get you?",
-    "feedback": "Natural phrasing. That’s exactly how locals order.",
-    "pron": "Pronunciation",
-    "listening": "Hablena is listening…"
-  },
-  "method": {
-    "kicker": "02 — The method",
-    "title1": "Talk from day one.",
-    "title2": "Everything else follows.",
-    "text": "Speaking, listening, reading, writing, grammar and vocabulary. Six skills, one learning path that adapts to you after every session.",
-    "speak": {
-      "label": "Speaking",
-      "title": "Real conversations with Hablena",
-      "text": "Order coffee, nail a job interview, argue about football. Spoken scenes at exactly your level, with instant feedback on every sentence.",
-      "scenes": [
-        "At the café",
-        "Job interview",
-        "At the doctor",
-        "Renting a flat"
-      ],
-      "own": "+ your own topics"
-    },
-    "conj": {
-      "label": "Conjugator",
-      "title": "Every verb, every tense"
-    },
-    "vocab": {
-      "label": "Vocabulary",
-      "title": "Words that actually stay",
-      "meaning": "the bill",
-      "today": "Today",
-      "d3": "In 3 days",
-      "w1": "In 1 week",
-      "m1": "In 1 month"
-    },
-    "write": {
-      "label": "Writing",
-      "title": "Corrected and explained",
-      "explain": "A past location uses estar in the preterite. “Soy” is present-tense ser."
-    },
-    "listen": {
-      "label": "Listening & Reading",
-      "title": "Stories at your level",
-      "transcript": "Transcript"
-    },
-    "grammar": {
-      "label": "Grammar",
-      "title": "Finally makes sense",
-      "ser": "who or what something is. Soy ingeniero.",
-      "estar": "how or where it is right now. Estoy cansado."
-    }
-  },
-  "path": {
-    "kicker": "03 — Your path",
-    "title": "From hola to fluent.",
-    "text": "Built on the official European CEFR levels, so you always know exactly where you stand. Ready for the DELE exam when you are.",
-    "levels": [
-      {
-        "code": "A1",
-        "name": "Beginner",
-        "text": "Introduce yourself, order food, find your way."
-      },
-      {
-        "code": "A2",
-        "name": "Elementary",
-        "text": "Talk about your day, your past and your plans."
-      },
-      {
-        "code": "B1",
-        "name": "Intermediate",
-        "text": "Handle travel, work and everyday life with ease."
-      },
-      {
-        "code": "B2",
-        "name": "Upper intermediate",
-        "text": "Follow series and news, debate your opinion."
-      },
-      {
-        "code": "C1",
-        "name": "Advanced",
-        "text": "Speak fluently, precisely and spontaneously."
-      }
-    ]
-  },
-  "tutor": {
-    "kicker": "04 — Hablena",
-    "title1": "Your tutor.",
-    "title2": "Always on.",
-    "text": "Hablena talks with you about your day, your work and your plans. She explains every mistake in your language and keeps track of what you need to practise next.",
-    "points": [
-      {
-        "n": "01",
-        "title": "Speaks at your level",
-        "text": "Slow and simple at A1, natural and fast at C1. Hablena adapts with every sentence you say."
-      },
-      {
-        "n": "02",
-        "title": "Explains in your language",
-        "text": "Every correction comes in English or German, with the reason behind it, not just the right answer."
-      },
-      {
-        "n": "03",
-        "title": "Remembers what you need",
-        "text": "Words and structures you struggle with come back in later conversations, until they stick."
-      }
-    ]
-  },
-  "plans": {
-    "kicker": "05 — Pricing",
-    "title1": "Start free.",
-    "title2": "Go all in.",
-    "billingLabel": "Billing period",
-    "monthly": "Monthly",
-    "yearly": "Yearly · save 50%",
-    "free": {
-      "name": "Free",
-      "desc": "Everything you need to get started.",
-      "price": "€0",
-      "items": [
-        "First lessons of the A1 course",
-        "Complete grammar library",
-        "Verb conjugator",
-        "Spanish dictionary",
-        "Placement test"
-      ],
-      "cta": "Create free account"
-    },
-    "premium": {
-      "name": "Premium",
-      "desc": "The full course and your personal tutor.",
-      "tag": "Full access",
-      "priceMonthly": "€9.99",
-      "priceYearly": "€59.99",
-      "perMonth": "/ month",
-      "perYear": "/ year",
-      "noteMonthly": "Billed monthly. Cancel anytime.",
-      "noteYearly": "Just €5 a month, billed once a year.",
-      "items": [
-        "Full course, A1 to C1",
-        "Unlimited conversations with Hablena",
-        "Writing correction with explanations",
-        "All listening and reading content",
-        "Smart vocabulary trainer",
-        "Level tests and certificates"
-      ],
-      "cta": "Try Premium free for 7 days"
-    }
   },
   "cta": {
     "text": "Shall we talk? Your first real conversation is five minutes away.",
@@ -515,5 +365,155 @@
       }
     ],
     "cta": "Try the first lesson free"
+  },
+  "home": {
+    "heroTitle1": "Speak Spanish.",
+    "heroTitle2": "Starting today.",
+    "heroLead": "Five minutes a day. Real voices, real conversations, no cramming. Try it right here, no sign-up needed.",
+    "cta": "Start for free",
+    "ctaNote": [
+      "Free",
+      "No credit card",
+      "Works on any device"
+    ],
+    "demo": {
+      "kicker": "Try it now",
+      "startTitle": "Three sentences. Three voices.",
+      "startText": "Listen and tap the right meaning. Sound on!",
+      "start": "Let’s go",
+      "question": "What does this mean?",
+      "next": "Next",
+      "finish": "See my result",
+      "right": [
+        "¡Muy bien!",
+        "¡Genial!",
+        "¡Perfecto!"
+      ],
+      "wrong": "Almost! The answer is:",
+      "doneTitle": "{n} out of 3",
+      "doneText": "You just understood your first Spanish sentences. Lesson 1 continues exactly like this.",
+      "doneCta": "Keep learning, free",
+      "again": "Try again",
+      "listen": "Listen",
+      "step": "Question {n} of 3"
+    },
+    "marquee": [
+      {
+        "es": "¿Qué tal?",
+        "tr": "How are you?"
+      },
+      {
+        "es": "Un café, por favor",
+        "tr": "A coffee, please"
+      },
+      {
+        "es": "¿Dónde está la playa?",
+        "tr": "Where is the beach?"
+      },
+      {
+        "es": "Me encanta bailar",
+        "tr": "I love dancing"
+      },
+      {
+        "es": "Hace sol",
+        "tr": "It’s sunny"
+      },
+      {
+        "es": "¿Cuánto cuesta?",
+        "tr": "How much is it?"
+      },
+      {
+        "es": "Tengo una reserva",
+        "tr": "I have a booking"
+      },
+      {
+        "es": "¡Hasta luego!",
+        "tr": "See you later!"
+      }
+    ],
+    "whyKicker": "Why it works",
+    "whyTitle": "Learning that sticks.",
+    "rows": [
+      {
+        "kicker": "5 minutes a day",
+        "title": "A lesson fits into any coffee break.",
+        "text": "Short lessons, a clear path and a daily goal. Your streak shows how far you have come and keeps you going."
+      },
+      {
+        "kicker": "Real voices",
+        "title": "Hear Spanish the way it really sounds.",
+        "text": "No robot voice: Hablena and her friends speak every word. Tap a character and hear for yourself."
+      },
+      {
+        "kicker": "Mistakes welcome",
+        "title": "You write. Hablena helps.",
+        "text": "Forgot an accent, made a tiny typo? Still counts, and you pick up the right spelling along the way. Every unit comes with a short guide to the rules that matter, with examples to listen to."
+      }
+    ],
+    "mock": {
+      "streak": "day streak",
+      "goal": "Daily goal",
+      "lesson": "At the café",
+      "typeQ": "Write this in Spanish",
+      "typePrompt": "Spain",
+      "typeHint": "Watch the accents: España",
+      "tapHint": "Tap a character"
+    },
+    "statsTitle": "In the course today",
+    "plansKicker": "Pricing",
+    "plansTitle": "Start for free.",
+    "launch": "Hablena has just launched. Right now every lesson is free, including Premium ones.",
+    "free": {
+      "name": "Free",
+      "price": "€0",
+      "desc": "For your start.",
+      "items": [
+        "All of unit 1",
+        "Verb conjugator with 341 verbs",
+        "Grammar guides with quizzes",
+        "Streak and daily goal"
+      ],
+      "cta": "Start for free"
+    },
+    "premium": {
+      "name": "Premium",
+      "price": "€9.99",
+      "per": "/ month",
+      "yearly": "or €59.99 a year, just €5 a month",
+      "desc": "The whole course, no limits.",
+      "tag": "Coming soon",
+      "items": [
+        "Every unit and every new lesson",
+        "Unlimited practice",
+        "All guides with audio",
+        "Soon: real conversations with Hablena"
+      ],
+      "cta": "Try it free now"
+    },
+    "faqTitle": "Questions?",
+    "faq": [
+      {
+        "q": "Who is Hablena for?",
+        "a": "For anyone starting from zero or brushing up their school Spanish. The course starts at A1 and explains everything in English or German."
+      },
+      {
+        "q": "How much time do I need?",
+        "a": "A lesson takes about five minutes. Do one a day and you will make fast progress."
+      },
+      {
+        "q": "How much does Hablena cost?",
+        "a": "Right now everything is free. Premium will cost €9.99 a month, or €59.99 a year."
+      },
+      {
+        "q": "Do I need an app?",
+        "a": "No. Hablena runs in your browser, on your phone, tablet and computer."
+      },
+      {
+        "q": "Spanish from Spain or Latin America?",
+        "a": "The course follows the Spanish spoken in Spain, which you will be understood with everywhere Spanish is spoken."
+      }
+    ],
+    "finalText": "Your first conversation is five minutes away.",
+    "finalCta": "Start for free"
   }
 }

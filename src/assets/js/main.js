@@ -1,3 +1,6 @@
+// Marks that JavaScript runs, so scroll reveals can start hidden.
+document.documentElement.classList.add('js');
+
 // Hablena — small progressive enhancements. The page works without JS.
 
 (() => {
@@ -293,6 +296,10 @@
     if (current) current.pause();
     const a = new Audio(btn.dataset.src);
     current = a;
+    buttons.forEach((b) => b.classList.remove('is-playing'));
+    btn.classList.add('is-playing');
+    a.addEventListener('ended', () => btn.classList.remove('is-playing'));
+    setTimeout(() => btn.classList.remove('is-playing'), 6000);
     let fell = false;
     const fail = () => { if (!fell) { fell = true; fallback(btn.dataset.say); } };
     a.play().catch((err) => { if (!err || err.name !== 'NotAllowedError') fail(); });
@@ -319,4 +326,30 @@
     document.querySelectorAll('[data-stat-xptotal]').forEach((el) => { el.textContent = String(s.xpTotal); });
     document.querySelector('[data-chip-streak]')?.classList.toggle('is-active', s.activeToday);
   }).catch(() => {});
+})();
+
+// Homepage: reveal sections on scroll and count up the course numbers.
+(() => {
+  const items = document.querySelectorAll('[data-reveal]');
+  if (!items.length) return;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const countUp = (el) => {
+    const to = Number(el.dataset.count);
+    if (reduce || !to) return;
+    const t0 = performance.now();
+    const tick = (t) => {
+      const p = Math.min(1, (t - t0) / 1200);
+      el.textContent = String(Math.round(to * (1 - Math.pow(1 - p, 3))));
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  };
+  if (!('IntersectionObserver' in window) || reduce) { items.forEach((el) => el.classList.add('is-in')); return; }
+  const io = new IntersectionObserver((entries) => entries.forEach((e) => {
+    if (!e.isIntersecting) return;
+    e.target.classList.add('is-in');
+    e.target.querySelectorAll('[data-count]').forEach(countUp);
+    io.unobserve(e.target);
+  }), { threshold: 0.18 });
+  items.forEach((el) => io.observe(el));
 })();

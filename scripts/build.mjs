@@ -20,6 +20,7 @@ import { guidePages } from './course/guide-pages.mjs';
 import { audioManifest } from './course/audio.mjs';
 import { UNITS, ALL_LESSONS } from './course/units.mjs';
 import { CHARACTERS } from './course/characters.mjs';
+import { demoData, introAudio, INTRODUCTIONS } from './course/demo.mjs';
 
 // Real course numbers for the marketing pages, so they never drift from the content.
 const COURSE = {
@@ -109,6 +110,16 @@ function makeCtx(dict, lang, paths, extra = {}) {
   };
 }
 
+// Homepage: the live demo (three questions in three voices) and the character introductions.
+function homeVars(t, lang) {
+  const data = { ...demoData(lang), strings: t.home.demo, faces: CHARACTERS };
+  const intro = Object.fromEntries(Object.keys(INTRODUCTIONS).map((r) => {
+    const a = introAudio(r);
+    return [r, { text: escAttr(a.text), src: a.src }];
+  }));
+  return { demoJson: JSON.stringify(data).replace(/</g, '\\u003c'), intro };
+}
+
 async function writePage(path, html) {
   const outDir = join(DIST, ...path.split('/').filter(Boolean));
   await mkdir(outDir, { recursive: true });
@@ -136,7 +147,8 @@ async function build() {
     const tpl = includePartials(raw, partials);
     const paths = Object.fromEntries(LOCALES.map((l) => [l, page === 'index' ? prefix(l) : `${prefix(l)}${page}/`]));
     for (const lang of LOCALES) {
-      const html = render(tpl, makeCtx(dict, lang, paths), `${page}.html`);
+      const extra = page === 'index' ? { vars: homeVars(dict[lang], lang) } : {};
+      const html = render(tpl, makeCtx(dict, lang, paths, extra), `${page}.html`);
       if (page === '404') {
         if (lang === DEFAULT) await writeFile(join(DIST, '404.html'), html);
         continue;

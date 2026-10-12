@@ -1,14 +1,13 @@
 // Collects every Spanish text the player can pronounce, per speaker, and gives each clip a stable hash.
 // The hash covers provider, model, voice and text, so changing a voice produces new URLs (no stale caches)
 // and identical clips are shared between roles that use the same voice.
-import { createHash } from 'node:crypto';
 import { ALL_LESSONS } from './units.mjs';
+import { clipHash } from './audio-hash.mjs';
+import { demoClips } from './demo.mjs';
 import { VOICE_CONFIG, voiceOf, withSpeakers, MAIN } from './voices.mjs';
 import { guideTexts } from './guides.mjs';
 
-const modelOf = (provider) => VOICE_CONFIG.models[provider] || '';
-export const clipHash = ({ provider, id }, text) =>
-  createHash('sha256').update(`${provider}|${modelOf(provider)}|${id}|${text.normalize('NFC')}`).digest('hex').slice(0, 24);
+export { clipHash };
 const wordsOf = (s) => s.replace(/[¡!¿?.,;:]/g, '').split(/\s+/).filter(Boolean);
 
 // role → Set of texts that role may have to say in this lesson
@@ -48,6 +47,8 @@ export function audioManifest() {
   });
   const main = voiceOf(MAIN);
   for (const t of guideTexts()) clips[clipHash(main, t)] = [t, main.provider, main.id];
+  // homepage demo and character introductions
+  for (const [role, t] of demoClips()) { const v = voiceOf(role); clips[clipHash(v, t)] = [t, v.provider, v.id]; }
   // practice mode speaks every word in Hablena's voice
   for (const lesson of ALL_LESSONS) for (const v of lesson.vocab) clips[clipHash(main, v.es)] = [v.es, main.provider, main.id];
   // voice id → speaker names, so /api/audio/status can report progress per voice
