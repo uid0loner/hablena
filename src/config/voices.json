@@ -4,8 +4,8 @@
   "azureRegion": "westeurope",
   "voices": {
     "hablena": { "name": "Hablena", "kind": "mascot", "provider": "elevenlabs", "id": "LudcwvHIZaqQOcQfVZSY" },
-    "lucia": { "name": "Lucía", "kind": "woman", "provider": "elevenlabs", "id": "" },
-    "mateo": { "name": "Mateo", "kind": "man", "provider": "elevenlabs", "id": "" },
+    "lucia": { "name": "Lucía", "kind": "woman", "provider": "elevenlabs", "id": "KHCvMklQZZo0O30ERnVn" },
+    "mateo": { "name": "Mateo", "kind": "man", "provider": "elevenlabs", "id": "gbTn1bmCvNgk0QEAVyfM" },
     "sofia": { "name": "Sofía", "kind": "girl", "provider": "elevenlabs", "id": "" },
     "pablo": { "name": "Pablo", "kind": "boy", "provider": "elevenlabs", "id": "" }
   }

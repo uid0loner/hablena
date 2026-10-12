@@ -43,5 +43,11 @@ export function audioManifest() {
       for (const t of texts) clips[clipHash(voice, t)] = [t, voice.provider, voice.id];
     }
   });
-  return { version: 2, models: VOICE_CONFIG.models, azureRegion: VOICE_CONFIG.azureRegion, clips };
+  // voice id → speaker names, so /api/audio/status can report progress per voice
+  const voices = {};
+  for (const [role, v] of Object.entries(VOICE_CONFIG.voices)) {
+    const { id } = voiceOf(role);
+    voices[id] = voices[id] ? `${voices[id]}, ${v.name}` : v.name;
+  }
+  return { version: 2, models: VOICE_CONFIG.models, azureRegion: VOICE_CONFIG.azureRegion, voices, clips };
 }

@@ -345,13 +345,16 @@ async function audioStatus(env) {
   const stored = new Set(results.map((r) => r.hash));
   const clips = Object.entries(manifest.clips);
   const byProvider = {};
-  for (const [hash, [, provider]] of clips) {
+  const byVoice = {};
+  for (const [hash, [, provider, voice]] of clips) {
     const p = (byProvider[provider] ||= { total: 0, ready: 0, configured: !!providerKey(env, provider) });
+    const v = (byVoice[manifest.voices?.[voice] || voice] ||= { total: 0, ready: 0 });
     p.total++;
-    if (stored.has(hash)) p.ready++;
+    v.total++;
+    if (stored.has(hash)) { p.ready++; v.ready++; }
   }
   const ready = clips.filter(([hash]) => stored.has(hash)).length;
-  return json({ total: clips.length, ready, done: ready === clips.length, providers: byProvider }, 200, { 'Cache-Control': 'no-store' });
+  return json({ total: clips.length, ready, done: ready === clips.length, voices: byVoice, providers: byProvider }, 200, { 'Cache-Control': 'no-store' });
 }
 
 class TtsError extends Error {

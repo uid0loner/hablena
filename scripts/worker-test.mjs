@@ -135,6 +135,7 @@ check('unknown route → 404', (await call('GET', '/api/nothing')).status === 40
     version: 2,
     models: { elevenlabs: 'eleven_multilingual_v2' },
     azureRegion: 'westeurope',
+    voices: { voice123: 'Hablena', voice456: 'Lucía' },
     clips: {
       [h('a')]: [text, 'elevenlabs', 'voice123'],
       [h('c')]: ['hola', 'elevenlabs', 'voice456'],
@@ -172,7 +173,7 @@ check('unknown route → 404', (await call('GET', '/api/nothing')).status === 40
 
     // Status + cron warm-up
     const st = await (await worker.fetch(new Request(`${ORIGIN}/api/audio/status`), e)).json();
-    check('audio status: counts', st.total === 4 && st.ready === 1 && st.providers.elevenlabs.total === 2 && st.providers.azure.configured === false);
+    check('audio status: counts', st.voices.Hablena.ready === 1 && st.voices['Lucía'].total === 1 && st.total === 4 && st.ready === 1 && st.providers.elevenlabs.total === 2 && st.providers.azure.configured === false);
     env.DB.raw.prepare('INSERT INTO audio_cache (hash, provider, voice, data, created_at) VALUES (?, ?, ?, ?, ?)').run(h('f'), 'elevenlabs', 'old', new Uint8Array([1]), 1);
     sent = [];
     const all = manifestEnv({ TTS_API_KEY: 'secret', AZURE_TTS_KEY: 'akey', GOOGLE_TTS_KEY: 'gkey' });
