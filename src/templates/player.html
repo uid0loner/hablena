@@ -1,49 +1,63 @@
 {{> head}}
-<body class="player-body">
-<div class="player" data-player data-app-url="{{appUrl}}" data-login="{{loginUrl}}" data-lesson-id="{{lessonId}}">
-  <header class="player__top">
-    <a class="player__close" href="{{appUrl}}" aria-label="{{t.learn.close}}">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+<body class="lp-body">
+<div class="lp" data-player data-app-url="{{appUrl}}" data-login="{{loginUrl}}" data-lesson-id="{{lessonId}}">
+  <header class="lp-top">
+    <a class="lp-icon-btn" href="{{appUrl}}" aria-label="{{t.learn.close}}">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
     </a>
-    <div class="player__progress" role="progressbar" aria-label="{{t.learn.progress}}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-progress><span></span></div>
-    <span class="player__title">{{lessonTitle}}</span>
+    <div class="lp-progress" role="progressbar" aria-label="{{t.learn.progress}}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-progress><span></span></div>
+    <span class="lp-combo" data-combo hidden>
+      <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 1.5-5 3-6 0 2 1 3 2 3 0-3-1-6 1-9z" fill="#FF8A00"/><path d="M12 12c.5 2 3 3 3 6a3 3 0 0 1-6 0c0-1.6 1-2.7 2-3.2 0 1 .4 1.6 1 1.6 0-1.6-.6-3 0-4.4z" fill="#FFC400"/></svg>
+      <span data-combo-count>0</span>
+    </span>
+    <button class="lp-icon-btn" type="button" data-mute aria-pressed="false" aria-label="{{t.learn.mute}}" data-label-mute="{{t.learn.mute}}" data-label-unmute="{{t.learn.unmute}}">
+      <svg class="lp-sound-on" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4zM15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+      <svg class="lp-sound-off" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4zM22 9l-6 6M16 9l6 6"/></svg>
+    </button>
   </header>
 
-  <main class="player__stage" id="main" data-stage aria-live="polite">
-    <noscript><p class="player__noscript">{{t.learn.noscript}}</p></noscript>
+  <main class="lp-stage" id="main" data-stage aria-live="polite">
+    <noscript><p>{{t.learn.noscript}}</p></noscript>
   </main>
 
-  <footer class="player__bar" data-bar>
-    <div class="player__bar-inner">
-      <div class="player__feedback" data-feedback hidden>
-        <span class="player__feedback-icon" data-feedback-icon aria-hidden="true"></span>
-        <div>
-          <strong class="player__feedback-title" data-feedback-title></strong>
-          <p class="player__feedback-text" data-feedback-text></p>
+  <footer class="lp-sheet" data-sheet>
+    <div class="lp-sheet__inner">
+      <div class="lp-feedback" data-feedback hidden>
+        <span class="lp-feedback__icon" data-feedback-icon aria-hidden="true"></span>
+        <div class="lp-feedback__text">
+          <strong data-feedback-title></strong>
+          <p data-feedback-text></p>
         </div>
       </div>
-      <button class="btn btn--lg player__primary" type="button" data-primary disabled>{{t.learn.check}}</button>
+      <button class="lp-cta" type="button" data-primary disabled>{{t.learn.check}}</button>
     </div>
   </footer>
 
-  <section class="player__done" data-done hidden aria-labelledby="done-title">
-    <div class="player__done-badge" aria-hidden="true"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#0A1633" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></div>
-    <p class="label">{{t.learn.complete}}</p>
-    <h1 class="display display--l" id="done-title" data-done-title></h1>
-    <p class="lead" data-done-goal>{{lessonGoal}}</p>
-    <div class="player__stats">
-      <div><span class="player__stat" data-done-score></span><span>{{t.learn.correctLabel}}</span></div>
-      <div><span class="player__stat">{{vocabCount}}</span><span>{{t.learn.wordsLabel}}</span></div>
+  <section class="lp-done" data-done hidden aria-labelledby="done-title">
+    <canvas class="lp-confetti" data-confetti aria-hidden="true"></canvas>
+    <div class="lp-done__mascot" aria-hidden="true">{{> mascot}}</div>
+    <h1 class="lp-done__title" id="done-title" data-done-title></h1>
+    <p class="lp-done__goal">{{lessonGoal}}</p>
+    <div class="lp-stats">
+      <div class="lp-stat lp-stat--gold"><span class="lp-stat__label">{{t.learn.xpLabel}}</span><span class="lp-stat__value"><span data-stat-xp>0</span></span></div>
+      <div class="lp-stat lp-stat--green"><span class="lp-stat__label">{{t.learn.accuracyLabel}}</span><span class="lp-stat__value"><span data-stat-acc>0</span>%</span></div>
+      <div class="lp-stat lp-stat--navy"><span class="lp-stat__label">{{t.learn.timeLabel}}</span><span class="lp-stat__value" data-stat-time>0:00</span></div>
     </div>
-    <p class="player__save" data-save-note hidden></p>
-    <div class="player__done-actions">
-      <a class="btn btn--red btn--lg" href="{{appUrl}}">{{t.learn.toCourse}}</a>
-      <button class="btn btn--outline btn--lg" type="button" data-restart>{{t.learn.repeat}}</button>
+    <p class="lp-streak" data-streak hidden>
+      <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 1.5-5 3-6 0 2 1 3 2 3 0-3-1-6 1-9z" fill="#FF8A00"/><path d="M12 12c.5 2 3 3 3 6a3 3 0 0 1-6 0c0-1.6 1-2.7 2-3.2 0 1 .4 1.6 1 1.6 0-1.6-.6-3 0-4.4z" fill="#FFC400"/></svg>
+      <span data-streak-text></span>
+    </p>
+    <p class="lp-save" data-save-note hidden></p>
+    <div class="lp-done__actions">
+      <a class="lp-cta lp-cta--green" href="{{appUrl}}">{{t.learn.toCourse}}</a>
+      <button class="lp-cta lp-cta--ghost" type="button" data-restart>{{t.learn.repeat}}</button>
     </div>
   </section>
 </div>
+<template id="mascot-tpl">{{> mascot}}</template>
 <script type="application/json" id="lesson-data">{{lessonJson}}</script>
 <script type="application/json" id="player-strings">{{stringsJson}}</script>
+<script src="/assets/js/sfx.js" defer></script>
 <script src="/assets/js/player.js" defer></script>
 </body>
 </html>

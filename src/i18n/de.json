@@ -356,7 +356,7 @@
     "greetingNoName": "¡Hola!",
     "courseLabel": "Als Nächstes",
     "courseTitle": "Weitere Einheiten sind unterwegs.",
-    "courseText": "Einheit 1 ist fertig. Als Nächstes kommen Familie, Essen und dein Alltag, dazu gesprochene Gespräche mit Hablena.",
+    "courseText": "Einheit 1 und 2 sind fertig. Als Nächstes: unterwegs in der Stadt, Einkaufen und echte Gespräche mit Hablena.",
     "grammarTitle": "Grammatik-Themen",
     "grammarText": "Ser oder estar, por oder para und mehr, mit Quiz.",
     "conjTitle": "Verb-Konjugator",
@@ -410,6 +410,38 @@
     "repeat": "Lektion wiederholen",
     "loginToSave": "Melde dich an, um deinen Fortschritt zu speichern.",
     "loginLink": "Anmelden",
-    "saveFailed": "Dein Fortschritt konnte nicht gespeichert werden. Bitte prüf deine Verbindung."
+    "saveFailed": "Dein Fortschritt konnte nicht gespeichert werden. Bitte prüf deine Verbindung.",
+    "mute": "Töne ausschalten",
+    "unmute": "Töne einschalten",
+    "xpLabel": "XP gesamt",
+    "accuracyLabel": "Genauigkeit",
+    "timeLabel": "Zeit",
+    "praise": [
+      "¡Muy bien!",
+      "¡Genial!",
+      "¡Perfecto!",
+      "¡Excelente!",
+      "Stark!"
+    ],
+    "introHeading": "Hör zu und merk es dir",
+    "almost": "Fast!",
+    "streakDays": "{n}-Tage-Streak"
+  },
+  "app": {
+    "learnTab": "Lernen",
+    "streak": "Tage Streak",
+    "xpTotal": "XP gesamt",
+    "dailyGoal": "Tagesziel",
+    "goalText": "{xp} von {goal} XP heute. Eine Lektion bringt dich fast ans Ziel.",
+    "goalDone": "Tagesziel erreicht. ¡Olé!",
+    "streakHint": "Mach jeden Tag eine Lektion, damit dein Streak wächst.",
+    "streakActive": "Heute schon geübt. ¡Hasta mañana!",
+    "start": "Starten",
+    "review": "Nochmal üben",
+    "startBubble": "Start",
+    "locked": "Schließ zuerst die Lektionen davor ab, um diese freizuschalten.",
+    "lessonOf": "Lektion {n} von {total}",
+    "bestScore": "Bestes Ergebnis: {n}/{total}",
+    "more": "Mehr üben"
   }
 }

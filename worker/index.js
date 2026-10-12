@@ -58,6 +58,7 @@ async function handleApi(request, env, url, ctx) {
     case 'POST /api/me/delete': return deleteAccount(request, env);
     case 'GET /api/progress': return getProgress(request, env);
     case 'POST /api/progress': return saveProgress(request, env);
+    case 'GET /api/stats': return getStats(request, env, url);
     default: return json({ error: 'not_found' }, 404);
   }
 }
@@ -159,6 +160,7 @@ async function deleteAccount(request, env) {
 
   await env.DB.batch([
     env.DB.prepare('DELETE FROM progress WHERE user_id = ?').bind(user.id),
+    env.DB.prepare('DELETE FROM activity WHERE user_id = ?').bind(user.id),
     env.DB.prepare('DELETE FROM sessions WHERE user_id = ?').bind(user.id),
     env.DB.prepare('DELETE FROM users WHERE id = ?').bind(user.id),
   ]);
@@ -196,7 +198,44 @@ async function saveProgress(request, env) {
        attempts = attempts + 1,
        last_completed_at = excluded.last_completed_at`
   ).bind(user.id, lessonId, correct, total, now, now).run();
-  return json({ ok: true });
+
+  const xp = xpFor(correct, total);
+  const day = localDay(body.today, now);
+  await env.DB.prepare(
+    `INSERT INTO activity (user_id, day, xp, lessons) VALUES (?, ?, ?, 1)
+     ON CONFLICT (user_id, day) DO UPDATE SET xp = xp + excluded.xp, lessons = lessons + 1`
+  ).bind(user.id, day, xp).run();
+  return json({ ok: true, xp, ...(await statsFor(env, user.id, day)) });
+}
+
+// 5 XP for finishing, up to 10 more for accuracy.
+export const xpFor = (correct, total) => 5 + Math.round((10 * correct) / total);
+export const DAILY_GOAL_XP = 20;
+
+// The learner's local date (sent by the browser), accepted only within a day of the server's date.
+function localDay(value, now) {
+  const utc = new Date(now).toISOString().slice(0, 10);
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return utc;
+  const diff = Math.abs(Date.parse(value + 'T00:00:00Z') - Date.parse(utc + 'T00:00:00Z'));
+  return diff <= 86_400_000 ? value : utc;
+}
+
+const prevDay = (day) => new Date(Date.parse(day + 'T00:00:00Z') - 86_400_000).toISOString().slice(0, 10);
+
+async function statsFor(env, userId, today) {
+  const { results } = await env.DB.prepare('SELECT day, xp FROM activity WHERE user_id = ? ORDER BY day DESC LIMIT 400').bind(userId).all();
+  const days = new Map(results.map((r) => [r.day, r.xp]));
+  let streak = 0;
+  let cursor = days.has(today) ? today : prevDay(today);
+  while (days.has(cursor)) { streak++; cursor = prevDay(cursor); }
+  const xpTotal = results.reduce((n, r) => n + r.xp, 0);
+  return { streak, xpTotal, xpToday: days.get(today) || 0, dailyGoal: DAILY_GOAL_XP, activeToday: days.has(today) };
+}
+
+async function getStats(request, env, url) {
+  const user = await currentUser(request, env);
+  if (!user) return json({ error: 'unauthorized' }, 401);
+  return json(await statsFor(env, user.id, localDay(url.searchParams.get('today'), Date.now())));
 }
 
 // ---------------------------------------------------------------------------

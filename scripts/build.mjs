@@ -134,8 +134,7 @@ async function build() {
   }
 
   // 2) Generated tool pages (localized slugs)
-  const tool = includePartials(templates.tool, partials);
-  const player = includePartials(templates.player, partials);
+  const compiled = Object.fromEntries(Object.entries(templates).map(([name, raw]) => [name, includePartials(raw, partials)]));
   const urls = {
     home: (l) => prefix(l),
     index: (l) => `${prefix(l)}${dict[l].conj.slug}/`,
@@ -154,7 +153,8 @@ async function build() {
   for (const lang of LOCALES) {
     const other = LOCALES.find((l) => l !== lang);
     for (const p of [...conjugatorPages(dict[lang], urls, other), ...grammarPages(dict[lang], urls, other), ...legalPages(dict[lang], urls, other, site), ...accountPages(dict[lang], urls, other, site), ...lessonPages(dict[lang], urls, other)]) {
-      const tpl = p.template === 'player' ? player : tool;
+      const tpl = compiled[p.template || 'tool'];
+      if (!tpl) throw new Error(`Unknown template "${p.template}" for ${p.path}`);
       const html = render(tpl, makeCtx(dict, lang, { [lang]: p.path, [other]: p.alt }, p), `${p.template || 'tool'}.html`);
       await writePage(p.path, html);
       if (!p.noindex) sitemap.push(SITE + p.path);

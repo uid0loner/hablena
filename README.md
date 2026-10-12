@@ -67,7 +67,8 @@ no tracking, self-hosted fonts). Update it whenever accounts, payments or new se
 | `GET /api/me` | current user |
 | `POST /api/me/delete` | delete account (password required) |
 | `GET /api/progress` | lesson progress of the current user |
-| `POST /api/progress` | save a lesson result |
+| `POST /api/progress` | save a lesson result, returns XP and streak |
+| `GET /api/stats?today=YYYY-MM-DD` | streak, total XP, today's XP and daily goal |
 
 Security: PBKDF2-SHA256 password hashes (100k iterations), random session tokens stored only as
 SHA-256 hashes, `__Host-` HttpOnly/Secure/SameSite=Lax cookie, Origin + JSON checks against CSRF,
@@ -85,8 +86,15 @@ Setup once:
 
 `scripts/course/units.mjs` holds units, lessons, vocabulary and exercises (intro, choice, reverse,
 listen, match, gap, build). Each lesson becomes a player page at `/app/learn/<id>/` (EN) and
-`/de/app/learn/<id>/` (DE); the player is `src/assets/js/player.js`. Audio uses the browser's
-Results are saved via `POST /api/progress` (best score kept).
+`/de/app/learn/<id>/` (DE); the player is `src/assets/js/player.js` (template `src/templates/player.html`).
+Results are saved via `POST /api/progress` (best score kept). Each lesson earns 5–15 XP
+(`5 + round(10 · correct / total)`), stored per local day in `activity` for the daily goal (20 XP) and streak.
+
+The app home (`/app/`, template `src/templates/app.html`, markup in `scripts/account/pages.mjs`) shows the
+learning path: lessons unlock one after another, with streak, XP and daily goal from `/api/stats`.
+
+Sound effects (`src/assets/js/sfx.js`) are synthesised with the Web Audio API, so there are no audio files
+or licences. The mute setting is kept in `localStorage` (`hablena-sfx-muted`), which the privacy policy lists.
 
 Audio: every Spanish text the player can pronounce is listed in `dist/audio/manifest.json` at build time.
 `GET /api/audio/<hash>.mp3` generates it once with a neural TTS provider (ElevenLabs or Google, see the

@@ -154,36 +154,115 @@
     });
   });
 
-  // App area
+  // App area: learning path, streak and XP
   const app = document.querySelector('[data-app]');
   if (!app) return;
   const messages = readMessages(app);
+  const D = app.dataset;
+  const today = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  };
+  const setAll = (sel, value) => document.querySelectorAll(sel).forEach((el) => { el.textContent = String(value); });
   app.setAttribute('aria-busy', 'true');
+
+  // Popovers on the path
+  const nodes = [...app.querySelectorAll('[data-node]')];
+  const closeAll = (except) => nodes.forEach((node) => {
+    if (node === except) return;
+    node.classList.remove('is-open');
+    node.querySelector('.node__btn').setAttribute('aria-expanded', 'false');
+    node.querySelector('.node__pop').hidden = true;
+  });
+  nodes.forEach((node) => {
+    const btn = node.querySelector('.node__btn');
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const open = !node.classList.contains('is-open');
+      closeAll(node);
+      node.classList.toggle('is-open', open);
+      btn.setAttribute('aria-expanded', String(open));
+      node.querySelector('.node__pop').hidden = !open;
+      window.HablenaSfx?.play('tap');
+    });
+    node.querySelector('.node__pop').addEventListener('click', (e) => e.stopPropagation());
+  });
+  document.addEventListener('click', () => closeAll());
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeAll(); });
+
+  const applyProgress = (progress) => {
+    const done = new Map(progress.map((p) => [p.lessonId, p]));
+    let currentFound = false;
+    nodes.forEach((node) => {
+      const btn = node.querySelector('.node__btn');
+      const id = btn.dataset.lesson;
+      const p = done.get(id);
+      node.classList.remove('is-locked', 'is-done', 'is-current');
+      const go = node.querySelector('[data-go]');
+      const score = node.querySelector('[data-score]');
+      if (p) {
+        node.classList.add('is-done');
+        go.textContent = D.reviewLabel;
+        score.textContent = D.scoreLabel.replace('{n}', p.bestCorrect).replace('{total}', p.total);
+        score.hidden = false;
+      } else if (!currentFound) {
+        node.classList.add('is-current');
+        go.textContent = D.startLabel;
+        currentFound = true;
+      } else {
+        node.classList.add('is-locked');
+      }
+    });
+    app.querySelectorAll('[data-unit]').forEach((unit) => {
+      const all = unit.querySelectorAll('[data-node]').length;
+      const finished = unit.querySelectorAll('[data-node].is-done').length;
+      unit.querySelector('[data-unit-count]').textContent = `${finished}/${all}`;
+      unit.classList.toggle('is-complete', finished === all);
+    });
+    const current = app.querySelector('.node.is-current');
+    if (current && current.getBoundingClientRect().top > window.innerHeight * 0.8) {
+      current.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }
+  };
+
+  const applyStats = (s) => {
+    setAll('[data-stat-streak]', s.streak);
+    setAll('[data-stat-xptotal]', s.xpTotal);
+    setAll('[data-stat-xptoday]', s.xpToday);
+    setAll('[data-stat-goal]', s.dailyGoal);
+    document.querySelector('[data-chip-streak]')?.classList.toggle('is-active', s.activeToday);
+    const pct = Math.min(100, Math.round((s.xpToday / s.dailyGoal) * 100));
+    const bar = app.querySelector('[data-goalbar]');
+    bar.firstElementChild.style.width = pct + '%';
+    bar.setAttribute('aria-valuenow', String(pct));
+    bar.classList.toggle('is-full', pct >= 100);
+    app.querySelector('[data-goal-msg]').textContent = pct >= 100 ? D.goalDone : D.goalText.replace('{xp}', s.xpToday).replace('{goal}', s.dailyGoal);
+    app.querySelector('[data-streak-msg]').textContent = s.activeToday ? D.streakActive : D.streakHint;
+  };
+
   fetch('/api/me', { credentials: 'same-origin' })
     .then(async (res) => {
-      if (res.status === 401 || res.status === 503) { location.replace(app.dataset.login); return; }
+      if (res.status === 401 || res.status === 503) { location.replace(D.login); return; }
       const { user } = await res.json();
       const greet = document.querySelector('[data-greeting]');
       if (greet && user.name) greet.textContent = greet.dataset.template.replace('{name}', user.name);
+      const avatar = document.querySelector('[data-avatar]');
+      if (avatar) avatar.textContent = (user.name || user.email || '?').trim().charAt(0).toUpperCase();
       app.querySelector('[data-user-email]').textContent = user.email;
       app.querySelector('[data-user-since]').textContent = new Date(user.createdAt).toLocaleDateString(document.documentElement.lang, { year: 'numeric', month: 'long', day: 'numeric' });
+      const [progress, stats] = await Promise.all([
+        fetch('/api/progress', { credentials: 'same-origin' }).then((r) => (r.ok ? r.json() : { progress: [] })),
+        fetch(`/api/stats?today=${today()}`, { credentials: 'same-origin' }).then((r) => (r.ok ? r.json() : null)),
+      ]);
+      applyProgress(progress.progress || []);
+      if (stats) applyStats(stats);
       app.removeAttribute('aria-busy');
-      return fetch('/api/progress', { credentials: 'same-origin' }).then((r) => (r.ok ? r.json() : { progress: [] })).then(({ progress }) => {
-        progress.forEach((p) => {
-          const link = app.querySelector(`[data-lesson="${p.lessonId}"]`);
-          if (!link) return;
-          link.classList.add('is-done');
-          link.querySelector('[data-status]').textContent = `${app.dataset.doneLabel} · ${p.bestCorrect}/${p.total}`;
-        });
-        const next = app.querySelector('.lesson-link:not(.is-done)');
-        if (next) next.classList.add('is-next');
-      });
     })
-    .catch(() => location.replace(app.dataset.login));
+    .catch(() => location.replace(D.login));
 
   app.querySelector('[data-logout]')?.addEventListener('click', async () => {
     await post('/api/auth/logout').catch(() => {});
-    location.href = app.dataset.home;
+    location.href = D.home;
   });
 
   const del = app.querySelector('[data-delete-form]');
@@ -192,7 +271,7 @@
     const box = del.querySelector('[data-auth-error]');
     box.hidden = true;
     const res = await post('/api/me/delete', { password: del.querySelector('#delete-password').value }).catch(() => null);
-    if (res && res.ok) { location.href = app.dataset.home; return; }
+    if (res && res.ok) { location.href = D.home; return; }
     showError(box, messages, res ? res.data.error || 'server_error' : 'network');
   });
 })();

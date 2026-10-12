@@ -97,12 +97,32 @@ await call('POST', '/api/progress', { cookie: li.cookie, body: { lessonId: 'u1-l
   check('progress keeps best score', pr.length === 1 && pr[0].bestCorrect === 7 && pr[0].attempts === 2, JSON.stringify(pr));
 }
 
+// XP and streaks
+{
+  const day = (offset) => new Date(Date.now() + offset * 86_400_000).toISOString().slice(0, 10);
+  const save = (today, correct = 10) => call('POST', '/api/progress', { cookie: li.cookie, body: { lessonId: 'u1-l2', correct, total: 10, today } });
+  const s1 = (await save(day(0))).data;
+  check('xp for a perfect lesson', s1.xp === 15 && s1.xpToday === 37, JSON.stringify(s1)); // 12 + 10 from earlier saves today
+  check('streak starts at 1', s1.streak === 1);
+  // Simulate yesterday and the day before directly in the DB
+  const uid = env.DB.raw.prepare("SELECT id FROM users WHERE email = 'nico@example.com'").get().id;
+  env.DB.raw.prepare('INSERT INTO activity (user_id, day, xp, lessons) VALUES (?, ?, 10, 1), (?, ?, 10, 1)').run(uid, day(-1), uid, day(-2));
+  const st = (await call('GET', `/api/stats?today=${day(0)}`, { cookie: li.cookie })).data;
+  check('streak counts consecutive days', st.streak === 3, JSON.stringify(st));
+  const tomorrowView = (await call('GET', `/api/stats?today=${day(1)}`, { cookie: li.cookie })).data;
+  check('streak survives until the day is over', tomorrowView.streak === 3 && tomorrowView.activeToday === false);
+  const forged = (await call('GET', '/api/stats?today=2001-01-01', { cookie: li.cookie })).data;
+  check('implausible client date ignored', forged.xpToday > 0);
+  check('stats need login', (await call('GET', '/api/stats')).status === 401);
+}
+
 // Account deletion
 check('delete needs password', (await call('POST', '/api/me/delete', { cookie: li.cookie, body: { password: 'nope' } })).status === 401);
 const del = await call('POST', '/api/me/delete', { cookie: li.cookie, body: { password: 'correct horse battery' } });
 check('delete 200', del.status === 200);
 check('user removed', !env.DB.raw.prepare("SELECT 1 FROM users WHERE email = 'nico@example.com'").get());
 check('progress removed', !env.DB.raw.prepare('SELECT 1 FROM progress').get());
+check('activity removed', !env.DB.raw.prepare('SELECT 1 FROM activity').get());
 check('sessions removed', !env.DB.raw.prepare('SELECT 1 FROM sessions s LEFT JOIN users u ON u.id = s.user_id WHERE u.id IS NULL').get());
 
 check('unknown route → 404', (await call('GET', '/api/nothing')).status === 404);

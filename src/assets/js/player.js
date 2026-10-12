@@ -8,10 +8,14 @@
   const $ = (sel, el = root) => el.querySelector(sel);
   const stage = $('[data-stage]');
   const primary = $('[data-primary]');
-  const bar = $('[data-bar]');
+  const sheet = $('[data-sheet]');
   const feedback = $('[data-feedback]');
   const progress = $('[data-progress]');
   const done = $('[data-done]');
+  const comboBadge = $('[data-combo]');
+  const sfx = (name) => window.HablenaSfx?.play(name);
+  const MASCOT = document.getElementById('mascot-tpl').innerHTML;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // ---------- helpers ----------
   const h = (tag, attrs = {}, ...children) => {
@@ -19,6 +23,7 @@
     for (const [k, v] of Object.entries(attrs)) {
       if (v === false || v == null) continue;
       if (k === 'class') el.className = v;
+      else if (k === 'html') el.innerHTML = v;
       else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
       else el.setAttribute(k, v === true ? '' : v);
     }
@@ -32,6 +37,7 @@
   };
   const norm = (s) => s.toLowerCase().replace(/[¡!¿?.,;:]/g, '').replace(/\s+/g, ' ').trim();
   const words = (s) => s.replace(/[¡!¿?.,;:]/g, '').split(/\s+/).filter(Boolean);
+  const replay = (el, cls) => { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); };
 
   // ---------- audio: natural voice recordings from the server, browser speech only as fallback ----------
   const AUDIO = L.audio || {};
@@ -48,8 +54,6 @@
     }
     return clips.get(hash);
   };
-  const preload = (texts) => texts.forEach((t) => clip(t));
-
   const speech = 'speechSynthesis' in window ? window.speechSynthesis : null;
   let esVoice = null;
   const pickVoice = () => {
@@ -71,7 +75,7 @@
   let playing = null;
   const speak = (text) => {
     const a = clip(text);
-    if (playing && playing !== a) { playing.pause(); }
+    if (playing && playing !== a) playing.pause();
     if (!a) return browserSpeak(text);
     playing = a;
     a.currentTime = 0;
@@ -82,68 +86,91 @@
     });
   };
   const canSpeak = serverAudio || !!speech;
-  const SPEAKER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4zM15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
-  const audioButton = (text, big = false) => {
-    const btn = h('button', { type: 'button', class: big ? 'audio audio--big' : 'audio', 'aria-label': S.play, onclick: () => speak(text) });
-    btn.innerHTML = SPEAKER;
-    return btn;
-  };
+  const SPEAKER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4zM15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
+  const audioButton = (text, size = '') =>
+    canSpeak ? h('button', { type: 'button', class: `lp-audio ${size}`, 'aria-label': S.play, html: SPEAKER, onclick: (e) => { replay(e.currentTarget, 'is-pulse'); speak(text); } }) : null;
 
   // ---------- state ----------
   const steps = L.exercises;
   const scored = steps.filter((s) => s.t !== 'intro').length;
   let index = 0;
   let correct = 0;
-  let current = null; // { ready(), evaluate() → {ok, answer}, auto? }
+  let combo = 0;
+  let current = null;
   let phase = 'answer';
+  let startedAt = Date.now();
 
   const setProgress = () => {
     const pct = Math.round((index / steps.length) * 100);
-    progress.firstElementChild.style.width = pct + '%';
+    progress.firstElementChild.style.width = Math.max(pct, 2) + '%';
     progress.setAttribute('aria-valuenow', String(pct));
   };
-  const setPrimary = (label, enabled, style = 'red') => {
+  const setPrimary = (label, enabled, tone = '') => {
     primary.textContent = label;
     primary.disabled = !enabled;
-    primary.className = `btn btn--lg player__primary btn--${style}`;
+    primary.className = `lp-cta ${tone ? 'lp-cta--' + tone : ''}`;
   };
-  const clearFeedback = () => {
+  const resetSheet = () => {
     feedback.hidden = true;
-    bar.classList.remove('is-right', 'is-wrong');
+    sheet.classList.remove('is-right', 'is-wrong');
   };
-  const showFeedback = (ok, answer) => {
-    bar.classList.add(ok ? 'is-right' : 'is-wrong');
-    $('[data-feedback-icon]').textContent = ok ? '✓' : '✕';
-    $('[data-feedback-title]').textContent = ok ? S.right : S.wrong;
-    $('[data-feedback-text]').textContent = ok ? '' : `${S.correctAnswer} ${answer}`;
+  const showFeedback = (ok, answer, note) => {
+    sheet.classList.add(ok ? 'is-right' : 'is-wrong');
+    $('[data-feedback-icon]').innerHTML = ok
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+    $('[data-feedback-title]').textContent = ok ? pick(S.praise) : S.correctAnswer;
+    $('[data-feedback-text]').textContent = ok ? (note || '') : (note || answer);
     feedback.hidden = false;
+    replay(sheet, 'is-enter');
   };
+  const pick = (list) => (Array.isArray(list) ? list[Math.floor(Math.random() * list.length)] : list);
 
-  // Option buttons shared by choice / reverse / listen / gap
-  function optionList(options, answer, { lang, onPick }) {
+  function registerResult(ok) {
+    if (ok) {
+      correct++;
+      combo++;
+      sfx(combo >= 3 && [3, 5, 8, 12].includes(combo) ? 'combo' : 'correct');
+    } else {
+      combo = 0;
+      sfx('wrong');
+    }
+    comboBadge.hidden = combo < 2;
+    $('[data-combo-count]').textContent = String(combo);
+    if (combo >= 2) replay(comboBadge, 'is-bump');
+  }
+
+  // ---------- building blocks ----------
+  const heading = (text) => h('h1', { class: 'lp-heading' }, text);
+  const mascotSays = (...content) =>
+    h('div', { class: 'lp-say' }, h('div', { class: 'lp-say__mascot', html: MASCOT }), h('div', { class: 'lp-bubble' }, ...content));
+
+  function optionList(options, answer, { lang, onPick, layout = 'grid' }) {
     let picked = null;
     const buttons = options.map((text, i) =>
       h('button', {
-        type: 'button', class: 'opt', lang, 'data-key': String(i + 1),
+        type: 'button', class: 'lp-opt', lang, 'data-key': String(i + 1), 'data-value': text,
         onclick: () => {
           if (phase !== 'answer') return;
           buttons.forEach((b) => b.classList.remove('is-picked'));
           buttons[i].classList.add('is-picked');
           picked = text;
+          sfx('tap');
           onPick?.(text);
           setPrimary(S.check, true);
         },
-      }, h('span', { class: 'opt__key', 'aria-hidden': 'true' }, String(i + 1)), text));
+      }, h('span', { class: 'lp-opt__key', 'aria-hidden': 'true' }, String(i + 1)), h('span', { class: 'lp-opt__text' }, text)));
+    const wrap = h('div', { class: `lp-opts lp-opts--${layout}`, role: 'group' }, buttons);
     return {
-      el: h('div', { class: 'opts', role: 'group' }, buttons),
-      buttons,
+      el: wrap,
       evaluate: () => {
         const ok = picked === answer;
         buttons.forEach((b) => {
           b.disabled = true;
-          if (b.textContent.slice(1) === answer) b.classList.add('is-right');
+          if (b.dataset.value === answer) b.classList.add('is-right');
           else if (b.classList.contains('is-picked')) b.classList.add('is-wrong');
         });
+        if (!ok) replay(wrap, 'is-shake');
         return { ok, answer };
       },
     };
@@ -159,74 +186,78 @@
     intro(step) {
       const cards = step.v.map((i) => {
         const v = L.vocab[i];
-        return h('div', { class: 'word-card' },
-          h('div', {}, h('span', { class: 'word-card__es', lang: 'es' }, v.es), h('span', { class: 'word-card__tr' }, v.tr)),
-          canSpeak ? audioButton(v.es) : null);
+        return h('div', { class: 'lp-card' },
+          audioButton(v.es),
+          h('div', { class: 'lp-card__text' }, h('span', { class: 'lp-card__es', lang: 'es' }, v.es), h('span', { class: 'lp-card__tr' }, v.tr)));
       });
-      stage.append(h('p', { class: 'step-kicker' }, step.v.length > 1 ? S.newWords : S.newWord), h('div', { class: 'word-cards' }, cards));
-      if (canSpeak && step.v.length === 1) setTimeout(() => speak(L.vocab[step.v[0]].es), 250);
+      stage.append(h('span', { class: 'lp-badge' }, step.v.length > 1 ? S.newWords : S.newWord), heading(S.introHeading), h('div', { class: 'lp-cards' }, cards));
+      if (canSpeak) setTimeout(() => speak(L.vocab[step.v[0]].es), 300);
       return { intro: true };
     },
     choice(step) {
       const v = L.vocab[step.v];
-      stage.append(h('p', { class: 'step-kicker' }, S.chooseTranslation),
-        h('div', { class: 'prompt' }, h('span', { class: 'prompt__text', lang: 'es' }, v.es), canSpeak ? audioButton(v.es) : null));
+      stage.append(heading(S.chooseTranslation), mascotSays(audioButton(v.es), h('span', { class: 'lp-bubble__text', lang: 'es' }, v.es)));
       const list = optionList(shuffle([v.tr, ...distractors(v.tr, 'tr')]), v.tr, {});
       stage.append(list.el);
+      if (canSpeak) setTimeout(() => speak(v.es), 300);
       return list;
     },
     reverse(step) {
       const v = L.vocab[step.v];
-      stage.append(h('p', { class: 'step-kicker' }, S.chooseSpanish), h('div', { class: 'prompt' }, h('span', { class: 'prompt__text' }, v.tr)));
+      stage.append(heading(S.chooseSpanish), mascotSays(h('span', { class: 'lp-bubble__text' }, v.tr)));
       const list = optionList(shuffle([v.es, ...distractors(v.es, 'es')]), v.es, { lang: 'es', onPick: (t) => speak(t) });
       stage.append(list.el);
       return list;
     },
     listen(step) {
       const v = L.vocab[step.v];
-      const reveal = h('button', { type: 'button', class: 'link-btn', onclick: (e) => { e.currentTarget.replaceWith(h('span', { class: 'reveal', lang: 'es' }, v.es)); } }, S.noAudio);
-      stage.append(h('p', { class: 'step-kicker' }, S.whatDidYouHear), h('div', { class: 'prompt prompt--listen' }, canSpeak ? audioButton(v.es, true) : null, reveal));
+      const reveal = h('button', { type: 'button', class: 'lp-link', onclick: (e) => e.currentTarget.replaceWith(h('span', { class: 'lp-reveal', lang: 'es' }, v.es)) }, S.noAudio);
+      stage.append(heading(S.whatDidYouHear), h('div', { class: 'lp-listen' }, audioButton(v.es, 'lp-audio--xl'), reveal));
       const list = optionList(shuffle([v.es, ...distractors(v.es, 'es')]), v.es, { lang: 'es' });
       stage.append(list.el);
-      if (canSpeak) setTimeout(() => speak(v.es), 300);
+      if (canSpeak) setTimeout(() => speak(v.es), 350);
       return list;
     },
     gap(step) {
-      const blank = h('span', { class: 'blank' }, '___');
+      const blank = h('span', { class: 'lp-blank' }, ' ');
       const [before, after] = step.es.split('___');
-      stage.append(h('p', { class: 'step-kicker' }, S.fillGap),
-        h('p', { class: 'gap-sentence', lang: 'es' }, before, blank, after),
-        h('p', { class: 'gap-tr' }, step.tr));
-      const list = optionList(shuffle(step.options), step.answer, { lang: 'es', onPick: (t) => { blank.textContent = t; blank.classList.add('is-filled'); } });
+      const full = step.es.replace('___', step.answer);
+      stage.append(heading(S.fillGap), mascotSays(h('span', { class: 'lp-bubble__text', lang: 'es' }, before, blank, after), h('span', { class: 'lp-bubble__tr' }, step.tr)));
+      const list = optionList(shuffle(step.options), step.answer, {
+        lang: 'es', layout: 'row',
+        onPick: (t) => { blank.textContent = t; blank.classList.add('is-filled'); },
+      });
       stage.append(list.el);
       const evaluate = list.evaluate;
-      list.evaluate = () => { const r = evaluate(); blank.textContent = step.answer; speak(step.es.replace('___', step.answer)); return r; };
+      list.evaluate = () => { const r = evaluate(); blank.textContent = step.answer; speak(full); return { ...r, answer: full }; };
       return list;
     },
     build(step) {
       const target = words(step.es);
       const tiles = shuffle([...target, ...(step.extra || [])]);
-      const answerRow = h('div', { class: 'build-answer', 'aria-label': S.yourAnswer });
-      const pool = h('div', { class: 'build-pool' });
+      const answerRow = h('div', { class: 'lp-build__answer', 'aria-label': S.yourAnswer });
+      const pool = h('div', { class: 'lp-build__pool' });
       const chosen = [];
-      const update = () => setPrimary(S.check, chosen.length > 0);
       tiles.forEach((word) => {
-        const tile = h('button', { type: 'button', class: 'wtile', lang: 'es' }, word);
+        const slot = h('span', { class: 'lp-slot' });
+        const tile = h('button', { type: 'button', class: 'lp-tile', lang: 'es' }, word);
+        slot.append(tile);
         tile.addEventListener('click', () => {
           if (phase !== 'answer') return;
-          if (tile.parentElement === pool) { answerRow.append(tile); chosen.push(tile); speak(word); }
-          else { pool.append(tile); chosen.splice(chosen.indexOf(tile), 1); }
-          update();
+          sfx('tap');
+          if (tile.parentElement === slot) { answerRow.append(tile); chosen.push(tile); speak(word); }
+          else { slot.append(tile); chosen.splice(chosen.indexOf(tile), 1); }
+          setPrimary(S.check, chosen.length > 0);
         });
-        pool.append(tile);
+        pool.append(slot);
       });
-      stage.append(h('p', { class: 'step-kicker' }, S.buildSentence), h('div', { class: 'prompt' }, h('span', { class: 'prompt__text' }, step.tr)), answerRow, pool);
+      stage.append(heading(S.buildSentence), mascotSays(h('span', { class: 'lp-bubble__text' }, step.tr)), h('div', { class: 'lp-build' }, answerRow, pool));
       return {
         evaluate: () => {
-          const given = chosen.map((t) => t.textContent).join(' ');
-          const ok = norm(given) === norm(step.es);
-          [...answerRow.children, ...pool.children].forEach((t) => { t.disabled = true; });
+          const ok = norm(chosen.map((t) => t.textContent).join(' ')) === norm(step.es);
+          stage.querySelectorAll('.lp-tile').forEach((t) => { t.disabled = true; });
           answerRow.classList.add(ok ? 'is-right' : 'is-wrong');
+          if (!ok) replay(answerRow, 'is-shake');
           speak(step.es);
           return { ok, answer: step.es };
         },
@@ -238,70 +269,75 @@
       let mistakes = 0;
       let matched = 0;
       const api = { auto: true };
-      const mk = (text, side, key, lang) => h('button', { type: 'button', class: 'match__item', 'data-key': key, 'data-side': side, lang }, text);
+      const mk = (text, side, key, lang) => h('button', { type: 'button', class: 'lp-match__item', 'data-key': key, 'data-side': side, lang }, text);
       const left = shuffle(items).map((v) => mk(v.es, 'es', v.es, 'es'));
       const right = shuffle(items).map((v) => mk(v.tr, 'tr', v.es));
       const onClick = (btn) => {
         if (btn.disabled) return;
         if (!selected || selected.dataset.side === btn.dataset.side) {
           if (selected) selected.classList.remove('is-picked');
-          selected = btn; btn.classList.add('is-picked');
+          selected = btn;
+          btn.classList.add('is-picked');
+          sfx('tap');
           if (btn.dataset.side === 'es') speak(btn.textContent);
           return;
         }
         if (selected.dataset.key === btn.dataset.key) {
-          [selected, btn].forEach((b) => { b.classList.remove('is-picked'); b.classList.add('is-matched'); b.disabled = true; });
+          const pair = [selected, btn];
+          pair.forEach((b) => { b.classList.remove('is-picked'); b.classList.add('is-matched'); b.disabled = true; });
+          setTimeout(() => pair.forEach((b) => b.classList.add('is-gone')), 450);
           matched++;
-          if (matched === items.length) api.onDone?.(mistakes === 0);
+          sfx('tap');
+          if (matched === items.length) setTimeout(() => api.onDone?.(mistakes === 0), 300);
         } else {
           mistakes++;
+          sfx('wrong');
           const pair = [selected, btn];
-          pair.forEach((b) => b.classList.add('is-error'));
-          setTimeout(() => pair.forEach((b) => b.classList.remove('is-error', 'is-picked')), 450);
+          pair.forEach((b) => { b.classList.remove('is-picked'); replay(b, 'is-error'); });
+          setTimeout(() => pair.forEach((b) => b.classList.remove('is-error')), 500);
         }
         selected = null;
       };
       [...left, ...right].forEach((b) => b.addEventListener('click', () => onClick(b)));
-      stage.append(h('p', { class: 'step-kicker' }, S.matchPairs), h('div', { class: 'match' }, h('div', { class: 'match__col' }, left), h('div', { class: 'match__col' }, right)));
+      stage.append(heading(S.matchPairs), h('div', { class: 'lp-match' }, h('div', { class: 'lp-match__col' }, left), h('div', { class: 'lp-match__col' }, right)));
       return api;
     },
   };
 
+  // ---------- flow ----------
   function preloadStep(step) {
     const refs = Array.isArray(step.v) ? step.v : step.v === undefined ? [] : [step.v];
     const texts = refs.map((i) => L.vocab[i].es);
     if (step.t === 'gap') texts.push(step.es.replace('___', step.answer));
     if (step.t === 'build') texts.push(step.es, ...words(step.es), ...(step.extra || []));
-    preload(texts);
+    texts.forEach((t) => clip(t));
   }
 
-  // ---------- flow ----------
   function show(i) {
     index = i;
     phase = 'answer';
     stage.innerHTML = '';
-    clearFeedback();
+    resetSheet();
     setProgress();
     const step = steps[i];
     preloadStep(step);
     if (steps[i + 1]) preloadStep(steps[i + 1]);
     current = render[step.t](step);
-    stage.focus?.({ preventScroll: true });
-    if (current.intro) setPrimary(S.continue, true, 'gold');
+    replay(stage, 'is-enter');
+    primary.hidden = false;
+    if (current.intro) setPrimary(S.continue, true, 'red');
     else if (current.auto) {
-      setPrimary(S.check, false);
       primary.hidden = true;
       current.onDone = (ok) => {
-        if (ok) correct++;
+        registerResult(ok);
         phase = 'feedback';
-        showFeedback(ok, '');
-        if (!ok) $('[data-feedback-text]').textContent = S.matchMistakes;
+        showFeedback(ok, '', ok ? '' : S.matchMistakes);
+        if (!ok) $('[data-feedback-title]').textContent = S.almost;
         primary.hidden = false;
-        setPrimary(S.continue, true, ok ? 'gold' : 'navy');
+        setPrimary(S.continue, true, ok ? 'green' : 'red');
         primary.focus();
       };
     } else setPrimary(S.check, false);
-    if (!current.auto) primary.hidden = false;
   }
 
   function next() {
@@ -313,40 +349,110 @@
     if (primary.disabled) return;
     if (current.intro || phase === 'feedback') return next();
     const { ok, answer } = current.evaluate();
-    if (ok) correct++;
+    registerResult(ok);
     phase = 'feedback';
     showFeedback(ok, answer);
-    setPrimary(S.continue, true, ok ? 'gold' : 'navy');
+    setPrimary(S.continue, true, ok ? 'green' : 'red');
   });
 
   document.addEventListener('keydown', (e) => {
     if (!done.hidden) return;
     if (e.key === 'Enter' && !primary.disabled && !primary.hidden && document.activeElement?.tagName !== 'BUTTON') { e.preventDefault(); primary.click(); }
-    if (/^[1-4]$/.test(e.key) && phase === 'answer') {
-      const btn = stage.querySelector(`.opt[data-key="${e.key}"]`);
-      if (btn) btn.click();
-    }
+    if (/^[1-4]$/.test(e.key) && phase === 'answer') stage.querySelector(`.lp-opt[data-key="${e.key}"]`)?.click();
   });
+
+  // Mute toggle for sound effects
+  const muteBtn = $('[data-mute]');
+  const syncMute = () => {
+    const m = !!window.HablenaSfx?.muted;
+    muteBtn.classList.toggle('is-muted', m);
+    muteBtn.setAttribute('aria-pressed', String(m));
+    muteBtn.setAttribute('aria-label', m ? muteBtn.dataset.labelUnmute : muteBtn.dataset.labelMute);
+  };
+  muteBtn.addEventListener('click', () => { window.HablenaSfx?.toggle(); syncMute(); });
+  window.addEventListener('load', syncMute);
+
+  // ---------- finish ----------
+  const countUp = (el, to, ms = 900) => {
+    if (reduceMotion) { el.textContent = String(to); return; }
+    const t0 = performance.now();
+    const tick = (t) => {
+      const p = Math.min(1, (t - t0) / ms);
+      el.textContent = String(Math.round(to * (1 - Math.pow(1 - p, 3))));
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  };
+
+  function confetti() {
+    if (reduceMotion) return;
+    const canvas = $('[data-confetti]');
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const W = canvas.clientWidth, H = canvas.clientHeight;
+    canvas.width = W * dpr; canvas.height = H * dpr; ctx.scale(dpr, dpr);
+    const colors = ['#C8102E', '#FFC400', '#0A1633', '#2FA35F', '#1E6BD6'];
+    const parts = Array.from({ length: 140 }, () => ({
+      x: W / 2 + (Math.random() - 0.5) * 120, y: H * 0.32,
+      vx: (Math.random() - 0.5) * 11, vy: -Math.random() * 12 - 4,
+      w: 6 + Math.random() * 6, h: 8 + Math.random() * 8,
+      r: Math.random() * Math.PI, vr: (Math.random() - 0.5) * 0.3,
+      c: colors[Math.floor(Math.random() * colors.length)],
+    }));
+    const t0 = performance.now();
+    const frame = (t) => {
+      ctx.clearRect(0, 0, W, H);
+      for (const p of parts) {
+        p.vy += 0.32; p.vx *= 0.99; p.x += p.vx; p.y += p.vy; p.r += p.vr;
+        ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.fillStyle = p.c;
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); ctx.restore();
+      }
+      if (t - t0 < 3200) requestAnimationFrame(frame); else ctx.clearRect(0, 0, W, H);
+    };
+    requestAnimationFrame(frame);
+  }
+
+  const localToday = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  };
 
   async function finish() {
     index = steps.length;
     setProgress();
     stage.hidden = true;
-    bar.hidden = true;
+    sheet.hidden = true;
     done.hidden = false;
-    $('[data-done-title]').textContent = correct === scored ? S.perfect : S.wellDone;
-    $('[data-done-score]').textContent = `${correct}/${scored}`;
+    comboBadge.hidden = true;
+    sfx('complete');
+    confetti();
+
+    const accuracy = Math.round((correct / scored) * 100);
+    const secs = Math.round((Date.now() - startedAt) / 1000);
+    $('[data-done-title]').textContent = accuracy === 100 ? S.perfect : S.wellDone;
+    $('[data-stat-time]').textContent = `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
+    countUp($('[data-stat-acc]'), accuracy);
+    const localXp = 5 + Math.round((10 * correct) / scored);
+    countUp($('[data-stat-xp]'), localXp);
+
     const note = $('[data-save-note]');
     try {
       const res = await fetch('/api/progress', {
         method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lessonId: L.id, correct, total: scored }),
+        body: JSON.stringify({ lessonId: L.id, correct, total: scored, today: localToday() }),
       });
       if (res.status === 401) {
         note.innerHTML = '';
         note.append(S.loginToSave + ' ', h('a', { href: root.dataset.login }, S.loginLink));
         note.hidden = false;
-      } else if (!res.ok) throw new Error();
+        return;
+      }
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      if (data.streak) {
+        $('[data-streak-text]').textContent = S.streakDays.replace('{n}', data.streak);
+        $('[data-streak]').hidden = false;
+      }
     } catch {
       note.textContent = S.saveFailed;
       note.hidden = false;
@@ -355,9 +461,12 @@
 
   $('[data-restart]').addEventListener('click', () => {
     correct = 0;
+    combo = 0;
+    startedAt = Date.now();
     done.hidden = true;
     stage.hidden = false;
-    bar.hidden = false;
+    sheet.hidden = false;
+    $('[data-streak]').hidden = true;
     show(0);
   });
 

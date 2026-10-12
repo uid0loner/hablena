@@ -356,7 +356,7 @@
     "greetingNoName": "¡Hola!",
     "courseLabel": "Coming next",
     "courseTitle": "More units are on their way.",
-    "courseText": "Unit 1 is ready. Next up: family, food and your daily routine, plus spoken conversations with Hablena.",
+    "courseText": "Units 1 and 2 are ready. Next up: getting around town, shopping and spoken conversations with Hablena.",
     "grammarTitle": "Grammar guides",
     "grammarText": "Ser vs. estar, por vs. para and more, with quizzes.",
     "conjTitle": "Verb conjugator",
@@ -410,6 +410,38 @@
     "repeat": "Repeat lesson",
     "loginToSave": "Log in to save your progress.",
     "loginLink": "Log in",
-    "saveFailed": "Your progress could not be saved. Please check your connection."
+    "saveFailed": "Your progress could not be saved. Please check your connection.",
+    "mute": "Turn sounds off",
+    "unmute": "Turn sounds on",
+    "xpLabel": "Total XP",
+    "accuracyLabel": "Accuracy",
+    "timeLabel": "Time",
+    "praise": [
+      "¡Muy bien!",
+      "¡Genial!",
+      "¡Perfecto!",
+      "¡Excelente!",
+      "Nice one!"
+    ],
+    "introHeading": "Listen and remember",
+    "almost": "Almost!",
+    "streakDays": "{n}-day streak"
+  },
+  "app": {
+    "learnTab": "Learn",
+    "streak": "day streak",
+    "xpTotal": "Total XP",
+    "dailyGoal": "Daily goal",
+    "goalText": "{xp} of {goal} XP today. One lesson gets you most of the way.",
+    "goalDone": "Daily goal reached. ¡Olé!",
+    "streakHint": "Do one lesson a day to grow your streak.",
+    "streakActive": "You practised today. ¡Hasta mañana!",
+    "start": "Start",
+    "review": "Practise again",
+    "startBubble": "Start",
+    "locked": "Finish the lessons before this one to unlock it.",
+    "lessonOf": "Lesson {n} of {total}",
+    "bestScore": "Best result: {n}/{total}",
+    "more": "More practice"
   }
 }
