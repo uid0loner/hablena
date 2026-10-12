@@ -130,7 +130,7 @@ ${searchForm(t, indexUrl, true)}`,
       <h2 class="display display--l" id="cta-practise">${esc(t.conj.ctaTitle)}</h2>
       <p class="lead" style="margin-top:16px">${esc(fill(t.conj.ctaText, { verb: def.inf }))}</p>
     </div>
-    <a class="btn btn--gold btn--lg" href="${urls.home(lang)}">${esc(t.conj.ctaButton)}</a>
+    <a class="btn btn--gold btn--lg" href="${urls.signup(lang)}">${esc(t.conj.ctaButton)}</a>
   </div>
 </section>
 <section class="container conj-related" aria-labelledby="more-verbs">

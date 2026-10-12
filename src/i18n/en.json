@@ -209,7 +209,9 @@
     "conjugator": "/conjugation/",
     "grammar": "/grammar/",
     "imprint": "/imprint/",
-    "privacy": "/privacy/"
+    "privacy": "/privacy/",
+    "signup": "/signup/",
+    "login": "/login/"
   },
   "conj": {
     "slug": "conjugation",
@@ -325,6 +327,55 @@
       "slug": "privacy",
       "title": "Privacy policy",
       "description": "How Hablena handles your data: no cookies, no tracking, no third-party content."
+    }
+  },
+  "auth": {
+    "signupSlug": "signup",
+    "loginSlug": "login",
+    "signupTitle": "Create your free account",
+    "signupLead": "Start learning in under a minute. No credit card needed.",
+    "loginTitle": "Welcome back",
+    "loginLead": "Log in to continue where you left off.",
+    "name": "First name (optional)",
+    "email": "Email",
+    "password": "Password",
+    "passwordHint": "At least 10 characters. A short sentence works great.",
+    "signupButton": "Create account",
+    "loginButton": "Log in",
+    "busy": "One moment…",
+    "privacyNote": "By signing up you agree that we store your account data as described in our {link}.",
+    "privacyLink": "privacy policy",
+    "haveAccount": "Already have an account?",
+    "loginLink": "Log in",
+    "noAccount": "New to Hablena?",
+    "signupLink": "Create a free account",
+    "forgot": "Forgot your password? Write to us:",
+    "appTitle": "Your Hablena",
+    "appKicker": "Your Hablena",
+    "greeting": "¡Hola, {name}!",
+    "greetingNoName": "¡Hola!",
+    "courseLabel": "Your course",
+    "courseTitle": "The first lessons are on their way.",
+    "courseText": "We are building the A1 course and your conversations with Hablena right now. You will be among the first to try them.",
+    "grammarTitle": "Grammar guides",
+    "grammarText": "Ser vs. estar, por vs. para and more, with quizzes.",
+    "conjTitle": "Verb conjugator",
+    "conjText": "Every tense of 341 essential verbs.",
+    "accountTitle": "Your account",
+    "memberSince": "Member since",
+    "logout": "Log out",
+    "deleteTitle": "Delete account",
+    "deleteText": "This permanently deletes your account and all data stored with it. Enter your password to confirm.",
+    "deleteButton": "Delete my account permanently",
+    "errors": {
+      "invalid_email": "Please enter a valid email address.",
+      "weak_password": "Your password needs at least 10 characters.",
+      "email_taken": "There is already an account with this email. Try logging in.",
+      "invalid_credentials": "Email or password is not correct.",
+      "too_many_requests": "Too many attempts. Please wait a few minutes and try again.",
+      "not_configured": "Accounts are not available yet. Please try again soon.",
+      "server_error": "Something went wrong on our side. Please try again.",
+      "network": "No connection. Please check your internet and try again."
     }
   }
 }

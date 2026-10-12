@@ -55,12 +55,36 @@ from `scripts/legal/pages.mjs`; owner details and contact email live in `src/con
 The privacy policy describes exactly what the site does today (Cloudflare hosting, no cookies,
 no tracking, self-hosted fonts). Update it whenever accounts, payments or new services are added.
 
+## Accounts (Worker API)
+
+`worker/index.js` serves `/api/*` (everything else comes from `dist/`):
+
+| Endpoint | Purpose |
+| --- | --- |
+| `POST /api/auth/signup` | create account, start session |
+| `POST /api/auth/login` | log in |
+| `POST /api/auth/logout` | end session |
+| `GET /api/me` | current user |
+| `POST /api/me/delete` | delete account (password required) |
+
+Security: PBKDF2-SHA256 password hashes (100k iterations), random session tokens stored only as
+SHA-256 hashes, `__Host-` HttpOnly/Secure/SameSite=Lax cookie, Origin + JSON checks against CSRF,
+rate limits on login (per email and IP) and sign-up (per IP).
+
+Database: Cloudflare D1, schema in `migrations/`. Without a `DB` binding the API answers 503 and the
+static site keeps working.
+
+Setup once:
+1. Cloudflare dashboard → **Storage & Databases → D1** → create `hablena` (location: **EU jurisdiction**)
+2. Add the binding to `wrangler.jsonc` (see the comment there) with the database ID
+3. Set the Cloudflare deploy command to `npx wrangler d1 migrations apply hablena --remote && npx wrangler deploy`
+
 ## Local development
 
 ```bash
-npm test           # checks the conjugation engine
+npm test           # conjugation engine + Worker API tests
 npm run build      # builds dist/
-npm run dev        # builds and serves on http://localhost:4321
+npm run dev        # builds and runs site + API locally (SQLite) on http://localhost:4321
 ```
 
 ## Deploy (Cloudflare)

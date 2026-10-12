@@ -111,3 +111,78 @@
     });
   });
 })();
+
+// Accounts: sign-up, log-in, app area
+(() => {
+  const post = (path, body) =>
+    fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', body: JSON.stringify(body || {}) })
+      .then(async (res) => ({ ok: res.ok, status: res.status, data: await res.json().catch(() => ({})) }));
+  const readMessages = (el) => { try { return JSON.parse(el.dataset.messages || '{}'); } catch { return {}; } };
+  const showError = (box, messages, code) => { box.textContent = messages[code] || messages.server_error || code; box.hidden = false; };
+
+  // Sign-up / log-in forms
+  document.querySelectorAll('[data-auth-form]').forEach((form) => {
+    const mode = form.dataset.authForm;
+    const messages = readMessages(form);
+    const errorBox = form.querySelector('[data-auth-error]');
+    const button = form.querySelector('button[type="submit"]');
+    const fields = { name: form.querySelector('#name'), email: form.querySelector('#email'), password: form.querySelector('#password') };
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorBox.hidden = true;
+      Object.values(fields).forEach((f) => f && f.removeAttribute('aria-invalid'));
+
+      const email = fields.email.value.trim();
+      const password = fields.password.value;
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { fields.email.setAttribute('aria-invalid', 'true'); fields.email.focus(); return showError(errorBox, messages, 'invalid_email'); }
+      if (mode === 'signup' && password.length < 10) { fields.password.setAttribute('aria-invalid', 'true'); fields.password.focus(); return showError(errorBox, messages, 'weak_password'); }
+
+      button.disabled = true;
+      button.textContent = button.dataset.busy;
+      try {
+        const body = { email, password };
+        if (mode === 'signup') { body.name = fields.name ? fields.name.value.trim() : ''; body.lang = form.dataset.lang; }
+        const res = await post(`/api/auth/${mode}`, body);
+        if (res.ok) { location.href = form.dataset.redirect; return; }
+        showError(errorBox, messages, res.data.error || 'server_error');
+      } catch {
+        showError(errorBox, messages, 'network');
+      }
+      button.disabled = false;
+      button.textContent = button.dataset.label;
+    });
+  });
+
+  // App area
+  const app = document.querySelector('[data-app]');
+  if (!app) return;
+  const messages = readMessages(app);
+  app.setAttribute('aria-busy', 'true');
+  fetch('/api/me', { credentials: 'same-origin' })
+    .then(async (res) => {
+      if (res.status === 401 || res.status === 503) { location.replace(app.dataset.login); return; }
+      const { user } = await res.json();
+      const greet = document.querySelector('[data-greeting]');
+      if (greet && user.name) greet.textContent = greet.dataset.template.replace('{name}', user.name);
+      app.querySelector('[data-user-email]').textContent = user.email;
+      app.querySelector('[data-user-since]').textContent = new Date(user.createdAt).toLocaleDateString(document.documentElement.lang, { year: 'numeric', month: 'long', day: 'numeric' });
+      app.removeAttribute('aria-busy');
+    })
+    .catch(() => location.replace(app.dataset.login));
+
+  app.querySelector('[data-logout]')?.addEventListener('click', async () => {
+    await post('/api/auth/logout').catch(() => {});
+    location.href = app.dataset.home;
+  });
+
+  const del = app.querySelector('[data-delete-form]');
+  del?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const box = del.querySelector('[data-auth-error]');
+    box.hidden = true;
+    const res = await post('/api/me/delete', { password: del.querySelector('#delete-password').value }).catch(() => null);
+    if (res && res.ok) { location.href = app.dataset.home; return; }
+    showError(box, messages, res ? res.data.error || 'server_error' : 'network');
+  });
+})();

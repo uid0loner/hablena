@@ -1,0 +1,92 @@
+// End-to-end tests for the Worker API against a local SQLite database that mimics D1.
+// Run: npm run test:worker
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import worker from '../worker/index.js';
+import { createD1 } from './lib/d1-sqlite.mjs';
+
+const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+const d1 = () => createD1(join(root, 'migrations'));
+
+const ORIGIN = 'https://hablena.com';
+const env = { DB: d1(), ASSETS: { fetch: async () => new Response('static') } };
+let failures = 0;
+let checks = 0;
+const check = (name, cond, extra = '') => { checks++; if (!cond) { failures++; console.error(`✗ ${name} ${extra}`); } };
+
+async function call(method, path, { body, cookie, origin = ORIGIN, type = 'application/json', ip = '1.2.3.4' } = {}) {
+  const headers = { 'CF-Connecting-IP': ip };
+  if (origin) headers.Origin = origin;
+  if (body !== undefined) headers['Content-Type'] = type;
+  if (cookie) headers.Cookie = cookie;
+  const res = await worker.fetch(new Request(ORIGIN + path, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) }), env);
+  const data = res.headers.get('Content-Type')?.includes('json') ? await res.json() : await res.text();
+  const setCookie = res.headers.get('Set-Cookie') || '';
+  const session = setCookie.match(/__Host-hablena_session=([^;]*)/)?.[1];
+  return { status: res.status, data, setCookie, cookie: session ? `__Host-hablena_session=${session}` : null };
+}
+
+// Static pages still go to the assets binding
+check('static passthrough', (await worker.fetch(new Request(ORIGIN + '/'), env).then((r) => r.text())) === 'static');
+
+// Missing DB → 503
+{
+  const res = await worker.fetch(new Request(ORIGIN + '/api/me'), { ASSETS: env.ASSETS });
+  check('not configured → 503', res.status === 503);
+}
+
+// Signup validation
+check('invalid email', (await call('POST', '/api/auth/signup', { body: { email: 'nope', password: 'longenough1' } })).status === 400);
+check('weak password', (await call('POST', '/api/auth/signup', { body: { email: 'a@b.de', password: 'short' } })).status === 400);
+check('CSRF: foreign origin', (await call('POST', '/api/auth/signup', { body: { email: 'a@b.de', password: 'longenough1' }, origin: 'https://evil.example' })).status === 403);
+check('CSRF: missing origin', (await call('POST', '/api/auth/signup', { body: { email: 'a@b.de', password: 'longenough1' }, origin: null })).status === 403);
+check('CSRF: form post rejected', (await call('POST', '/api/auth/signup', { body: { email: 'a@b.de', password: 'longenough1' }, type: 'application/x-www-form-urlencoded' })).status === 415);
+
+// Signup
+const s = await call('POST', '/api/auth/signup', { body: { email: '  Nico@Example.com ', password: 'correct horse battery', name: 'Nico', lang: 'de' } });
+check('signup 201', s.status === 201, JSON.stringify(s.data));
+check('signup sets secure cookie', /HttpOnly/.test(s.setCookie) && /Secure/.test(s.setCookie) && /SameSite=Lax/.test(s.setCookie));
+check('email normalized', s.data.user?.email === 'nico@example.com');
+const stored = env.DB.raw.prepare('SELECT password FROM users').get().password;
+check('password stored hashed', stored.startsWith('pbkdf2$100000$') && !stored.includes('correct horse'));
+const tokenRow = env.DB.raw.prepare('SELECT token_hash FROM sessions').get();
+check('session token stored hashed', tokenRow.token_hash.length === 64 && !s.cookie.includes(tokenRow.token_hash));
+check('duplicate email → 409', (await call('POST', '/api/auth/signup', { body: { email: 'nico@example.com', password: 'another password' } })).status === 409);
+
+// Me
+const m = await call('GET', '/api/me', { cookie: s.cookie });
+check('me with session', m.status === 200 && m.data.user.name === 'Nico' && m.data.user.lang === 'de');
+check('me without session → 401', (await call('GET', '/api/me')).status === 401);
+check('me with forged token → 401', (await call('GET', '/api/me', { cookie: '__Host-hablena_session=forged' })).status === 401);
+
+// Logout
+const lo = await call('POST', '/api/auth/logout', { cookie: s.cookie, body: {} });
+check('logout clears cookie', lo.status === 200 && /Max-Age=0/.test(lo.setCookie));
+check('session gone after logout', (await call('GET', '/api/me', { cookie: s.cookie })).status === 401);
+
+// Login
+check('wrong password → 401', (await call('POST', '/api/auth/login', { body: { email: 'nico@example.com', password: 'wrong password!' } })).status === 401);
+check('unknown user → 401 (same error)', (await call('POST', '/api/auth/login', { body: { email: 'ghost@example.com', password: 'whatever123' } })).data.error === 'invalid_credentials');
+const li = await call('POST', '/api/auth/login', { body: { email: 'NICO@example.com', password: 'correct horse battery' } });
+check('login 200', li.status === 200 && li.cookie);
+check('me after login', (await call('GET', '/api/me', { cookie: li.cookie })).status === 200);
+
+// Brute-force protection
+for (let i = 0; i < 10; i++) await call('POST', '/api/auth/login', { body: { email: 'nico@example.com', password: 'guess' + i + 'xxxxx' }, ip: '9.9.9.' + i });
+check('locked after 10 failures', (await call('POST', '/api/auth/login', { body: { email: 'nico@example.com', password: 'correct horse battery' } })).status === 429);
+
+// Signup rate limit per IP
+for (let i = 0; i < 5; i++) await call('POST', '/api/auth/signup', { body: { email: `u${i}@example.com`, password: 'longenough1' }, ip: '5.5.5.5' });
+check('signup limited per IP', (await call('POST', '/api/auth/signup', { body: { email: 'u9@example.com', password: 'longenough1' }, ip: '5.5.5.5' })).status === 429);
+
+// Account deletion
+check('delete needs password', (await call('POST', '/api/me/delete', { cookie: li.cookie, body: { password: 'nope' } })).status === 401);
+const del = await call('POST', '/api/me/delete', { cookie: li.cookie, body: { password: 'correct horse battery' } });
+check('delete 200', del.status === 200);
+check('user removed', !env.DB.raw.prepare("SELECT 1 FROM users WHERE email = 'nico@example.com'").get());
+check('sessions removed', !env.DB.raw.prepare('SELECT 1 FROM sessions s LEFT JOIN users u ON u.id = s.user_id WHERE u.id IS NULL').get());
+
+check('unknown route → 404', (await call('GET', '/api/nothing')).status === 404);
+
+console.log(`${checks - failures}/${checks} worker checks passed`);
+if (failures) process.exit(1);

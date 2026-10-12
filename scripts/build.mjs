@@ -14,6 +14,7 @@ import { fileURLToPath } from 'node:url';
 import { conjugatorPages } from './conjugator/pages.mjs';
 import { grammarPages } from './grammar/pages.mjs';
 import { legalPages } from './legal/pages.mjs';
+import { accountPages } from './account/pages.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = join(root, 'src');
@@ -87,6 +88,7 @@ function makeCtx(dict, lang, paths, extra = {}) {
     pageTitle: escAttr(extra.title ?? t.meta.title),
     pageDescription: escAttr(extra.description ?? t.meta.description),
     hero: extra.hero ?? '',
+    robots: extra.noindex ? '<meta name="robots" content="noindex">' : '',
     content: extra.content ?? '',
   };
 }
@@ -138,15 +140,18 @@ async function build() {
     grammar: (l, slug) => `${prefix(l)}${dict[l].gram.slug}/${slug}/`,
     imprint: (l) => `${prefix(l)}${dict[l].legal.imprint.slug}/`,
     privacy: (l) => `${prefix(l)}${dict[l].legal.privacy.slug}/`,
+    signup: (l) => `${prefix(l)}${dict[l].auth.signupSlug}/`,
+    login: (l) => `${prefix(l)}${dict[l].auth.loginSlug}/`,
+    app: (l) => `${prefix(l)}app/`,
   };
   const site = JSON.parse(await readFile(join(SRC, 'config', 'site.json'), 'utf8'));
   let generated = 0;
   for (const lang of LOCALES) {
     const other = LOCALES.find((l) => l !== lang);
-    for (const p of [...conjugatorPages(dict[lang], urls, other), ...grammarPages(dict[lang], urls, other), ...legalPages(dict[lang], urls, other, site)]) {
+    for (const p of [...conjugatorPages(dict[lang], urls, other), ...grammarPages(dict[lang], urls, other), ...legalPages(dict[lang], urls, other, site), ...accountPages(dict[lang], urls, other, site)]) {
       const html = render(tool, makeCtx(dict, lang, { [lang]: p.path, [other]: p.alt }, p), 'tool.html');
       await writePage(p.path, html);
-      sitemap.push(SITE + p.path);
+      if (!p.noindex) sitemap.push(SITE + p.path);
       generated++;
     }
   }
@@ -158,7 +163,7 @@ async function build() {
       .join('\n')}\n</urlset>\n`
   );
 
-  console.log(`Built ${sitemap.length} pages (${generated} generated) for ${LOCALES.join(', ')} → dist/`);
+  console.log(`Built ${Object.keys(pages).length * LOCALES.length + generated} pages (${sitemap.length} in sitemap) for ${LOCALES.join(', ')} → dist/`);
 }
 
 build().catch((err) => {

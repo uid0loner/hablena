@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
-    "test": "node scripts/conjugator/test.mjs",
-    "dev": "node scripts/build.mjs && npx --yes serve dist -l 4321",
+    "test": "node scripts/conjugator/test.mjs && node --no-warnings scripts/worker-test.mjs",
+    "dev": "node scripts/build.mjs && node --no-warnings scripts/dev-server.mjs",
     "deploy": "node scripts/build.mjs && npx wrangler deploy"
   },
   "engines": {

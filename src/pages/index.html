@@ -8,8 +8,8 @@
       <h1 class="display display--xl hero__title">{{t.hero.title1}}<br>{{t.hero.title2}}<br><span class="text-gold">{{t.hero.title3}}</span></h1>
       <p class="hero__lead">{{t.hero.lead}}</p>
       <div class="hero__ctas">
-        <a class="btn btn--gold btn--lg" href="#">{{t.hero.cta}}</a>
-        <a class="btn btn--ghost-light btn--lg" href="#">{{t.hero.cta2}}</a>
+        <a class="btn btn--gold btn--lg" href="{{t.links.signup}}">{{t.hero.cta}}</a>
+        <a class="btn btn--ghost-light btn--lg" href="{{t.links.signup}}">{{t.hero.cta2}}</a>
       </div>
       <p class="hero__note">{{t.hero.note}}</p>
     </div>
@@ -203,7 +203,7 @@
           <ul class="checks">
             {{#each t.plans.free.items}}<li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0A1633" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg><span>{{this}}</span></li>{{/each}}
           </ul>
-          <a class="btn btn--outline btn--lg btn--block" href="#">{{t.plans.free.cta}}</a>
+          <a class="btn btn--outline btn--lg btn--block" href="{{t.links.signup}}">{{t.plans.free.cta}}</a>
         </div>
         <div class="plan plan--premium">
           <div class="plan__head">
@@ -221,7 +221,7 @@
           <ul class="checks">
             {{#each t.plans.premium.items}}<li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFC400" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg><span>{{this}}</span></li>{{/each}}
           </ul>
-          <a class="btn btn--gold btn--lg btn--block" href="#">{{t.plans.premium.cta}}</a>
+          <a class="btn btn--gold btn--lg btn--block" href="{{t.links.signup}}">{{t.plans.premium.cta}}</a>
         </div>
       </div>
     </div>
@@ -233,7 +233,7 @@
         <h2 class="display display--xxl" id="cta-title" lang="es">¿Hablamos?</h2>
         <p>{{t.cta.text}}</p>
       </div>
-      <a class="btn btn--gold btn--lg" href="#">{{t.cta.button}}</a>
+      <a class="btn btn--gold btn--lg" href="{{t.links.signup}}">{{t.cta.button}}</a>
     </div>
   </section>
 </main>

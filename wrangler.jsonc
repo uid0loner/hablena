@@ -1,12 +1,17 @@
 {
-  // Cloudflare Worker that serves the static site from ./dist.
+  // Cloudflare Worker: serves the static site from ./dist and the API under /api/*.
   // Build command: npm run build · Deploy command: npx wrangler deploy
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "hablena",
+  "main": "worker/index.js",
   "compatibility_date": "2026-10-01",
   "assets": {
     "directory": "./dist",
+    "binding": "ASSETS",
     "not_found_handling": "404-page",
-    "html_handling": "auto-trailing-slash"
+    "html_handling": "auto-trailing-slash",
+    "run_worker_first": ["/api/*"]
   }
+  // Accounts need a D1 database. Once it exists, add:
+  // "d1_databases": [{ "binding": "DB", "database_name": "hablena", "database_id": "<ID>", "migrations_dir": "migrations" }]
 }

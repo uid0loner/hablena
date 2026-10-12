@@ -145,7 +145,7 @@ export function grammarPages(t, urls, otherLang) {
       <h2 class="display display--l" id="cta-practise">${esc(t.gram.ctaTitle)}</h2>
       <p class="lead" style="margin-top:16px">${esc(t.gram.ctaText)}</p>
     </div>
-    <a class="btn btn--gold btn--lg" href="${urls.home(lang)}">${esc(t.gram.ctaButton)}</a>
+    <a class="btn btn--gold btn--lg" href="${urls.signup(lang)}">${esc(t.gram.ctaButton)}</a>
   </div>
 </section>
 <section class="container conj-related" aria-labelledby="more-topics">

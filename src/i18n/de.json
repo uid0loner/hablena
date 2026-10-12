@@ -209,7 +209,9 @@
     "conjugator": "/de/konjugation/",
     "grammar": "/de/grammatik/",
     "imprint": "/de/impressum/",
-    "privacy": "/de/datenschutz/"
+    "privacy": "/de/datenschutz/",
+    "signup": "/de/registrieren/",
+    "login": "/de/anmelden/"
   },
   "conj": {
     "slug": "konjugation",
@@ -325,6 +327,55 @@
       "slug": "datenschutz",
       "title": "Datenschutzerklärung",
       "description": "Wie Hablena mit deinen Daten umgeht: keine Cookies, kein Tracking, keine Inhalte von Drittanbietern."
+    }
+  },
+  "auth": {
+    "signupSlug": "registrieren",
+    "loginSlug": "anmelden",
+    "signupTitle": "Kostenloses Konto erstellen",
+    "signupLead": "In unter einer Minute startklar. Ohne Kreditkarte.",
+    "loginTitle": "Willkommen zurück",
+    "loginLead": "Melde dich an und mach da weiter, wo du aufgehört hast.",
+    "name": "Vorname (optional)",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "passwordHint": "Mindestens 10 Zeichen. Ein kurzer Satz funktioniert super.",
+    "signupButton": "Konto erstellen",
+    "loginButton": "Anmelden",
+    "busy": "Einen Moment …",
+    "privacyNote": "Mit der Registrierung stimmst du zu, dass wir deine Kontodaten wie in unserer {link} beschrieben speichern.",
+    "privacyLink": "Datenschutzerklärung",
+    "haveAccount": "Du hast schon ein Konto?",
+    "loginLink": "Anmelden",
+    "noAccount": "Neu bei Hablena?",
+    "signupLink": "Kostenloses Konto erstellen",
+    "forgot": "Passwort vergessen? Schreib uns:",
+    "appTitle": "Dein Hablena",
+    "appKicker": "Dein Hablena",
+    "greeting": "¡Hola, {name}!",
+    "greetingNoName": "¡Hola!",
+    "courseLabel": "Dein Kurs",
+    "courseTitle": "Die ersten Lektionen sind unterwegs.",
+    "courseText": "Wir bauen gerade den A1-Kurs und deine Gespräche mit Hablena. Du gehörst zu den Ersten, die sie ausprobieren können.",
+    "grammarTitle": "Grammatik-Themen",
+    "grammarText": "Ser oder estar, por oder para und mehr, mit Quiz.",
+    "conjTitle": "Verb-Konjugator",
+    "conjText": "Alle Zeitformen von 341 wichtigen Verben.",
+    "accountTitle": "Dein Konto",
+    "memberSince": "Dabei seit",
+    "logout": "Abmelden",
+    "deleteTitle": "Konto löschen",
+    "deleteText": "Damit werden dein Konto und alle damit gespeicherten Daten endgültig gelöscht. Gib zur Bestätigung dein Passwort ein.",
+    "deleteButton": "Mein Konto endgültig löschen",
+    "errors": {
+      "invalid_email": "Bitte gib eine gültige E-Mail-Adresse ein.",
+      "weak_password": "Dein Passwort braucht mindestens 10 Zeichen.",
+      "email_taken": "Mit dieser E-Mail gibt es schon ein Konto. Versuch, dich anzumelden.",
+      "invalid_credentials": "E-Mail oder Passwort ist nicht korrekt.",
+      "too_many_requests": "Zu viele Versuche. Bitte warte ein paar Minuten und versuch es dann noch einmal.",
+      "not_configured": "Konten sind noch nicht verfügbar. Bitte versuch es bald noch einmal.",
+      "server_error": "Bei uns ist etwas schiefgelaufen. Bitte versuch es noch einmal.",
+      "network": "Keine Verbindung. Bitte prüf dein Internet und versuch es noch einmal."
     }
   }
 }

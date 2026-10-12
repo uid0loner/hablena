@@ -543,3 +543,49 @@ h1, h2, h3, p { margin: 0; }
 .legal p { font-size: 16px; line-height: 1.7; color: var(--ink-2); margin-bottom: 12px; }
 .legal__note { background: var(--surface); border-radius: 12px; padding: 18px 20px; color: var(--ink) !important; }
 .legal__updated { margin-top: 32px; font-size: 14px !important; color: var(--muted) !important; }
+
+/* ==========================================================================
+   Accounts
+   ========================================================================== */
+
+.auth { padding-block: 48px 96px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+.auth-card {
+  width: 100%; max-width: 460px; background: var(--white); border: 1.5px solid var(--line);
+  border-radius: var(--radius-xl); padding: clamp(24px, 4vw, 36px); display: flex; flex-direction: column; gap: 18px;
+  box-shadow: 0 20px 50px rgba(10,22,51,.06);
+}
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 14px; font-weight: 700; }
+.field input {
+  font: inherit; font-size: 16px; color: var(--navy); min-height: 50px; padding: 0 14px;
+  border: 1.5px solid var(--line); border-radius: var(--radius); background: var(--white); width: 100%;
+}
+.field input:focus { outline: none; border-color: var(--navy); box-shadow: 0 0 0 3px rgba(255,196,0,.6); }
+.field input[aria-invalid="true"] { border-color: var(--red); }
+.field__hint { font-size: 13px; color: var(--muted); }
+.auth-error { background: var(--red-tint); color: var(--red-dark); border-radius: var(--radius); padding: 12px 14px; font-size: 15px; font-weight: 600; }
+.auth-small { font-size: 13px; color: var(--muted); line-height: 1.5; }
+.auth-switch { font-size: 15px; color: var(--ink-2); }
+.auth-switch a { font-weight: 700; }
+.btn[disabled] { opacity: .7; cursor: progress; }
+
+.app-home { padding-block: 48px 96px; display: flex; flex-direction: column; gap: 48px; }
+.app-home[aria-busy="true"] .account { visibility: hidden; }
+.app-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 16px; }
+.app-card { background: var(--surface); border-radius: var(--radius-l); padding: 28px; display: flex; flex-direction: column; gap: 10px; color: var(--navy); text-decoration: none; border: 1.5px solid transparent; }
+.app-card h2 { font-size: 22px; font-weight: 700; line-height: 1.2; }
+.app-card p { font-size: 15px; line-height: 1.55; color: var(--ink-2); }
+.app-card--dark { background: var(--navy); color: var(--white); }
+.app-card--dark .label { color: var(--gold); }
+.app-card--dark p { color: var(--navy-text); }
+.app-link:hover { border-color: var(--navy); color: var(--navy); }
+
+.account { max-width: 640px; display: flex; flex-direction: column; gap: 20px; align-items: flex-start; }
+.account h2 { font-family: var(--font-display); font-stretch: 112%; font-weight: 900; font-size: 28px; text-transform: uppercase; letter-spacing: -0.01em; }
+.account__facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin: 0; width: 100%; }
+.account__facts dt { font-size: 13px; color: var(--muted); }
+.account__facts dd { margin: 4px 0 0; font-weight: 700; word-break: break-all; }
+.danger { width: 100%; border-top: 1px solid var(--line); padding-top: 16px; }
+.danger summary { cursor: pointer; font-weight: 700; color: var(--red); min-height: 44px; display: flex; align-items: center; }
+.danger__form { display: flex; flex-direction: column; gap: 14px; margin-top: 12px; max-width: 420px; }
+.danger__form p { font-size: 15px; color: var(--ink-2); line-height: 1.55; }
