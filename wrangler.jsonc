@@ -1,6 +1,7 @@
 {
   // Cloudflare Worker: serves the static site from ./dist and the API under /api/*.
-  // Build command: npm run build · Deploy command: npx wrangler deploy
+  // Build command: npm run build
+  // Deploy command: npx wrangler d1 migrations apply hablena --remote && npx wrangler deploy
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "hablena",
   "main": "worker/index.js",
@@ -11,7 +12,13 @@
     "not_found_handling": "404-page",
     "html_handling": "auto-trailing-slash",
     "run_worker_first": ["/api/*"]
-  }
-  // Accounts need a D1 database. Once it exists, add:
-  // "d1_databases": [{ "binding": "DB", "database_name": "hablena", "database_id": "<ID>", "migrations_dir": "migrations" }]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "hablena",
+      "database_id": "b521cf23-d2c0-497f-8872-8251d42abb9f",
+      "migrations_dir": "migrations"
+    }
+  ]
 }
