@@ -536,3 +536,10 @@ h1, h2, h3, p { margin: 0; }
 .quiz__score { font-family: var(--font-display); font-stretch: 112%; font-weight: 900; font-size: 22px; text-transform: uppercase; color: var(--navy); }
 
 @media (max-width: 860px) { .gverbs { position: static; } }
+
+/* Legal pages */
+.legal { max-width: 760px; padding-block: 56px 96px; }
+.legal h2 { font-size: 20px; font-weight: 700; margin: 36px 0 10px; }
+.legal p { font-size: 16px; line-height: 1.7; color: var(--ink-2); margin-bottom: 12px; }
+.legal__note { background: var(--surface); border-radius: 12px; padding: 18px 20px; color: var(--ink) !important; }
+.legal__updated { margin-top: 32px; font-size: 14px !important; color: var(--muted) !important; }

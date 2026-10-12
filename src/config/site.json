@@ -1,0 +1,9 @@
+{
+  "owner": "Nico Christiansen",
+  "street": "Neue Str. 62",
+  "zip": "27576",
+  "city": "Bremerhaven",
+  "country": { "en": "Germany", "de": "Deutschland" },
+  "email": "kontakt@hablena.com",
+  "legalUpdated": { "en": "October 2026", "de": "Oktober 2026" }
+}

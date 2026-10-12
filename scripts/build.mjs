@@ -13,6 +13,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { conjugatorPages } from './conjugator/pages.mjs';
 import { grammarPages } from './grammar/pages.mjs';
+import { legalPages } from './legal/pages.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = join(root, 'src');
@@ -135,11 +136,14 @@ async function build() {
     verb: (l, slug) => `${prefix(l)}${dict[l].conj.slug}/${slug}/`,
     grammarIndex: (l) => `${prefix(l)}${dict[l].gram.slug}/`,
     grammar: (l, slug) => `${prefix(l)}${dict[l].gram.slug}/${slug}/`,
+    imprint: (l) => `${prefix(l)}${dict[l].legal.imprint.slug}/`,
+    privacy: (l) => `${prefix(l)}${dict[l].legal.privacy.slug}/`,
   };
+  const site = JSON.parse(await readFile(join(SRC, 'config', 'site.json'), 'utf8'));
   let generated = 0;
   for (const lang of LOCALES) {
     const other = LOCALES.find((l) => l !== lang);
-    for (const p of [...conjugatorPages(dict[lang], urls, other), ...grammarPages(dict[lang], urls, other)]) {
+    for (const p of [...conjugatorPages(dict[lang], urls, other), ...grammarPages(dict[lang], urls, other), ...legalPages(dict[lang], urls, other, site)]) {
       const html = render(tool, makeCtx(dict, lang, { [lang]: p.path, [other]: p.alt }, p), 'tool.html');
       await writePage(p.path, html);
       sitemap.push(SITE + p.path);

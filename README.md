@@ -48,6 +48,13 @@ To add a verb, add one line to `verbs.mjs`, add a reference check to `test.mjs`,
 Spanish examples are shared, explanations and translations exist per language.
 Each guide has rules, examples, common mistakes, an interactive quiz and links to the conjugator.
 
+## Legal pages
+
+Imprint (`/imprint/`, `/de/impressum/`) and privacy policy (`/privacy/`, `/de/datenschutz/`) are generated
+from `scripts/legal/pages.mjs`; owner details and contact email live in `src/config/site.json`.
+The privacy policy describes exactly what the site does today (Cloudflare hosting, no cookies,
+no tracking, self-hosted fonts). Update it whenever accounts, payments or new services are added.
+
 ## Local development
 
 ```bash

@@ -207,7 +207,9 @@
   },
   "links": {
     "conjugator": "/de/konjugation/",
-    "grammar": "/de/grammatik/"
+    "grammar": "/de/grammatik/",
+    "imprint": "/de/impressum/",
+    "privacy": "/de/datenschutz/"
   },
   "conj": {
     "slug": "konjugation",
@@ -312,5 +314,17 @@
     "ctaButton": "Kostenlos loslegen",
     "more": "Weitere Grammatik-Themen",
     "all": "Alle Themen"
+  },
+  "legal": {
+    "imprint": {
+      "slug": "impressum",
+      "title": "Impressum",
+      "description": "Impressum von Hablena."
+    },
+    "privacy": {
+      "slug": "datenschutz",
+      "title": "Datenschutzerklärung",
+      "description": "Wie Hablena mit deinen Daten umgeht: keine Cookies, kein Tracking, keine Inhalte von Drittanbietern."
+    }
   }
 }
