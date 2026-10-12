@@ -1,0 +1,49 @@
+{{> head}}
+<body class="player-body">
+<div class="player" data-player data-app-url="{{appUrl}}" data-login="{{loginUrl}}" data-lesson-id="{{lessonId}}">
+  <header class="player__top">
+    <a class="player__close" href="{{appUrl}}" aria-label="{{t.learn.close}}">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </a>
+    <div class="player__progress" role="progressbar" aria-label="{{t.learn.progress}}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-progress><span></span></div>
+    <span class="player__title">{{lessonTitle}}</span>
+  </header>
+
+  <main class="player__stage" id="main" data-stage aria-live="polite">
+    <noscript><p class="player__noscript">{{t.learn.noscript}}</p></noscript>
+  </main>
+
+  <footer class="player__bar" data-bar>
+    <div class="player__bar-inner">
+      <div class="player__feedback" data-feedback hidden>
+        <span class="player__feedback-icon" data-feedback-icon aria-hidden="true"></span>
+        <div>
+          <strong class="player__feedback-title" data-feedback-title></strong>
+          <p class="player__feedback-text" data-feedback-text></p>
+        </div>
+      </div>
+      <button class="btn btn--lg player__primary" type="button" data-primary disabled>{{t.learn.check}}</button>
+    </div>
+  </footer>
+
+  <section class="player__done" data-done hidden aria-labelledby="done-title">
+    <div class="player__done-badge" aria-hidden="true"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#0A1633" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></div>
+    <p class="label">{{t.learn.complete}}</p>
+    <h1 class="display display--l" id="done-title" data-done-title></h1>
+    <p class="lead" data-done-goal>{{lessonGoal}}</p>
+    <div class="player__stats">
+      <div><span class="player__stat" data-done-score></span><span>{{t.learn.correctLabel}}</span></div>
+      <div><span class="player__stat">{{vocabCount}}</span><span>{{t.learn.wordsLabel}}</span></div>
+    </div>
+    <p class="player__save" data-save-note hidden></p>
+    <div class="player__done-actions">
+      <a class="btn btn--red btn--lg" href="{{appUrl}}">{{t.learn.toCourse}}</a>
+      <button class="btn btn--outline btn--lg" type="button" data-restart>{{t.learn.repeat}}</button>
+    </div>
+  </section>
+</div>
+<script type="application/json" id="lesson-data">{{lessonJson}}</script>
+<script type="application/json" id="player-strings">{{stringsJson}}</script>
+<script src="/assets/js/player.js" defer></script>
+</body>
+</html>

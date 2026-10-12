@@ -168,6 +168,16 @@
       app.querySelector('[data-user-email]').textContent = user.email;
       app.querySelector('[data-user-since]').textContent = new Date(user.createdAt).toLocaleDateString(document.documentElement.lang, { year: 'numeric', month: 'long', day: 'numeric' });
       app.removeAttribute('aria-busy');
+      return fetch('/api/progress', { credentials: 'same-origin' }).then((r) => (r.ok ? r.json() : { progress: [] })).then(({ progress }) => {
+        progress.forEach((p) => {
+          const link = app.querySelector(`[data-lesson="${p.lessonId}"]`);
+          if (!link) return;
+          link.classList.add('is-done');
+          link.querySelector('[data-status]').textContent = `${app.dataset.doneLabel} · ${p.bestCorrect}/${p.total}`;
+        });
+        const next = app.querySelector('.lesson-link:not(.is-done)');
+        if (next) next.classList.add('is-next');
+      });
     })
     .catch(() => location.replace(app.dataset.login));
 

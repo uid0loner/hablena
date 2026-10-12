@@ -79,11 +79,24 @@ check('locked after 10 failures', (await call('POST', '/api/auth/login', { body:
 for (let i = 0; i < 5; i++) await call('POST', '/api/auth/signup', { body: { email: `u${i}@example.com`, password: 'longenough1' }, ip: '5.5.5.5' });
 check('signup limited per IP', (await call('POST', '/api/auth/signup', { body: { email: 'u9@example.com', password: 'longenough1' }, ip: '5.5.5.5' })).status === 429);
 
+// Progress
+check('progress needs login', (await call('GET', '/api/progress')).status === 401);
+check('progress empty', (await call('GET', '/api/progress', { cookie: li.cookie })).data.progress?.length === 0);
+check('progress rejects bad id', (await call('POST', '/api/progress', { cookie: li.cookie, body: { lessonId: 'x; drop', correct: 1, total: 2 } })).status === 400);
+check('progress rejects correct > total', (await call('POST', '/api/progress', { cookie: li.cookie, body: { lessonId: 'u1-l1', correct: 9, total: 2 } })).status === 400);
+check('progress save', (await call('POST', '/api/progress', { cookie: li.cookie, body: { lessonId: 'u1-l1', correct: 7, total: 10 } })).status === 200);
+await call('POST', '/api/progress', { cookie: li.cookie, body: { lessonId: 'u1-l1', correct: 5, total: 10 } });
+{
+  const pr = (await call('GET', '/api/progress', { cookie: li.cookie })).data.progress;
+  check('progress keeps best score', pr.length === 1 && pr[0].bestCorrect === 7 && pr[0].attempts === 2, JSON.stringify(pr));
+}
+
 // Account deletion
 check('delete needs password', (await call('POST', '/api/me/delete', { cookie: li.cookie, body: { password: 'nope' } })).status === 401);
 const del = await call('POST', '/api/me/delete', { cookie: li.cookie, body: { password: 'correct horse battery' } });
 check('delete 200', del.status === 200);
 check('user removed', !env.DB.raw.prepare("SELECT 1 FROM users WHERE email = 'nico@example.com'").get());
+check('progress removed', !env.DB.raw.prepare('SELECT 1 FROM progress').get());
 check('sessions removed', !env.DB.raw.prepare('SELECT 1 FROM sessions s LEFT JOIN users u ON u.id = s.user_id WHERE u.id IS NULL').get());
 
 check('unknown route → 404', (await call('GET', '/api/nothing')).status === 404);

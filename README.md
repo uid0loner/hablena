@@ -66,6 +66,8 @@ no tracking, self-hosted fonts). Update it whenever accounts, payments or new se
 | `POST /api/auth/logout` | end session |
 | `GET /api/me` | current user |
 | `POST /api/me/delete` | delete account (password required) |
+| `GET /api/progress` | lesson progress of the current user |
+| `POST /api/progress` | save a lesson result |
 
 Security: PBKDF2-SHA256 password hashes (100k iterations), random session tokens stored only as
 SHA-256 hashes, `__Host-` HttpOnly/Secure/SameSite=Lax cookie, Origin + JSON checks against CSRF,
@@ -78,6 +80,14 @@ Setup once:
 1. Cloudflare dashboard → **Storage & Databases → D1** → create `hablena` (location: **EU jurisdiction**)
 2. Add the binding to `wrangler.jsonc` (see the comment there) with the database ID
 3. Set the Cloudflare deploy command to `npx wrangler d1 migrations apply hablena --remote && npx wrangler deploy`
+
+## Course
+
+`scripts/course/units.mjs` holds units, lessons, vocabulary and exercises (intro, choice, reverse,
+listen, match, gap, build). Each lesson becomes a player page at `/app/learn/<id>/` (EN) and
+`/de/app/learn/<id>/` (DE); the player is `src/assets/js/player.js`. Audio uses the browser's
+Spanish text-to-speech. Results are saved via `POST /api/progress` (best score kept).
+`scripts/course/test.mjs` validates all content (indices, translations, every word introduced before it is tested).
 
 ## Local development
 

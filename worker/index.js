@@ -48,6 +48,8 @@ async function handleApi(request, env, url) {
     case 'POST /api/auth/logout': return logout(request, env);
     case 'GET /api/me': return me(request, env);
     case 'POST /api/me/delete': return deleteAccount(request, env);
+    case 'GET /api/progress': return getProgress(request, env);
+    case 'POST /api/progress': return saveProgress(request, env);
     default: return json({ error: 'not_found' }, 404);
   }
 }
@@ -148,10 +150,45 @@ async function deleteAccount(request, env) {
   if (!(await verifyPassword(password, user.password))) return json({ error: 'invalid_credentials' }, 401);
 
   await env.DB.batch([
+    env.DB.prepare('DELETE FROM progress WHERE user_id = ?').bind(user.id),
     env.DB.prepare('DELETE FROM sessions WHERE user_id = ?').bind(user.id),
     env.DB.prepare('DELETE FROM users WHERE id = ?').bind(user.id),
   ]);
   return json({ ok: true }, 200, { 'Set-Cookie': clearCookie() });
+}
+
+async function getProgress(request, env) {
+  const user = await currentUser(request, env);
+  if (!user) return json({ error: 'unauthorized' }, 401);
+  const { results } = await env.DB.prepare('SELECT lesson_id, best_correct, total, attempts, last_completed_at FROM progress WHERE user_id = ?')
+    .bind(user.id)
+    .all();
+  return json({
+    progress: results.map((r) => ({ lessonId: r.lesson_id, bestCorrect: r.best_correct, total: r.total, attempts: r.attempts, lastCompletedAt: r.last_completed_at })),
+  });
+}
+
+async function saveProgress(request, env) {
+  const user = await currentUser(request, env);
+  if (!user) return json({ error: 'unauthorized' }, 401);
+  const body = await readJson(request);
+  const lessonId = body && typeof body.lessonId === 'string' ? body.lessonId : '';
+  const total = body ? Number(body.total) : NaN;
+  const correct = body ? Number(body.correct) : NaN;
+  if (!/^u\d{1,3}-l\d{1,3}$/.test(lessonId) || !Number.isInteger(total) || !Number.isInteger(correct) || total < 1 || total > 100 || correct < 0 || correct > total) {
+    return json({ error: 'invalid_request' }, 400);
+  }
+  const now = Date.now();
+  await env.DB.prepare(
+    `INSERT INTO progress (user_id, lesson_id, best_correct, total, attempts, first_completed_at, last_completed_at)
+     VALUES (?, ?, ?, ?, 1, ?, ?)
+     ON CONFLICT (user_id, lesson_id) DO UPDATE SET
+       best_correct = MAX(best_correct, excluded.best_correct),
+       total = excluded.total,
+       attempts = attempts + 1,
+       last_completed_at = excluded.last_completed_at`
+  ).bind(user.id, lessonId, correct, total, now, now).run();
+  return json({ ok: true });
 }
 
 // ---------------------------------------------------------------------------

@@ -15,6 +15,7 @@ import { conjugatorPages } from './conjugator/pages.mjs';
 import { grammarPages } from './grammar/pages.mjs';
 import { legalPages } from './legal/pages.mjs';
 import { accountPages } from './account/pages.mjs';
+import { lessonPages } from './course/pages.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = join(root, 'src');
@@ -90,6 +91,7 @@ function makeCtx(dict, lang, paths, extra = {}) {
     hero: extra.hero ?? '',
     robots: extra.noindex ? '<meta name="robots" content="noindex">' : '',
     content: extra.content ?? '',
+    ...(extra.vars || {}),
   };
 }
 
@@ -132,6 +134,7 @@ async function build() {
 
   // 2) Generated tool pages (localized slugs)
   const tool = includePartials(templates.tool, partials);
+  const player = includePartials(templates.player, partials);
   const urls = {
     home: (l) => prefix(l),
     index: (l) => `${prefix(l)}${dict[l].conj.slug}/`,
@@ -143,13 +146,15 @@ async function build() {
     signup: (l) => `${prefix(l)}${dict[l].auth.signupSlug}/`,
     login: (l) => `${prefix(l)}${dict[l].auth.loginSlug}/`,
     app: (l) => `${prefix(l)}app/`,
+    lesson: (l, id) => `${prefix(l)}app/learn/${id}/`,
   };
   const site = JSON.parse(await readFile(join(SRC, 'config', 'site.json'), 'utf8'));
   let generated = 0;
   for (const lang of LOCALES) {
     const other = LOCALES.find((l) => l !== lang);
-    for (const p of [...conjugatorPages(dict[lang], urls, other), ...grammarPages(dict[lang], urls, other), ...legalPages(dict[lang], urls, other, site), ...accountPages(dict[lang], urls, other, site)]) {
-      const html = render(tool, makeCtx(dict, lang, { [lang]: p.path, [other]: p.alt }, p), 'tool.html');
+    for (const p of [...conjugatorPages(dict[lang], urls, other), ...grammarPages(dict[lang], urls, other), ...legalPages(dict[lang], urls, other, site), ...accountPages(dict[lang], urls, other, site), ...lessonPages(dict[lang], urls, other)]) {
+      const tpl = p.template === 'player' ? player : tool;
+      const html = render(tpl, makeCtx(dict, lang, { [lang]: p.path, [other]: p.alt }, p), `${p.template || 'tool'}.html`);
       await writePage(p.path, html);
       if (!p.noindex) sitemap.push(SITE + p.path);
       generated++;

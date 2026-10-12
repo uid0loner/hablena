@@ -1,4 +1,5 @@
 // Sign-up, log-in and the logged-in app area. These pages are noindex and stay out of the sitemap.
+import { UNITS } from '../course/units.mjs';
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
@@ -65,7 +66,21 @@ export function accountPages(t, urls, otherLang, site) {
     hero: `<p class="hero__kicker" style="margin-bottom:16px">${esc(a.appKicker)}</p>
 <h1 class="display display--l" data-greeting data-template="${esc(a.greeting)}" data-fallback="${esc(a.greetingNoName)}">${esc(a.greetingNoName)}</h1>`,
     content: `
-<div class="container app-home" data-app data-login="${urls.login(lang)}" data-home="${urls.home(lang)}" data-messages="${messages}">
+<div class="container app-home" data-app data-login="${urls.login(lang)}" data-home="${urls.home(lang)}" data-messages="${messages}" data-done-label="${esc(a.lessonDone)}">
+  ${UNITS.map((u, ui) => `
+  <section class="unit" aria-labelledby="unit-${u.id}">
+    <div class="unit__head">
+      <span class="badge">${u.level}</span>
+      <h2 id="unit-${u.id}"><span>${esc(a.unit)} ${ui + 1}</span> ${esc(u.title[lang])}</h2>
+    </div>
+    <ol class="lessons">${u.lessons.map((l, li) => `
+      <li><a class="lesson-link" href="${urls.lesson(lang, l.id)}" data-lesson="${l.id}">
+        <span class="lesson-link__num" aria-hidden="true">${li + 1}</span>
+        <span class="lesson-link__body"><span class="lesson-link__title">${esc(l.title[lang])}</span><span class="lesson-link__goal">${esc(l.goal[lang])}</span><span class="lesson-link__status" data-status></span></span>
+      </a></li>`).join('')}
+    </ol>
+  </section>`).join('')}
+
   <div class="app-grid">
     <section class="app-card app-card--dark">
       <span class="label">${esc(a.courseLabel)}</span>
