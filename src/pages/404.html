@@ -1,0 +1,17 @@
+{{> head}}
+<body>
+<div class="hero">
+  {{> header}}
+  <main id="main" class="container notfound">
+    <div>
+      <p class="hero__kicker">404</p>
+      <h1 class="display display--xl">{{t.notFound.title}}</h1>
+      <p>{{t.notFound.text}}</p>
+      <a class="btn btn--gold btn--lg" href="{{base}}">{{t.notFound.button}}</a>
+    </div>
+  </main>
+  <div class="kit-stripe" aria-hidden="true"></div>
+  <div class="kit-stripe kit-stripe--navy" aria-hidden="true"></div>
+</div>
+</body>
+</html>

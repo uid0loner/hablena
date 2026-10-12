@@ -1,0 +1,149 @@
+{
+  "meta": {
+    "title": "Hablena – Speak Spanish. For real.",
+    "description": "The complete Spanish course with an AI tutor you actually talk to. Every lesson, every tool, every level from A1 to C1. Start free.",
+    "ogLocale": "en_US"
+  },
+  "a11y": {
+    "skip": "Skip to content",
+    "home": "Home",
+    "mainNav": "Main navigation",
+    "switchLang": "Auf Deutsch lesen",
+    "menu": "Open menu"
+  },
+  "nav": {
+    "method": "Method",
+    "levels": "Levels",
+    "tutor": "AI Tutor",
+    "pricing": "Pricing",
+    "login": "Log in",
+    "start": "Start free"
+  },
+  "hero": {
+    "kicker": "Spanish · A1 to C1 · AI tutor included",
+    "title1": "Speak",
+    "title2": "Spanish.",
+    "title3": "For real.",
+    "lead": "The complete Spanish course with a tutor you actually talk to. Every lesson, every tool, every level. Built to get you speaking, not collecting points.",
+    "cta": "Start learning free",
+    "cta2": "Find your level",
+    "note": "Free to start. No credit card."
+  },
+  "mock": {
+    "aria": "Example: a speaking scene with Hablena in a café",
+    "eyebrow": "Unit 4 · Live scene",
+    "q": "What can I get you?",
+    "feedback": "Natural phrasing. That’s exactly how locals order.",
+    "pron": "Pronunciation",
+    "listening": "Hablena is listening…"
+  },
+  "method": {
+    "kicker": "01 — The method",
+    "title1": "Talk from day one.",
+    "title2": "Everything else follows.",
+    "text": "Speaking, listening, reading, writing, grammar and vocabulary. Six skills, one learning path that adapts to you after every session.",
+    "speak": {
+      "label": "Speaking",
+      "title": "Real conversations with Hablena",
+      "text": "Order coffee, nail a job interview, argue about football. Spoken scenes at exactly your level, with instant feedback on every sentence.",
+      "scenes": ["At the café", "Job interview", "At the doctor", "Renting a flat"],
+      "own": "+ your own topics"
+    },
+    "conj": { "label": "Conjugator", "title": "Every verb, every tense" },
+    "vocab": {
+      "label": "Vocabulary",
+      "title": "Words that actually stay",
+      "meaning": "the bill",
+      "today": "Today",
+      "d3": "In 3 days",
+      "w1": "In 1 week",
+      "m1": "In 1 month"
+    },
+    "write": {
+      "label": "Writing",
+      "title": "Corrected and explained",
+      "explain": "A past location uses estar in the preterite. “Soy” is present-tense ser."
+    },
+    "listen": { "label": "Listening & Reading", "title": "Stories at your level", "transcript": "Transcript" },
+    "grammar": {
+      "label": "Grammar",
+      "title": "Finally makes sense",
+      "ser": "who or what something is. Soy ingeniero.",
+      "estar": "how or where it is right now. Estoy cansado."
+    }
+  },
+  "path": {
+    "kicker": "02 — Your path",
+    "title": "From hola to fluent.",
+    "text": "Built on the official European CEFR levels, so you always know exactly where you stand. Ready for the DELE exam when you are.",
+    "levels": [
+      { "code": "A1", "name": "Beginner", "text": "Introduce yourself, order food, find your way." },
+      { "code": "A2", "name": "Elementary", "text": "Talk about your day, your past and your plans." },
+      { "code": "B1", "name": "Intermediate", "text": "Handle travel, work and everyday life with ease." },
+      { "code": "B2", "name": "Upper intermediate", "text": "Follow series and news, debate your opinion." },
+      { "code": "C1", "name": "Advanced", "text": "Speak fluently, precisely and spontaneously." }
+    ]
+  },
+  "tutor": {
+    "kicker": "03 — Hablena",
+    "title1": "Your tutor.",
+    "title2": "Always on.",
+    "text": "Hablena talks with you about your day, your work and your plans. She explains every mistake in your language and keeps track of what you need to practise next.",
+    "points": [
+      { "n": "01", "title": "Speaks at your level", "text": "Slow and simple at A1, natural and fast at C1. Hablena adapts with every sentence you say." },
+      { "n": "02", "title": "Explains in your language", "text": "Every correction comes in English or German, with the reason behind it, not just the right answer." },
+      { "n": "03", "title": "Remembers what you need", "text": "Words and structures you struggle with come back in later conversations, until they stick." }
+    ]
+  },
+  "plans": {
+    "kicker": "04 — Plans",
+    "title1": "Start free.",
+    "title2": "Go all in.",
+    "billingLabel": "Billing period",
+    "monthly": "Monthly",
+    "yearly": "Yearly · save 50%",
+    "free": {
+      "name": "Free",
+      "desc": "Everything you need to get started.",
+      "price": "€0",
+      "items": ["First lessons of the A1 course", "Complete grammar library", "Verb conjugator", "Spanish dictionary", "Placement test"],
+      "cta": "Create free account"
+    },
+    "premium": {
+      "name": "Premium",
+      "desc": "The full course and your personal tutor.",
+      "tag": "Full access",
+      "priceMonthly": "€9.99",
+      "priceYearly": "€59.99",
+      "perMonth": "/ month",
+      "perYear": "/ year",
+      "noteMonthly": "Billed monthly. Cancel anytime.",
+      "noteYearly": "Just €5 a month, billed once a year.",
+      "items": ["Full course, A1 to C1", "Unlimited conversations with Hablena", "Writing correction with explanations", "All listening and reading content", "Smart vocabulary trainer", "Level tests and certificates"],
+      "cta": "Try Premium free for 7 days"
+    }
+  },
+  "cta": {
+    "text": "Shall we talk? Your first real conversation is five minutes away.",
+    "button": "Start learning free"
+  },
+  "footer": {
+    "tagline": "Speak Spanish. For real.",
+    "learn": "Learn",
+    "course": "Course",
+    "grammar": "Grammar",
+    "conjugator": "Conjugator",
+    "dictionary": "Dictionary",
+    "company": "Company",
+    "pricing": "Pricing",
+    "imprint": "Imprint",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "language": "Language"
+  },
+  "notFound": {
+    "title": "¡Uy! Lost in translation.",
+    "text": "This page doesn’t exist, or it moved somewhere else.",
+    "button": "Back to the homepage"
+  }
+}

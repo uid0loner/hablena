@@ -1,0 +1,243 @@
+{{> head}}
+<body>
+<div class="hero">
+  {{> header}}
+  <div class="container hero__inner">
+    <div class="hero__copy">
+      <p class="hero__kicker">{{t.hero.kicker}}</p>
+      <h1 class="display display--xl hero__title">{{t.hero.title1}}<br>{{t.hero.title2}}<br><span class="text-gold">{{t.hero.title3}}</span></h1>
+      <p class="hero__lead">{{t.hero.lead}}</p>
+      <div class="hero__ctas">
+        <a class="btn btn--gold btn--lg" href="#">{{t.hero.cta}}</a>
+        <a class="btn btn--ghost-light btn--lg" href="#">{{t.hero.cta2}}</a>
+      </div>
+      <p class="hero__note">{{t.hero.note}}</p>
+    </div>
+
+    <div class="hero__visual">
+      <figure class="mock" aria-label="{{t.mock.aria}}" style="margin:0">
+        <div class="mock__top">
+          <div class="mock__meta">
+            <span class="mock__eyebrow">{{t.mock.eyebrow}}</span>
+            <span class="mock__scene">En el café</span>
+          </div>
+          <span class="badge">A2</span>
+        </div>
+        <div class="progress"><span style="width:62%"></span></div>
+        <div class="mock__chat">
+          <div class="bubble bubble--tutor" lang="es">¿Qué te pongo?<small lang="{{lang}}">{{t.mock.q}}</small></div>
+          <div class="bubble bubble--user">
+            <div class="wave" aria-hidden="true">
+              <span style="height:8px"></span><span style="height:14px"></span><span style="height:20px"></span><span style="height:12px"></span><span style="height:18px"></span><span style="height:22px"></span><span style="height:10px"></span><span style="height:16px"></span><span style="height:21px"></span><span style="height:9px"></span><span style="height:13px"></span><span style="height:19px"></span><span style="height:22px"></span><span style="height:15px"></span><span style="height:8px"></span><span style="height:12px"></span><span style="height:20px"></span><span style="height:17px"></span><span class="is-rest" style="height:10px"></span><span class="is-rest" style="height:22px"></span><span class="is-rest" style="height:14px"></span><span class="is-rest" style="height:9px"></span><span class="is-rest" style="height:18px"></span><span class="is-rest" style="height:12px"></span><span class="is-rest" style="height:6px"></span><span class="is-rest" style="height:10px"></span><span class="is-rest" style="height:7px"></span><span class="is-rest" style="height:5px"></span>
+            </div>
+            <span lang="es">Me pones un café con leche, por favor.</span>
+          </div>
+          <div class="feedback">
+            <div class="feedback__row">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFC400" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>
+              <span>{{t.mock.feedback}}</span>
+            </div>
+            <div class="meter">
+              <span class="meter__label">{{t.mock.pron}}</span>
+              <span class="meter__track"><span style="width:92%"></span></span>
+              <span class="meter__value">92</span>
+            </div>
+          </div>
+        </div>
+        <div class="mock__bottom">
+          <span>{{t.mock.listening}}</span>
+          <span class="mic" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span>
+        </div>
+      </figure>
+    </div>
+  </div>
+  <div class="kit-stripe" aria-hidden="true"></div>
+  <div class="kit-stripe kit-stripe--navy" aria-hidden="true"></div>
+</div>
+
+<main id="main">
+  <section class="section" id="method" aria-labelledby="method-title">
+    <div class="container">
+      <div class="section-head">
+        <div class="section-head__title">
+          <p class="kicker">{{t.method.kicker}}</p>
+          <h2 class="display display--l" id="method-title">{{t.method.title1}}<br>{{t.method.title2}}</h2>
+        </div>
+        <p class="section-head__text lead">{{t.method.text}}</p>
+      </div>
+
+      <div class="bento">
+        <article class="tile tile--wide tile--dark">
+          <div>
+            <p class="label">{{t.method.speak.label}}</p>
+            <h3>{{t.method.speak.title}}</h3>
+            <p class="tile__text">{{t.method.speak.text}}</p>
+          </div>
+          <div class="chips">
+            {{#each t.method.speak.scenes}}<span class="chip">{{this}}</span>{{/each}}
+            <span class="chip chip--gold">{{t.method.speak.own}}</span>
+          </div>
+        </article>
+
+        <article class="tile">
+          <div>
+            <p class="label">{{t.method.conj.label}}</p>
+            <h3>{{t.method.conj.title}}</h3>
+          </div>
+          <div class="tile__card" lang="es">
+            <div class="conj__head"><span class="word" style="font-size:22px">tener</span><span class="conj__tense">Presente</span></div>
+            <dl class="conj">
+              <dt>yo</dt><dd>tengo</dd>
+              <dt>tú</dt><dd>tienes</dd>
+              <dt>él / ella</dt><dd>tiene</dd>
+              <dt>nosotros</dt><dd>tenemos</dd>
+              <dt>vosotros</dt><dd>tenéis</dd>
+              <dt>ellos</dt><dd>tienen</dd>
+            </dl>
+          </div>
+        </article>
+
+        <article class="tile">
+          <div>
+            <p class="label">{{t.method.vocab.label}}</p>
+            <h3>{{t.method.vocab.title}}</h3>
+          </div>
+          <div class="tile__card" style="display:flex;flex-direction:column;gap:14px">
+            <span class="word" lang="es">la cuenta</span>
+            <span style="font-size:15px;color:var(--ink-2)">{{t.method.vocab.meaning}} · <em lang="es">¿Nos trae la cuenta, por favor?</em></span>
+            <div class="pills">
+              <span class="pill pill--red">{{t.method.vocab.today}}</span>
+              <span class="pill">{{t.method.vocab.d3}}</span>
+              <span class="pill">{{t.method.vocab.w1}}</span>
+              <span class="pill">{{t.method.vocab.m1}}</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="tile">
+          <div>
+            <p class="label">{{t.method.write.label}}</p>
+            <h3>{{t.method.write.title}}</h3>
+          </div>
+          <div class="tile__card" style="display:flex;flex-direction:column;gap:12px;font-size:16px;line-height:1.55">
+            <span lang="es">Ayer <span class="strike">soy</span> <span class="mark">estuve</span> en Madrid con mis amigos.</span>
+            <span style="font-size:14px;color:var(--ink-2)">{{t.method.write.explain}}</span>
+          </div>
+        </article>
+
+        <article class="tile">
+          <div>
+            <p class="label">{{t.method.listen.label}}</p>
+            <h3>{{t.method.listen.title}}</h3>
+          </div>
+          <div class="tile__card">
+            <div class="player">
+              <span class="player__btn" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="#FFFFFF"><path d="M7 4l13 8-13 8z"/></svg></span>
+              <span class="player__track"><span></span></span>
+            </div>
+            <div class="pills">
+              <span class="pill pill--navy">0.75×</span>
+              <span class="pill">1×</span>
+              <span class="pill">{{t.method.listen.transcript}}</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="tile">
+          <div>
+            <p class="label">{{t.method.grammar.label}}</p>
+            <h3>{{t.method.grammar.title}}</h3>
+          </div>
+          <div class="tile__card duo">
+            <div><strong lang="es" style="color:var(--red)">ser</strong><p>{{t.method.grammar.ser}}</p></div>
+            <div><strong lang="es">estar</strong><p>{{t.method.grammar.estar}}</p></div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--surface" id="path" aria-labelledby="path-title">
+    <div class="container">
+      <p class="kicker">{{t.path.kicker}}</p>
+      <h2 class="display display--l" id="path-title" style="margin:18px 0 20px">{{t.path.title}}</h2>
+      <p class="lead" style="max-width:620px;margin-bottom:56px">{{t.path.text}}</p>
+      <div class="levels">
+        {{#each t.path.levels}}<div class="level"><span class="level__code">{{this.code}}</span><span class="level__name">{{this.name}}</span><span class="level__text">{{this.text}}</span></div>{{/each}}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--navy" id="tutor" aria-labelledby="tutor-title">
+    <div class="container split">
+      <div>
+        <p class="kicker">{{t.tutor.kicker}}</p>
+        <h2 class="display display--l" id="tutor-title" style="margin:18px 0 24px">{{t.tutor.title1}}<br>{{t.tutor.title2}}</h2>
+        <p class="lead" style="max-width:480px">{{t.tutor.text}}</p>
+      </div>
+      <ol class="steps">
+        {{#each t.tutor.points}}<li><span class="steps__num" aria-hidden="true">{{this.n}}</span><div><h3>{{this.title}}</h3><p>{{this.text}}</p></div></li>{{/each}}
+      </ol>
+    </div>
+  </section>
+
+  <section class="section" id="plans" aria-labelledby="plans-title">
+    <div class="container">
+      <div class="section-head" style="margin-bottom:48px">
+        <div class="section-head__title">
+          <p class="kicker">{{t.plans.kicker}}</p>
+          <h2 class="display display--l" id="plans-title">{{t.plans.title1}}<br>{{t.plans.title2}}</h2>
+        </div>
+        <div class="billing" role="group" aria-label="{{t.plans.billingLabel}}" data-billing>
+          <button type="button" aria-pressed="true" data-period="monthly">{{t.plans.monthly}}</button>
+          <button type="button" aria-pressed="false" data-period="yearly">{{t.plans.yearly}}</button>
+        </div>
+      </div>
+      <div class="plans">
+        <div class="plan">
+          <div>
+            <h3 class="plan__name">{{t.plans.free.name}}</h3>
+            <p class="plan__desc">{{t.plans.free.desc}}</p>
+          </div>
+          <span class="plan__amount">{{t.plans.free.price}}</span>
+          <ul class="checks">
+            {{#each t.plans.free.items}}<li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0A1633" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg><span>{{this}}</span></li>{{/each}}
+          </ul>
+          <a class="btn btn--outline btn--lg btn--block" href="#">{{t.plans.free.cta}}</a>
+        </div>
+        <div class="plan plan--premium">
+          <div class="plan__head">
+            <div>
+              <h3 class="plan__name">{{t.plans.premium.name}}</h3>
+              <p class="plan__desc">{{t.plans.premium.desc}}</p>
+            </div>
+            <span class="plan__tag">{{t.plans.premium.tag}}</span>
+          </div>
+          <div class="plan__price">
+            <span class="plan__amount" data-price data-monthly="{{t.plans.premium.priceMonthly}}" data-yearly="{{t.plans.premium.priceYearly}}">{{t.plans.premium.priceMonthly}}</span>
+            <span class="plan__per" data-per data-monthly="{{t.plans.premium.perMonth}}" data-yearly="{{t.plans.premium.perYear}}">{{t.plans.premium.perMonth}}</span>
+          </div>
+          <p class="plan__note" data-note data-monthly="{{t.plans.premium.noteMonthly}}" data-yearly="{{t.plans.premium.noteYearly}}">{{t.plans.premium.noteMonthly}}</p>
+          <ul class="checks">
+            {{#each t.plans.premium.items}}<li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFC400" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg><span>{{this}}</span></li>{{/each}}
+          </ul>
+          <a class="btn btn--gold btn--lg btn--block" href="#">{{t.plans.premium.cta}}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta" aria-labelledby="cta-title">
+    <div class="container cta__inner">
+      <div class="cta__copy">
+        <h2 class="display display--xxl" id="cta-title" lang="es">¿Hablamos?</h2>
+        <p>{{t.cta.text}}</p>
+      </div>
+      <a class="btn btn--gold btn--lg" href="#">{{t.cta.button}}</a>
+    </div>
+  </section>
+</main>
+
+{{> footer}}
+</body>
+</html>

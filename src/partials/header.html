@@ -1,0 +1,24 @@
+<a class="skip-link" href="#main">{{t.a11y.skip}}</a>
+<header class="site-header" data-header>
+  <div class="container site-header__bar">
+    <a class="brand" href="{{base}}" aria-label="Hablena – {{t.a11y.home}}">
+      <svg class="brand__mark" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="7" fill="#FFC400"/><path d="M7 19 C 10 12, 14 12, 17 17 S 24 22, 27 15" fill="none" stroke="#0A1633" stroke-width="3.2" stroke-linecap="round"/></svg>
+      <span class="brand__name">hablena</span>
+    </a>
+    <nav class="nav" id="site-nav" aria-label="{{t.a11y.mainNav}}">
+      <a href="{{base}}#method">{{t.nav.method}}</a>
+      <a href="{{base}}#path">{{t.nav.levels}}</a>
+      <a href="{{base}}#tutor">{{t.nav.tutor}}</a>
+      <a href="{{base}}#plans">{{t.nav.pricing}}</a>
+    </nav>
+    <div class="header-actions">
+      <a class="lang-switch" href="{{altHref}}" hreflang="{{altLang}}" lang="{{altLang}}" aria-label="{{t.a11y.switchLang}}">{{altLabel}}</a>
+      <a class="header-login" href="#">{{t.nav.login}}</a>
+      <a class="btn btn--gold" href="#">{{t.nav.start}}</a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" data-menu-toggle>
+        <span class="sr-only">{{t.a11y.menu}}</span>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
