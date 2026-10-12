@@ -87,7 +87,7 @@ const accentLast = (s) => s.slice(0, -1) + ({ a: 'á', e: 'é', i: 'í', o: 'ó'
 
 /**
  * Conjugate a verb definition.
- * def: { inf, sc?, yo?, pres?, pret?, strong?, fut?, imp?, subj?, part?, ger?, impTu?, impNos?, noImperative?, hizo? }
+ * def: { inf, sc?, acc?, yo?, pres?, pret?, strong?, fut?, imp?, subj?, part?, ger?, impTu?, impNos?, noImperative?, hizo? }
  * Returns { inf, gerund, participle, tenses: { presente:[6], indefinido:[6], ... imperativo:[5] } }
  */
 export function conjugate(def) {
@@ -97,14 +97,19 @@ export function conjugate(def) {
   const stem = stemOf(inf);
   const sc = def.sc;
   const vowelStem = cls !== 'ar' && isVowel(stem.slice(-1)) && !/[gq]u$/.test(stem);
-  const strong = strongStem(stem, sc);
+  // construir, incluir…: no written accents in -iste/-imos/-ido; insert y before a, e, o.
+  const uirVerb = cls === 'ir' && /[^gq]u$/.test(stem);
+  const yInsert = uirVerb && !def.regular;
+  // enviar, continuar…: stressed í / ú in the singular and 3rd plural.
+  const accStem = def.acc && !def.regular ? stem.slice(0, -1) + ({ i: 'í', u: 'ú' }[stem.slice(-1)] ?? stem.slice(-1)) : null;
+  const strong = accStem ?? strongStem(stem, sc);
   const weak = weakStem(stem, sc, cls);
 
   // Presente
   let pres;
   if (def.pres) pres = def.pres.slice();
   else {
-    pres = E.pres.map((e, i) => join(cls, BOOT.includes(i) ? strong : stem, e));
+    pres = E.pres.map((e, i) => join(cls, BOOT.includes(i) ? (yInsert ? stem + 'y' : strong) : stem, e));
     if (def.yo) pres[0] = def.yo;
     else if (!def.regular && cls !== 'ar' && /[aeiou]c$/.test(stem)) pres[0] = stem.slice(0, -1) + 'zco'; // conocer → conozco
   }
@@ -120,7 +125,7 @@ export function conjugate(def) {
   } else {
     pret = E.pret.map((e, i) => {
       const st = i === 2 || i === 5 ? weak : stem;
-      const end = vowelStem ? vowelStemPret(e) : e;
+      const end = vowelStem ? (uirVerb ? ({ 'ió': 'yó', ieron: 'yeron' }[e] ?? e) : vowelStemPret(e)) : e;
       return join(cls, st, end);
     });
   }
@@ -134,7 +139,7 @@ export function conjugate(def) {
   const cond = COND.map((e) => futStem + e);
 
   // Participio & gerundio
-  const participle = def.part ?? (vowelStem ? stem + 'ído' : stem + E.part);
+  const participle = def.part ?? (vowelStem && !uirVerb ? stem + 'ído' : stem + E.part);
   const gerund = def.ger ?? (cls === 'ar' ? stem + 'ando' : (vowelStem ? stem + 'yendo' : weak + 'iendo'));
 
   // Presente de subjuntivo
@@ -144,6 +149,8 @@ export function conjugate(def) {
   else if (def.yo || def.pres || (!def.regular && pres[0].endsWith('zco'))) {
     const yoStem = pres[0].slice(0, -1);
     subj = subjEnd.map((e) => yoStem + e);
+  } else if (yInsert) {
+    subj = subjEnd.map((e) => stem + 'y' + e);
   } else {
     subj = subjEnd.map((e, i) => join(cls, BOOT.includes(i) ? strong : weak, e));
   }

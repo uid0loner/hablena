@@ -139,6 +139,88 @@ expect('conocer', 'subjuntivo', 'conozca conozcas conozca conozcamos conozcáis 
 expect('conducir', 'presente', 'conduzco conduces conduce conducimos conducís conducen');
 expect('conducir', 'indefinido', 'conduje condujiste condujo condujimos condujisteis condujeron');
 
+
+// Extended catalogue
+expect('construir', 'presente', 'construyo construyes construye construimos construís construyen');
+expect('construir', 'indefinido', 'construí construiste construyó construimos construisteis construyeron');
+expect('construir', 'subjuntivo', 'construya construyas construya construyamos construyáis construyan');
+expect('construir', 'participle', 'construido');
+expect('construir', 'gerund', 'construyendo');
+expect('construir', 'imperativo', 'construye construya construyamos construid construyan');
+expect('enviar', 'presente', 'envío envías envía enviamos enviáis envían');
+expect('enviar', 'subjuntivo', 'envíe envíes envíe enviemos enviéis envíen');
+expect('enviar', 'imperativo', 'envía envíe enviemos enviad envíen');
+expect('continuar', 'presente', 'continúo continúas continúa continuamos continuáis continúan');
+expect('mantener', 'presente', 'mantengo mantienes mantiene mantenemos mantenéis mantienen');
+expect('mantener', 'indefinido', 'mantuve mantuviste mantuvo mantuvimos mantuvisteis mantuvieron');
+expect('mantener', 'imperativo', 'mantén mantenga mantengamos mantened mantengan');
+expect('mantener', 'futuro', 'mantendré mantendrás mantendrá mantendremos mantendréis mantendrán');
+expect('proponer', 'imperativo', 'propón proponga propongamos proponed propongan');
+expect('proponer', 'participle', 'propuesto');
+expect('suponer', 'indefinido', 'supuse supusiste supuso supusimos supusisteis supusieron');
+expect('intervenir', 'imperativo', 'intervén intervenga intervengamos intervenid intervengan');
+expect('convenir', 'gerund', 'conviniendo');
+expect('deshacer', 'indefinido', 'deshice deshiciste deshizo deshicimos deshicisteis deshicieron');
+expect('deshacer', 'imperativo', 'deshaz deshaga deshagamos deshaced deshagan');
+expect('atraer', 'gerund', 'atrayendo');
+expect('producir', 'presente', 'produzco produces produce producimos producís producen');
+expect('producir', 'indefinido', 'produje produjiste produjo produjimos produjisteis produjeron');
+expect('traducir', 'subjuntivo', 'traduzca traduzcas traduzca traduzcamos traduzcáis traduzcan');
+expect('andar', 'indefinido', 'anduve anduviste anduvo anduvimos anduvisteis anduvieron');
+expect('caber', 'presente', 'quepo cabes cabe cabemos cabéis caben');
+expect('caber', 'futuro', 'cabré cabrás cabrá cabremos cabréis cabrán');
+expect('valer', 'presente', 'valgo vales vale valemos valéis valen');
+expect('valer', 'futuro', 'valdré valdrás valdrá valdremos valdréis valdrán');
+expect('morir', 'indefinido', 'morí moriste murió morimos moristeis murieron');
+expect('morir', 'participle', 'muerto');
+expect('morir', 'subjuntivo', 'muera mueras muera muramos muráis mueran');
+expect('negar', 'subjuntivo', 'niegue niegues niegue neguemos neguéis nieguen');
+expect('almorzar', 'subjuntivo', 'almuerce almuerces almuerce almorcemos almorcéis almuercen');
+expect('almorzar', 'indefinido', 'almorcé almorzaste almorzó almorzamos almorzasteis almorzaron');
+expect('colgar', 'presente', 'cuelgo cuelgas cuelga colgamos colgáis cuelgan');
+expect('colgar', 'indefinido', 'colgué colgaste colgó colgamos colgasteis colgaron');
+expect('comenzar', 'subjuntivo', 'comience comiences comience comencemos comencéis comiencen');
+expect('soñar', 'presente', 'sueño sueñas sueña soñamos soñáis sueñan');
+expect('devolver', 'participle', 'devuelto');
+expect('resolver', 'presente', 'resuelvo resuelves resuelve resolvemos resolvéis resuelven');
+expect('sugerir', 'indefinido', 'sugerí sugeriste sugirió sugerimos sugeristeis sugirieron');
+expect('divertir', 'gerund', 'divirtiendo');
+expect('servir', 'presente', 'sirvo sirves sirve servimos servís sirven');
+expect('repetir', 'subjuntivo', 'repita repitas repita repitamos repitáis repitan');
+expect('conseguir', 'presente', 'consigo consigues consigue conseguimos conseguís consiguen');
+expect('elegir', 'presente', 'elijo eliges elige elegimos elegís eligen');
+expect('elegir', 'subjuntivo', 'elija elijas elija elijamos elijáis elijan');
+expect('elegir', 'indefinido', 'elegí elegiste eligió elegimos elegisteis eligieron');
+expect('corregir', 'presente', 'corrijo corriges corrige corregimos corregís corrigen');
+expect('nacer', 'presente', 'nazco naces nace nacemos nacéis nacen');
+expect('ofrecer', 'subjuntivo', 'ofrezca ofrezcas ofrezca ofrezcamos ofrezcáis ofrezcan');
+expect('coger', 'presente', 'cojo coges coge cogemos cogéis cogen');
+expect('coger', 'subjuntivo', 'coja cojas coja cojamos cojáis cojan');
+expect('vencer', 'presente', 'venzo vences vence vencemos vencéis vencen');
+expect('dirigir', 'presente', 'dirijo diriges dirige dirigimos dirigís dirigen');
+expect('distinguir', 'presente', 'distingo distingues distingue distinguimos distinguís distinguen');
+expect('distinguir', 'subjuntivo', 'distinga distingas distinga distingamos distingáis distingan');
+expect('poseer', 'indefinido', 'poseí poseíste poseyó poseímos poseísteis poseyeron');
+expect('romper', 'participle', 'roto');
+expect('cubrir', 'participle', 'cubierto');
+expect('describir', 'participle', 'descrito');
+expect('organizar', 'indefinido', 'organicé organizaste organizó organizamos organizasteis organizaron');
+expect('explicar', 'subjuntivo', 'explique expliques explique expliquemos expliquéis expliquen');
+expect('crear', 'subjuntivo', 'cree crees cree creemos creéis creen');
+expect('cambiar', 'presente', 'cambio cambias cambia cambiamos cambiáis cambian');
+expect('limpiar', 'subjuntivo', 'limpie limpies limpie limpiemos limpiéis limpien');
+expect('añadir', 'indefinido', 'añadí añadiste añadió añadimos añadisteis añadieron');
+
+// No duplicates
+{
+  const seen = new Set();
+  for (const v of VERBS) {
+    checks++;
+    if (seen.has(v.inf)) { failures++; console.error(`✗ duplicate verb: ${v.inf}`); }
+    seen.add(v.inf);
+  }
+}
+
 // Every verb conjugates without throwing and has no undefined forms
 for (const v of VERBS) {
   const r = conjugate(v);

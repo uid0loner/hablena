@@ -1,7 +1,8 @@
 // Verb catalogue. Only what is irregular is written down; the engine derives the rest.
 // en / de: short translations shown on the verb pages.
+import { MORE_VERBS } from './verbs-more.mjs';
 
-export const VERBS = [
+const CORE = [
   // ---- the big irregulars ----
   { inf: 'ser', en: 'to be', de: 'sein',
     pres: ['soy', 'eres', 'es', 'somos', 'sois', 'son'],
@@ -107,6 +108,8 @@ export const VERBS = [
   { inf: 'compartir', en: 'to share', de: 'teilen' },
   { inf: 'subir', en: 'to go up, to upload', de: 'hinaufgehen, hochladen' },
 ];
+
+export const VERBS = [...CORE, ...MORE_VERBS];
 
 // URL slug: no accents (oír → oir).
 export const slugOf = (inf) => inf.normalize('NFD').replace(/[̀-ͯ]/g, '');
