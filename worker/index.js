@@ -237,11 +237,28 @@ async function audio(request, env, url, ctx, hash) {
   if (!text) return json({ error: 'not_found' }, 404);
   if (!ttsConfigured(env)) return json({ error: 'audio_not_configured' }, 503);
 
-  const result = await synthesize(env, text);
+  let result;
+  try {
+    result = await synthesize(env, text);
+  } catch (err) {
+    if (!(err instanceof TtsError)) throw err;
+    console.error('tts_failed', err.provider, err.status, err.detail);
+    return json({ error: 'tts_failed', provider: err.provider, status: err.status, detail: err.detail }, 502);
+  }
   await env.DB.prepare('INSERT OR IGNORE INTO audio_cache (hash, provider, voice, data, created_at) VALUES (?, ?, ?, ?, ?)')
     .bind(hash, result.provider, result.voice, result.data, Date.now())
     .run();
   return keep(audioResponse(result.data));
+}
+
+class TtsError extends Error {
+  constructor(provider, status, body) {
+    super(`tts_failed ${provider} ${status}`);
+    this.provider = provider;
+    this.status = status;
+    // Provider error messages (e.g. invalid key, unknown voice) never contain the key itself.
+    this.detail = String(body).slice(0, 300);
+  }
 }
 
 const ttsConfigured = (env) => !!env.TTS_API_KEY && (env.TTS_PROVIDER === 'google' || !!env.TTS_VOICE);
@@ -259,7 +276,7 @@ export async function synthesize(env, text) {
         voice_settings: { stability: 0.5, similarity_boost: 0.75 },
       }),
     });
-    if (!res.ok) throw new Error(`tts_failed elevenlabs ${res.status}`);
+    if (!res.ok) throw new TtsError('elevenlabs', res.status, await res.text().catch(() => ''));
     return { provider, voice, data: new Uint8Array(await res.arrayBuffer()) };
   }
   const voice = env.TTS_VOICE || 'es-ES-Chirp3-HD-Aoede';
@@ -268,7 +285,7 @@ export async function synthesize(env, text) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ input: { text }, voice: { languageCode: voice.slice(0, 5), name: voice }, audioConfig: { audioEncoding: 'MP3' } }),
   });
-  if (!res.ok) throw new Error(`tts_failed google ${res.status}`);
+  if (!res.ok) throw new TtsError('google', res.status, await res.text().catch(() => ''));
   const { audioContent } = await res.json();
   return { provider, voice, data: Uint8Array.from(atob(audioContent), (c) => c.charCodeAt(0)) };
 }

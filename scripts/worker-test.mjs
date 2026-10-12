@@ -136,6 +136,11 @@ check('unknown route → 404', (await call('GET', '/api/nothing')).status === 40
     check('audio: second request served from DB', r2.status === 200 && calls === 1 && new Uint8Array(await r2.arrayBuffer())[0] === 73);
 
     env.DB.raw.exec('DELETE FROM audio_cache');
+    globalThis.fetch = async () => Response.json({ detail: { status: 'invalid_api_key', message: 'Invalid API key' } }, { status: 401 });
+    const bad = await get(e);
+    const badBody = await bad.json();
+    check('audio: provider error is reported', bad.status === 502 && badBody.status === 401 && badBody.detail.includes('invalid_api_key'));
+
     globalThis.fetch = async (url, init) => { sent = { url: String(url), init }; return Response.json({ audioContent: btoa('ID3x') }); };
     const g = await get(manifestEnv({ TTS_PROVIDER: 'google', TTS_API_KEY: 'gkey' }));
     check('audio: Google provider', g.status === 200 && sent.url.includes('texttospeech.googleapis.com') && JSON.parse(sent.init.body).voice.languageCode === 'es-ES');
