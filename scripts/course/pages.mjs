@@ -1,5 +1,6 @@
 // One lesson-player page per lesson and locale (noindex, part of the app).
 import { ALL_LESSONS } from './units.mjs';
+import { lessonAudioMap } from './audio.mjs';
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 // JSON inside <script type="application/json">: only "<" needs neutralising.
@@ -11,6 +12,7 @@ function localize(lesson, lang) {
     title: lesson.title[lang],
     vocab: lesson.vocab.map((v) => ({ es: v.es, tr: v[lang] })),
     exercises: lesson.exercises.map((e) => (e.tr ? { ...e, tr: e.tr[lang] } : e)),
+    audio: lessonAudioMap(lesson),
   };
 }
 

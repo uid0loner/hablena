@@ -33,16 +33,33 @@
   const norm = (s) => s.toLowerCase().replace(/[¡!¿?.,;:]/g, '').replace(/\s+/g, ' ').trim();
   const words = (s) => s.replace(/[¡!¿?.,;:]/g, '').split(/\s+/).filter(Boolean);
 
-  // ---------- speech (browser text-to-speech, Spanish voice) ----------
+  // ---------- audio: natural voice recordings from the server, browser speech only as fallback ----------
+  const AUDIO = L.audio || {};
+  let serverAudio = Object.keys(AUDIO).length > 0;
+  const clips = new Map();
+  const clip = (text) => {
+    const hash = AUDIO[text];
+    if (!hash || !serverAudio) return null;
+    if (!clips.has(hash)) {
+      const a = new Audio(`/api/audio/${hash}.mp3`);
+      a.preload = 'auto';
+      a.addEventListener('error', () => { serverAudio = false; });
+      clips.set(hash, a);
+    }
+    return clips.get(hash);
+  };
+  const preload = (texts) => texts.forEach((t) => clip(t));
+
   const speech = 'speechSynthesis' in window ? window.speechSynthesis : null;
   let esVoice = null;
   const pickVoice = () => {
     if (!speech) return;
-    const voices = speech.getVoices();
-    esVoice = voices.find((v) => /^es[-_]ES/i.test(v.lang)) || voices.find((v) => /^es/i.test(v.lang)) || null;
+    const es = speech.getVoices().filter((v) => /^es/i.test(v.lang));
+    const score = (v) => (/es[-_]ES/i.test(v.lang) ? 2 : 0) + (/natural|neural|online|google|mónica|monica|jorge|elvira|álvaro|alvaro/i.test(v.name) ? 3 : 0);
+    esVoice = es.sort((a, b) => score(b) - score(a))[0] || null;
   };
   if (speech) { pickVoice(); speech.addEventListener?.('voiceschanged', pickVoice); }
-  const speak = (text) => {
+  const browserSpeak = (text) => {
     if (!speech) return;
     speech.cancel();
     const u = new SpeechSynthesisUtterance(text.replace(/[¿¡]/g, '').replace('…', ''));
@@ -51,6 +68,20 @@
     u.rate = 0.9;
     speech.speak(u);
   };
+  let playing = null;
+  const speak = (text) => {
+    const a = clip(text);
+    if (playing && playing !== a) { playing.pause(); }
+    if (!a) return browserSpeak(text);
+    playing = a;
+    a.currentTime = 0;
+    a.play().catch((err) => {
+      if (err && err.name === 'NotAllowedError') return; // autoplay blocked before the first tap
+      serverAudio = false;
+      browserSpeak(text);
+    });
+  };
+  const canSpeak = serverAudio || !!speech;
   const SPEAKER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4zM15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
   const audioButton = (text, big = false) => {
     const btn = h('button', { type: 'button', class: big ? 'audio audio--big' : 'audio', 'aria-label': S.play, onclick: () => speak(text) });
@@ -130,16 +161,16 @@
         const v = L.vocab[i];
         return h('div', { class: 'word-card' },
           h('div', {}, h('span', { class: 'word-card__es', lang: 'es' }, v.es), h('span', { class: 'word-card__tr' }, v.tr)),
-          speech ? audioButton(v.es) : null);
+          canSpeak ? audioButton(v.es) : null);
       });
       stage.append(h('p', { class: 'step-kicker' }, step.v.length > 1 ? S.newWords : S.newWord), h('div', { class: 'word-cards' }, cards));
-      if (speech && step.v.length === 1) setTimeout(() => speak(L.vocab[step.v[0]].es), 250);
+      if (canSpeak && step.v.length === 1) setTimeout(() => speak(L.vocab[step.v[0]].es), 250);
       return { intro: true };
     },
     choice(step) {
       const v = L.vocab[step.v];
       stage.append(h('p', { class: 'step-kicker' }, S.chooseTranslation),
-        h('div', { class: 'prompt' }, h('span', { class: 'prompt__text', lang: 'es' }, v.es), speech ? audioButton(v.es) : null));
+        h('div', { class: 'prompt' }, h('span', { class: 'prompt__text', lang: 'es' }, v.es), canSpeak ? audioButton(v.es) : null));
       const list = optionList(shuffle([v.tr, ...distractors(v.tr, 'tr')]), v.tr, {});
       stage.append(list.el);
       return list;
@@ -154,10 +185,10 @@
     listen(step) {
       const v = L.vocab[step.v];
       const reveal = h('button', { type: 'button', class: 'link-btn', onclick: (e) => { e.currentTarget.replaceWith(h('span', { class: 'reveal', lang: 'es' }, v.es)); } }, S.noAudio);
-      stage.append(h('p', { class: 'step-kicker' }, S.whatDidYouHear), h('div', { class: 'prompt prompt--listen' }, speech ? audioButton(v.es, true) : null, reveal));
+      stage.append(h('p', { class: 'step-kicker' }, S.whatDidYouHear), h('div', { class: 'prompt prompt--listen' }, canSpeak ? audioButton(v.es, true) : null, reveal));
       const list = optionList(shuffle([v.es, ...distractors(v.es, 'es')]), v.es, { lang: 'es' });
       stage.append(list.el);
-      if (speech) setTimeout(() => speak(v.es), 300);
+      if (canSpeak) setTimeout(() => speak(v.es), 300);
       return list;
     },
     gap(step) {
@@ -169,7 +200,7 @@
       const list = optionList(shuffle(step.options), step.answer, { lang: 'es', onPick: (t) => { blank.textContent = t; blank.classList.add('is-filled'); } });
       stage.append(list.el);
       const evaluate = list.evaluate;
-      list.evaluate = () => { const r = evaluate(); blank.textContent = step.answer; if (speech) speak(step.es.replace('___', step.answer)); return r; };
+      list.evaluate = () => { const r = evaluate(); blank.textContent = step.answer; speak(step.es.replace('___', step.answer)); return r; };
       return list;
     },
     build(step) {
@@ -196,7 +227,7 @@
           const ok = norm(given) === norm(step.es);
           [...answerRow.children, ...pool.children].forEach((t) => { t.disabled = true; });
           answerRow.classList.add(ok ? 'is-right' : 'is-wrong');
-          if (speech) speak(step.es);
+          speak(step.es);
           return { ok, answer: step.es };
         },
       };
@@ -236,6 +267,14 @@
     },
   };
 
+  function preloadStep(step) {
+    const refs = Array.isArray(step.v) ? step.v : step.v === undefined ? [] : [step.v];
+    const texts = refs.map((i) => L.vocab[i].es);
+    if (step.t === 'gap') texts.push(step.es.replace('___', step.answer));
+    if (step.t === 'build') texts.push(step.es, ...words(step.es), ...(step.extra || []));
+    preload(texts);
+  }
+
   // ---------- flow ----------
   function show(i) {
     index = i;
@@ -244,6 +283,8 @@
     clearFeedback();
     setProgress();
     const step = steps[i];
+    preloadStep(step);
+    if (steps[i + 1]) preloadStep(steps[i + 1]);
     current = render[step.t](step);
     stage.focus?.({ preventScroll: true });
     if (current.intro) setPrimary(S.continue, true, 'gold');

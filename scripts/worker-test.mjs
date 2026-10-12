@@ -26,6 +26,12 @@ async function call(method, path, { body, cookie, origin = ORIGIN, type = 'appli
   return { status: res.status, data, setCookie, cookie: session ? `__Host-hablena_session=${session}` : null };
 }
 
+// www → apex redirect
+{
+  const r = await worker.fetch(new Request('https://www.hablena.com/de/grammatik/?x=1'), env);
+  check('www redirects to apex', r.status === 301 && r.headers.get('Location') === 'https://hablena.com/de/grammatik/?x=1');
+}
+
 // Static pages still go to the assets binding
 check('static passthrough', (await worker.fetch(new Request(ORIGIN + '/'), env).then((r) => r.text())) === 'static');
 
@@ -100,6 +106,43 @@ check('progress removed', !env.DB.raw.prepare('SELECT 1 FROM progress').get());
 check('sessions removed', !env.DB.raw.prepare('SELECT 1 FROM sessions s LEFT JOIN users u ON u.id = s.user_id WHERE u.id IS NULL').get());
 
 check('unknown route → 404', (await call('GET', '/api/nothing')).status === 404);
+
+// Audio
+{
+  const text = 'buenos días';
+  const hash = 'a'.repeat(24);
+  const manifestEnv = (extra) => ({
+    ...env,
+    ASSETS: { fetch: async (req) => (new URL(req.url).pathname === '/audio/manifest.json' ? Response.json({ [hash]: text }) : new Response('static')) },
+    ...extra,
+  });
+  const get = async (e, h = hash) => worker.fetch(new Request(`${ORIGIN}/api/audio/${h}.mp3`), e);
+  check('audio: not configured → 503', (await get(manifestEnv({}))).status === 503);
+  check('audio: unknown hash → 404', (await get(manifestEnv({ TTS_API_KEY: 'k', TTS_VOICE: 'v' }), 'b'.repeat(24))).status === 404);
+  check('audio: malformed hash → 404', (await worker.fetch(new Request(`${ORIGIN}/api/audio/not-a-hash.mp3`), env)).status === 404);
+
+  const realFetch = globalThis.fetch;
+  let calls = 0;
+  let sent = null;
+  globalThis.fetch = async (url, init) => { calls++; sent = { url: String(url), init }; return new Response(new Uint8Array([73, 68, 51, 4]), { headers: { 'Content-Type': 'audio/mpeg' } }); };
+  try {
+    const e = manifestEnv({ TTS_API_KEY: 'secret', TTS_VOICE: 'voice123' });
+    const r1 = await get(e);
+    const bytes = new Uint8Array(await r1.arrayBuffer());
+    check('audio: generated', r1.status === 200 && r1.headers.get('Content-Type') === 'audio/mpeg' && bytes[0] === 73);
+    check('audio: immutable caching', /immutable/.test(r1.headers.get('Cache-Control') || ''));
+    check('audio: ElevenLabs request', sent.url.includes('api.elevenlabs.io') && sent.url.includes('voice123') && sent.init.headers['xi-api-key'] === 'secret' && JSON.parse(sent.init.body).text === text);
+    const r2 = await get(e);
+    check('audio: second request served from DB', r2.status === 200 && calls === 1 && new Uint8Array(await r2.arrayBuffer())[0] === 73);
+
+    env.DB.raw.exec('DELETE FROM audio_cache');
+    globalThis.fetch = async (url, init) => { sent = { url: String(url), init }; return Response.json({ audioContent: btoa('ID3x') }); };
+    const g = await get(manifestEnv({ TTS_PROVIDER: 'google', TTS_API_KEY: 'gkey' }));
+    check('audio: Google provider', g.status === 200 && sent.url.includes('texttospeech.googleapis.com') && JSON.parse(sent.init.body).voice.languageCode === 'es-ES');
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+}
 
 console.log(`${checks - failures}/${checks} worker checks passed`);
 if (failures) process.exit(1);

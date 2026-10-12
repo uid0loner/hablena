@@ -15,11 +15,16 @@ const RATE_RETENTION_MS = 24 * 60 * 60 * 1000;
 const enc = new TextEncoder();
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
+    // One canonical host: www.hablena.com → hablena.com
+    if (url.hostname.startsWith('www.')) {
+      url.hostname = url.hostname.slice(4);
+      return Response.redirect(url.toString(), 301);
+    }
     if (url.pathname.startsWith('/api/')) {
       try {
-        return await handleApi(request, env, url);
+        return await handleApi(request, env, url, ctx);
       } catch (err) {
         console.error('api_error', err && err.stack ? err.stack : err);
         return json({ error: 'server_error' }, 500);
@@ -32,10 +37,13 @@ export default {
 // ---------------------------------------------------------------------------
 // Routing
 
-async function handleApi(request, env, url) {
+async function handleApi(request, env, url, ctx) {
   const route = `${request.method} ${url.pathname.replace(/\/+$/, '')}`;
 
   if (!env.DB) return json({ error: 'not_configured' }, 503);
+
+  const audioMatch = request.method === 'GET' && url.pathname.match(/^\/api\/audio\/([a-f0-9]{24})\.mp3$/);
+  if (audioMatch) return audio(request, env, url, ctx, audioMatch[1]);
 
   if (request.method !== 'GET' && request.method !== 'HEAD') {
     const bad = checkSameOrigin(request, url);
@@ -189,6 +197,80 @@ async function saveProgress(request, env) {
        last_completed_at = excluded.last_completed_at`
   ).bind(user.id, lessonId, correct, total, now, now).run();
   return json({ ok: true });
+}
+
+// ---------------------------------------------------------------------------
+// Pronunciation audio: generated once per text by a neural TTS provider, then stored in D1
+// and cached at the edge. Only texts listed in /audio/manifest.json (built from the course) are allowed.
+
+let manifestCache = null;
+async function loadManifest(env, url) {
+  if (manifestCache) return manifestCache;
+  const res = await env.ASSETS.fetch(new Request(new URL('/audio/manifest.json', url.origin)));
+  if (!res.ok) return {};
+  manifestCache = await res.json();
+  return manifestCache;
+}
+
+const audioResponse = (data) =>
+  new Response(data, { headers: { 'Content-Type': 'audio/mpeg', 'Cache-Control': 'public, max-age=31536000, immutable' } });
+
+async function audio(request, env, url, ctx, hash) {
+  const cache = globalThis.caches?.default;
+  const cacheKey = new Request(url.toString());
+  if (cache) {
+    const hit = await cache.match(cacheKey);
+    if (hit) return hit;
+  }
+  const keep = (res) => {
+    if (cache) {
+      const p = cache.put(cacheKey, res.clone());
+      if (ctx?.waitUntil) ctx.waitUntil(p);
+    }
+    return res;
+  };
+
+  const row = await env.DB.prepare('SELECT data FROM audio_cache WHERE hash = ?').bind(hash).first();
+  if (row) return keep(audioResponse(new Uint8Array(row.data)));
+
+  const text = (await loadManifest(env, url))[hash];
+  if (!text) return json({ error: 'not_found' }, 404);
+  if (!ttsConfigured(env)) return json({ error: 'audio_not_configured' }, 503);
+
+  const result = await synthesize(env, text);
+  await env.DB.prepare('INSERT OR IGNORE INTO audio_cache (hash, provider, voice, data, created_at) VALUES (?, ?, ?, ?, ?)')
+    .bind(hash, result.provider, result.voice, result.data, Date.now())
+    .run();
+  return keep(audioResponse(result.data));
+}
+
+const ttsConfigured = (env) => !!env.TTS_API_KEY && (env.TTS_PROVIDER === 'google' || !!env.TTS_VOICE);
+
+export async function synthesize(env, text) {
+  const provider = env.TTS_PROVIDER === 'google' ? 'google' : 'elevenlabs';
+  if (provider === 'elevenlabs') {
+    const voice = env.TTS_VOICE;
+    const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voice)}?output_format=mp3_44100_128`, {
+      method: 'POST',
+      headers: { 'xi-api-key': env.TTS_API_KEY, 'Content-Type': 'application/json', Accept: 'audio/mpeg' },
+      body: JSON.stringify({
+        text,
+        model_id: env.TTS_MODEL || 'eleven_multilingual_v2',
+        voice_settings: { stability: 0.5, similarity_boost: 0.75 },
+      }),
+    });
+    if (!res.ok) throw new Error(`tts_failed elevenlabs ${res.status}`);
+    return { provider, voice, data: new Uint8Array(await res.arrayBuffer()) };
+  }
+  const voice = env.TTS_VOICE || 'es-ES-Chirp3-HD-Aoede';
+  const res = await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${encodeURIComponent(env.TTS_API_KEY)}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ input: { text }, voice: { languageCode: voice.slice(0, 5), name: voice }, audioConfig: { audioEncoding: 'MP3' } }),
+  });
+  if (!res.ok) throw new Error(`tts_failed google ${res.status}`);
+  const { audioContent } = await res.json();
+  return { provider, voice, data: Uint8Array.from(atob(audioContent), (c) => c.charCodeAt(0)) };
 }
 
 // ---------------------------------------------------------------------------

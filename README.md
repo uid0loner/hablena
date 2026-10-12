@@ -86,7 +86,12 @@ Setup once:
 `scripts/course/units.mjs` holds units, lessons, vocabulary and exercises (intro, choice, reverse,
 listen, match, gap, build). Each lesson becomes a player page at `/app/learn/<id>/` (EN) and
 `/de/app/learn/<id>/` (DE); the player is `src/assets/js/player.js`. Audio uses the browser's
-Spanish text-to-speech. Results are saved via `POST /api/progress` (best score kept).
+Results are saved via `POST /api/progress` (best score kept).
+
+Audio: every Spanish text the player can pronounce is listed in `dist/audio/manifest.json` at build time.
+`GET /api/audio/<hash>.mp3` generates it once with a neural TTS provider (ElevenLabs or Google, see the
+variables in `wrangler.jsonc`), stores it in D1 and caches it at the edge. Only manifest texts can be
+synthesised, so costs stay bounded. Without a provider the player falls back to the browser voice.
 `scripts/course/test.mjs` validates all content (indices, translations, every word introduced before it is tested).
 
 ## Local development
@@ -101,8 +106,8 @@ npm run dev        # builds and runs site + API locally (SQLite) on http://local
 
 1. Cloudflare dashboard → **Workers & Pages** → **Create** → **Import a repository** → `uid0loner/hablena`
 2. Build command: `npm run build`
-3. Deploy command: `npx wrangler deploy`
-4. After buying the domain: Worker → **Settings** → **Domains & Routes** → add `hablena.com` and `www.hablena.com`
+3. Deploy command: `npx wrangler d1 migrations apply hablena --remote && npx wrangler deploy`
+4. Custom domains `hablena.com` and `www.hablena.com` are declared in `wrangler.jsonc`; www redirects to the apex in the Worker
 
 Every push to `main` deploys automatically.
 

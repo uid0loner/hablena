@@ -16,6 +16,7 @@ import { grammarPages } from './grammar/pages.mjs';
 import { legalPages } from './legal/pages.mjs';
 import { accountPages } from './account/pages.mjs';
 import { lessonPages } from './course/pages.mjs';
+import { audioManifest } from './course/audio.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = join(root, 'src');
@@ -160,6 +161,10 @@ async function build() {
       generated++;
     }
   }
+
+  await mkdir(join(DIST, 'audio'), { recursive: true });
+  const manifest = audioManifest();
+  await writeFile(join(DIST, 'audio', 'manifest.json'), JSON.stringify(manifest));
 
   await writeFile(
     join(DIST, 'sitemap.xml'),

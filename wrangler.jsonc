@@ -2,10 +2,19 @@
   // Cloudflare Worker: serves the static site from ./dist and the API under /api/*.
   // Build command: npm run build
   // Deploy command: npx wrangler d1 migrations apply hablena --remote && npx wrangler deploy
+  //
+  // Pronunciation audio (set under Worker → Settings → Variables and Secrets):
+  //   TTS_PROVIDER  "elevenlabs" (default) or "google"
+  //   TTS_VOICE     ElevenLabs voice ID, or a Google voice name such as es-ES-Chirp3-HD-Aoede
+  //   TTS_API_KEY   secret
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "hablena",
   "main": "worker/index.js",
   "compatibility_date": "2026-10-01",
+  "routes": [
+    { "pattern": "hablena.com", "custom_domain": true },
+    { "pattern": "www.hablena.com", "custom_domain": true }
+  ],
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
