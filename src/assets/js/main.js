@@ -77,3 +77,37 @@
   input.addEventListener('input', apply);
   apply();
 })();
+
+// Grammar quizzes
+(() => {
+  document.querySelectorAll('[data-quiz]').forEach((quiz) => {
+    const questions = quiz.querySelectorAll('.quiz__q');
+    const scoreEl = quiz.querySelector('[data-quiz-score]');
+    let answered = 0;
+    let correct = 0;
+    questions.forEach((q) => {
+      const answer = Number(q.dataset.answer);
+      const buttons = q.querySelectorAll('.quiz__opt');
+      buttons.forEach((btn) =>
+        btn.addEventListener('click', () => {
+          const i = Number(btn.dataset.i);
+          const ok = i === answer;
+          buttons.forEach((b) => { b.disabled = true; });
+          btn.classList.add(ok ? 'is-right' : 'is-wrong');
+          if (!ok) buttons[answer].classList.add('is-right');
+          const blank = q.querySelector('[data-blank]');
+          if (blank) { blank.textContent = buttons[answer].textContent; blank.classList.add('is-filled'); }
+          const why = q.querySelector('[data-why]');
+          why.querySelector('[data-verdict]').textContent = ok ? quiz.dataset.correct : quiz.dataset.wrong;
+          why.hidden = false;
+          answered++;
+          if (ok) correct++;
+          if (answered === questions.length && scoreEl) {
+            scoreEl.textContent = quiz.dataset.score.replace('{score}', correct).replace('{total}', questions.length);
+            scoreEl.hidden = false;
+          }
+        })
+      );
+    });
+  });
+})();

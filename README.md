@@ -42,6 +42,12 @@ Template syntax: `{{t.key}}` for translations, `{{> partial}}` for includes,
 Irregular forms are detected automatically (compared with the regular pattern) and shown in red.
 To add a verb, add one line to `verbs.mjs`, add a reference check to `test.mjs`, run `npm test`.
 
+## Grammar guides
+
+`/grammar/` (EN) and `/de/grammatik/` (DE). Content lives in `scripts/grammar/topics.mjs`:
+Spanish examples are shared, explanations and translations exist per language.
+Each guide has rules, examples, common mistakes, an interactive quiz and links to the conjugator.
+
 ## Local development
 
 ```bash

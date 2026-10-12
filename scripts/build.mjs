@@ -12,6 +12,7 @@ import { readFile, writeFile, mkdir, readdir, cp, rm } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { conjugatorPages } from './conjugator/pages.mjs';
+import { grammarPages } from './grammar/pages.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = join(root, 'src');
@@ -132,11 +133,13 @@ async function build() {
     home: (l) => prefix(l),
     index: (l) => `${prefix(l)}${dict[l].conj.slug}/`,
     verb: (l, slug) => `${prefix(l)}${dict[l].conj.slug}/${slug}/`,
+    grammarIndex: (l) => `${prefix(l)}${dict[l].gram.slug}/`,
+    grammar: (l, slug) => `${prefix(l)}${dict[l].gram.slug}/${slug}/`,
   };
   let generated = 0;
   for (const lang of LOCALES) {
     const other = LOCALES.find((l) => l !== lang);
-    for (const p of conjugatorPages(dict[lang], urls, other)) {
+    for (const p of [...conjugatorPages(dict[lang], urls, other), ...grammarPages(dict[lang], urls, other)]) {
       const html = render(tool, makeCtx(dict, lang, { [lang]: p.path, [other]: p.alt }, p), 'tool.html');
       await writePage(p.path, html);
       sitemap.push(SITE + p.path);
@@ -151,7 +154,7 @@ async function build() {
       .join('\n')}\n</urlset>\n`
   );
 
-  console.log(`Built ${sitemap.length} pages (${generated} conjugator) for ${LOCALES.join(', ')} → dist/`);
+  console.log(`Built ${sitemap.length} pages (${generated} generated) for ${LOCALES.join(', ')} → dist/`);
 }
 
 build().catch((err) => {

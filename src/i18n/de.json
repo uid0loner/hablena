@@ -18,7 +18,8 @@
     "pricing": "Preise",
     "login": "Anmelden",
     "start": "Kostenlos starten",
-    "conjugator": "Konjugator"
+    "conjugator": "Konjugator",
+    "grammar": "Grammatik"
   },
   "hero": {
     "kicker": "Spanisch · A1 bis C1 · mit KI-Tutorin",
@@ -205,7 +206,8 @@
     "button": "Zur Startseite"
   },
   "links": {
-    "conjugator": "/de/konjugation/"
+    "conjugator": "/de/konjugation/",
+    "grammar": "/de/grammatik/"
   },
   "conj": {
     "slug": "konjugation",
@@ -284,5 +286,31 @@
     "ctaButton": "Kostenlos loslegen",
     "more": "Ähnliche Verben",
     "all": "Alle Verben"
+  },
+  "gram": {
+    "slug": "grammatik",
+    "breadcrumb": "Grammatik",
+    "indexTitle": "Spanische Grammatik, klar erklärt",
+    "indexLead": "Die Themen, über die alle Lernenden stolpern, erklärt mit klaren Regeln, echten Beispielen, typischen Fehlern und einem kurzen Quiz.",
+    "indexMetaTitle": "Spanische Grammatik einfach erklärt – Regeln, Beispiele & Quiz | Hablena",
+    "indexMetaDesc": "Spanische Grammatik verständlich erklärt: ser oder estar, por oder para, Indefinido oder Imperfekt, der Subjuntivo und mehr, mit Beispielen und Quiz.",
+    "topicMetaTitle": "{title}: {subtitle} | Spanische Grammatik | Hablena",
+    "level": "Niveau",
+    "tipLabel": "Faustregel",
+    "mistakesTitle": "Typische Fehler",
+    "wrongLabel": "Falsch",
+    "rightLabel": "Richtig",
+    "quizTitle": "Teste dich",
+    "quizText": "Wähle die richtige Option. Die Erklärung bekommst du sofort.",
+    "chooseLabel": "Antwort wählen",
+    "correct": "Richtig!",
+    "wrong": "Nicht ganz.",
+    "score": "{score} von {total} richtig",
+    "verbsTitle": "Die Verben konjugieren",
+    "ctaTitle": "Regeln sind Schritt eins.",
+    "ctaText": "Hablena wendet sie mit dir in echten Gesprächen an und korrigiert dich genau dann, wenn es zählt.",
+    "ctaButton": "Kostenlos loslegen",
+    "more": "Weitere Grammatik-Themen",
+    "all": "Alle Themen"
   }
 }

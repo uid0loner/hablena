@@ -18,7 +18,8 @@
     "pricing": "Pricing",
     "login": "Log in",
     "start": "Start free",
-    "conjugator": "Conjugator"
+    "conjugator": "Conjugator",
+    "grammar": "Grammar"
   },
   "hero": {
     "kicker": "Spanish · A1 to C1 · AI tutor included",
@@ -205,7 +206,8 @@
     "button": "Back to the homepage"
   },
   "links": {
-    "conjugator": "/conjugation/"
+    "conjugator": "/conjugation/",
+    "grammar": "/grammar/"
   },
   "conj": {
     "slug": "conjugation",
@@ -284,5 +286,31 @@
     "ctaButton": "Start learning free",
     "more": "More verbs like this",
     "all": "All verbs"
+  },
+  "gram": {
+    "slug": "grammar",
+    "breadcrumb": "Grammar",
+    "indexTitle": "Spanish grammar, explained clearly",
+    "indexLead": "The topics every learner trips over, explained with clear rules, real examples, typical mistakes and a quick quiz.",
+    "indexMetaTitle": "Spanish Grammar Explained – Rules, Examples & Quizzes | Hablena",
+    "indexMetaDesc": "Spanish grammar made clear: ser vs. estar, por vs. para, preterite vs. imperfect, the subjunctive and more, with examples and quizzes.",
+    "topicMetaTitle": "{title}: {subtitle} | Spanish grammar | Hablena",
+    "level": "Level",
+    "tipLabel": "Quick rule",
+    "mistakesTitle": "Common mistakes",
+    "wrongLabel": "Wrong",
+    "rightLabel": "Right",
+    "quizTitle": "Test yourself",
+    "quizText": "Pick the right option. You get an explanation straight away.",
+    "chooseLabel": "Choose an answer",
+    "correct": "Correct!",
+    "wrong": "Not quite.",
+    "score": "{score} of {total} correct",
+    "verbsTitle": "Conjugate the verbs",
+    "ctaTitle": "Rules are step one.",
+    "ctaText": "Hablena uses them with you in real conversations and corrects you right when it matters.",
+    "ctaButton": "Start learning free",
+    "more": "More grammar guides",
+    "all": "All topics"
   }
 }
