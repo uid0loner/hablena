@@ -17,7 +17,8 @@
     "tutor": "KI-Tutorin",
     "pricing": "Preise",
     "login": "Anmelden",
-    "start": "Kostenlos starten"
+    "start": "Kostenlos starten",
+    "conjugator": "Konjugator"
   },
   "hero": {
     "kicker": "Spanisch · A1 bis C1 · mit KI-Tutorin",
@@ -46,10 +47,18 @@
       "label": "Sprechen",
       "title": "Echte Gespräche mit Hablena",
       "text": "Kaffee bestellen, das Vorstellungsgespräch meistern, über Fußball diskutieren. Gesprochene Szenen genau auf deinem Niveau, mit sofortigem Feedback zu jedem Satz.",
-      "scenes": ["Im Café", "Vorstellungsgespräch", "Beim Arzt", "Wohnung mieten"],
+      "scenes": [
+        "Im Café",
+        "Vorstellungsgespräch",
+        "Beim Arzt",
+        "Wohnung mieten"
+      ],
       "own": "+ deine eigenen Themen"
     },
-    "conj": { "label": "Konjugator", "title": "Jedes Verb, jede Zeitform" },
+    "conj": {
+      "label": "Konjugator",
+      "title": "Jedes Verb, jede Zeitform"
+    },
     "vocab": {
       "label": "Wortschatz",
       "title": "Vokabeln, die wirklich bleiben",
@@ -64,7 +73,11 @@
       "title": "Korrigiert und erklärt",
       "explain": "Für einen Aufenthaltsort in der Vergangenheit nimmst du estar im Indefinido. „Soy“ ist ser im Präsens."
     },
-    "listen": { "label": "Hören & Lesen", "title": "Geschichten auf deinem Niveau", "transcript": "Transkript" },
+    "listen": {
+      "label": "Hören & Lesen",
+      "title": "Geschichten auf deinem Niveau",
+      "transcript": "Transkript"
+    },
     "grammar": {
       "label": "Grammatik",
       "title": "Endlich verständlich",
@@ -77,11 +90,31 @@
     "title": "Von hola bis fließend.",
     "text": "Aufgebaut auf den offiziellen europäischen GER-Niveaus, damit du immer genau weißt, wo du stehst. Bereit für die DELE-Prüfung, wenn du es bist.",
     "levels": [
-      { "code": "A1", "name": "Anfänger", "text": "Dich vorstellen, Essen bestellen, dich zurechtfinden." },
-      { "code": "A2", "name": "Grundlagen", "text": "Über deinen Tag, deine Vergangenheit und deine Pläne reden." },
-      { "code": "B1", "name": "Mittelstufe", "text": "Reisen, Arbeit und Alltag entspannt meistern." },
-      { "code": "B2", "name": "Gute Mittelstufe", "text": "Serien und Nachrichten folgen, deine Meinung vertreten." },
-      { "code": "C1", "name": "Fortgeschritten", "text": "Fließend, präzise und spontan sprechen." }
+      {
+        "code": "A1",
+        "name": "Anfänger",
+        "text": "Dich vorstellen, Essen bestellen, dich zurechtfinden."
+      },
+      {
+        "code": "A2",
+        "name": "Grundlagen",
+        "text": "Über deinen Tag, deine Vergangenheit und deine Pläne reden."
+      },
+      {
+        "code": "B1",
+        "name": "Mittelstufe",
+        "text": "Reisen, Arbeit und Alltag entspannt meistern."
+      },
+      {
+        "code": "B2",
+        "name": "Gute Mittelstufe",
+        "text": "Serien und Nachrichten folgen, deine Meinung vertreten."
+      },
+      {
+        "code": "C1",
+        "name": "Fortgeschritten",
+        "text": "Fließend, präzise und spontan sprechen."
+      }
     ]
   },
   "tutor": {
@@ -90,9 +123,21 @@
     "title2": "Immer da.",
     "text": "Hablena spricht mit dir über deinen Tag, deine Arbeit und deine Pläne. Sie erklärt jeden Fehler auf Deutsch und merkt sich, was du als Nächstes üben solltest.",
     "points": [
-      { "n": "01", "title": "Spricht auf deinem Niveau", "text": "Langsam und einfach auf A1, natürlich und schnell auf C1. Hablena passt sich mit jedem Satz an." },
-      { "n": "02", "title": "Erklärt auf Deutsch", "text": "Jede Korrektur kommt auf Deutsch, mit dem Grund dahinter, nicht nur mit der richtigen Antwort." },
-      { "n": "03", "title": "Merkt sich, was du brauchst", "text": "Wörter und Strukturen, die dir schwerfallen, kommen in späteren Gesprächen wieder, bis sie sitzen." }
+      {
+        "n": "01",
+        "title": "Spricht auf deinem Niveau",
+        "text": "Langsam und einfach auf A1, natürlich und schnell auf C1. Hablena passt sich mit jedem Satz an."
+      },
+      {
+        "n": "02",
+        "title": "Erklärt auf Deutsch",
+        "text": "Jede Korrektur kommt auf Deutsch, mit dem Grund dahinter, nicht nur mit der richtigen Antwort."
+      },
+      {
+        "n": "03",
+        "title": "Merkt sich, was du brauchst",
+        "text": "Wörter und Strukturen, die dir schwerfallen, kommen in späteren Gesprächen wieder, bis sie sitzen."
+      }
     ]
   },
   "plans": {
@@ -106,7 +151,13 @@
       "name": "Free",
       "desc": "Alles, was du für den Start brauchst.",
       "price": "0 €",
-      "items": ["Erste Lektionen des A1-Kurses", "Komplette Grammatik", "Verb-Konjugator", "Spanisch-Wörterbuch", "Einstufungstest"],
+      "items": [
+        "Erste Lektionen des A1-Kurses",
+        "Komplette Grammatik",
+        "Verb-Konjugator",
+        "Spanisch-Wörterbuch",
+        "Einstufungstest"
+      ],
       "cta": "Kostenloses Konto erstellen"
     },
     "premium": {
@@ -119,7 +170,14 @@
       "perYear": "/ Jahr",
       "noteMonthly": "Monatliche Abrechnung. Jederzeit kündbar.",
       "noteYearly": "Nur 5 € im Monat, jährliche Abrechnung.",
-      "items": ["Kompletter Kurs, A1 bis C1", "Unbegrenzte Gespräche mit Hablena", "Schreibkorrektur mit Erklärungen", "Alle Hör- und Leseinhalte", "Smarter Vokabeltrainer", "Niveautests und Zertifikate"],
+      "items": [
+        "Kompletter Kurs, A1 bis C1",
+        "Unbegrenzte Gespräche mit Hablena",
+        "Schreibkorrektur mit Erklärungen",
+        "Alle Hör- und Leseinhalte",
+        "Smarter Vokabeltrainer",
+        "Niveautests und Zertifikate"
+      ],
       "cta": "Premium 7 Tage gratis testen"
     }
   },
@@ -145,5 +203,86 @@
     "title": "¡Uy! Verlaufen.",
     "text": "Diese Seite gibt es nicht, oder sie ist umgezogen.",
     "button": "Zur Startseite"
+  },
+  "links": {
+    "conjugator": "/de/konjugation/"
+  },
+  "conj": {
+    "slug": "konjugation",
+    "breadcrumb": "Konjugator",
+    "indexTitle": "Spanische Verben konjugieren",
+    "indexLead": "Alle Zeitformen der {count} wichtigsten spanischen Verben. Unregelmäßige Formen sind markiert, damit du sofort siehst, was du lernen musst.",
+    "indexMetaTitle": "Spanische Verben konjugieren – alle Zeiten | Hablena",
+    "indexMetaDesc": "Kostenloser Konjugator für spanische Verben: {count} wichtige Verben in allen Zeitformen, vom Präsens bis zum Subjuntivo, unregelmäßige Formen markiert.",
+    "verbMetaTitle": "{verb} konjugieren – alle Zeitformen | Hablena",
+    "verbMetaDesc": "„{verb}“ ({translation}) in allen spanischen Zeitformen konjugiert: Präsens, Indefinido, Imperfekt, Futur, Subjuntivo und Imperativ. Unregelmäßige Formen markiert.",
+    "search": "Verb suchen, z. B. tener",
+    "searchLabel": "Spanische Verben suchen",
+    "noResults": "Kein Verb gefunden. Es kommen regelmäßig neue Verben dazu.",
+    "gerund": "Gerundium",
+    "participle": "Partizip",
+    "legend": "Rot markierte Formen sind unregelmäßig: Sie folgen nicht dem normalen Muster.",
+    "types": {
+      "regular": "Regelmäßig",
+      "irregular": "Unregelmäßig",
+      "stem": "Stammwechsel"
+    },
+    "groups": {
+      "irregular": "Unregelmäßige Verben",
+      "stem": "Verben mit Stammwechsel",
+      "regular": "Regelmäßige Verben"
+    },
+    "tenses": {
+      "presente": {
+        "name": "Präsens",
+        "es": "Presente",
+        "use": "Was jetzt oder regelmäßig passiert."
+      },
+      "indefinido": {
+        "name": "Indefinido",
+        "es": "Pretérito indefinido",
+        "use": "Abgeschlossene Handlungen zu einem bestimmten Zeitpunkt in der Vergangenheit."
+      },
+      "imperfecto": {
+        "name": "Imperfekt",
+        "es": "Pretérito imperfecto",
+        "use": "Hintergrund, Gewohnheiten und Beschreibungen in der Vergangenheit."
+      },
+      "perfecto": {
+        "name": "Perfekt",
+        "es": "Pretérito perfecto",
+        "use": "Vergangenes mit Bezug zur Gegenwart: heute, diese Woche, schon mal."
+      },
+      "futuro": {
+        "name": "Futur",
+        "es": "Futuro simple",
+        "use": "Was passieren wird, oder eine Vermutung über jetzt."
+      },
+      "condicional": {
+        "name": "Konditional",
+        "es": "Condicional",
+        "use": "Was passieren würde; höfliche Bitten."
+      },
+      "subjuntivo": {
+        "name": "Subjuntivo Präsens",
+        "es": "Presente de subjuntivo",
+        "use": "Wünsche, Zweifel und Gefühle: nach „que“."
+      },
+      "subjuntivoImperfecto": {
+        "name": "Subjuntivo Imperfekt",
+        "es": "Imperfecto de subjuntivo",
+        "use": "Annahmen und Wünsche: „si yo fuera …“."
+      },
+      "imperativo": {
+        "name": "Imperativ",
+        "es": "Imperativo afirmativo",
+        "use": "Aufforderungen und Anweisungen."
+      }
+    },
+    "ctaTitle": "Formen gelernt. Jetzt anwenden.",
+    "ctaText": "Tabellen sind ein Anfang. Übe „{verb}“ in echten Gesprächen mit Hablena, deiner KI-Tutorin für Spanisch.",
+    "ctaButton": "Kostenlos loslegen",
+    "more": "Ähnliche Verben",
+    "all": "Alle Verben"
   }
 }

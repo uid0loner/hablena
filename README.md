@@ -31,9 +31,21 @@ and the code to `LOCALES` in `scripts/build.mjs`.
 Template syntax: `{{t.key}}` for translations, `{{> partial}}` for includes,
 `{{#each t.list}}…{{this}}…{{/each}}` for lists. A missing key fails the build.
 
+## Conjugator
+
+`/conjugation/` (EN) and `/de/konjugation/` (DE): one static page per verb, generated at build time.
+
+- `scripts/conjugator/engine.mjs` derives every form by rule (endings, spelling changes, stem changes)
+- `scripts/conjugator/verbs.mjs` lists the verbs, with only their irregularities written down
+- `scripts/conjugator/test.mjs` checks the engine against reference conjugations: `npm test`
+
+Irregular forms are detected automatically (compared with the regular pattern) and shown in red.
+To add a verb, add one line to `verbs.mjs`, add a reference check to `test.mjs`, run `npm test`.
+
 ## Local development
 
 ```bash
+npm test           # checks the conjugation engine
 npm run build      # builds dist/
 npm run dev        # builds and serves on http://localhost:4321
 ```

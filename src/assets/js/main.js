@@ -40,3 +40,40 @@
     });
   }
 })();
+
+// Conjugator: live filter on the index page (accent-insensitive)
+(() => {
+  const input = document.querySelector('[data-verb-filter]');
+  const groups = document.querySelectorAll('[data-verb-group]');
+  if (!input || !groups.length) return;
+  const empty = document.querySelector('[data-verb-empty]');
+  const fold = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+
+  const apply = () => {
+    const q = fold(input.value);
+    let total = 0;
+    groups.forEach((g) => {
+      let shown = 0;
+      g.querySelectorAll('[data-verb]').forEach((li) => {
+        const hit = !q || li.dataset.verb.includes(q);
+        li.hidden = !hit;
+        if (hit) shown++;
+      });
+      g.hidden = shown === 0;
+      total += shown;
+    });
+    if (empty) empty.hidden = total !== 0;
+  };
+
+  // Enter jumps straight to the verb when there is exactly one match
+  input.closest('form')?.addEventListener('submit', (e) => {
+    const visible = [...document.querySelectorAll('[data-verb]:not([hidden]) a')];
+    if (visible.length === 1) { e.preventDefault(); location.href = visible[0].href; }
+    else e.preventDefault();
+  });
+
+  const q = new URLSearchParams(location.search).get('q');
+  if (q) input.value = q;
+  input.addEventListener('input', apply);
+  apply();
+})();

@@ -1,15 +1,17 @@
 // Hablena static site builder — zero dependencies.
-// Renders src/pages/*.html for every locale in src/i18n/*.json into dist/.
+// Renders src/pages/*.html and the generated tool pages for every locale into dist/.
 //
 // Template syntax:
 //   {{> name}}                 include src/partials/name.html
 //   {{t.some.key}}             translation value (may contain inline HTML)
 //   {{#each t.list}}…{{/each}} repeat for each item; use {{this}} or {{this.key}}
 //   {{lang}} {{base}} {{path}} {{canonical}} {{altHref}} {{altLabel}} {{altLang}} {{year}}
+//   {{pageTitle}} {{pageDescription}} {{hero}} {{content}}
 
-import { readFile, writeFile, mkdir, readdir, cp, rm, stat } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, readdir, cp, rm } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { conjugatorPages } from './conjugator/pages.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = join(root, 'src');
@@ -19,11 +21,11 @@ const SITE = 'https://hablena.com';
 // First locale is the default and lives at the site root; others live under /<lang>/.
 const LOCALES = ['en', 'de'];
 const DEFAULT = LOCALES[0];
+const prefix = (lang) => (lang === DEFAULT ? '/' : `/${lang}/`);
 
 const get = (obj, path) => path.split('.').reduce((o, k) => (o == null ? undefined : o[k]), obj);
 
-async function loadPartials() {
-  const dir = join(SRC, 'partials');
+async function loadDir(dir) {
   const out = {};
   for (const f of await readdir(dir)) {
     if (f.endsWith('.html')) out[f.replace(/\.html$/, '')] = await readFile(join(dir, f), 'utf8');
@@ -61,10 +63,37 @@ function render(html, ctx, file) {
   });
 }
 
-const urlFor = (lang, page) => {
-  const prefix = lang === DEFAULT ? '/' : `/${lang}/`;
-  return page === 'index' ? prefix : `${prefix}${page}/`;
-};
+const escAttr = (s) => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+
+// paths: { [lang]: path } for every locale of the same page
+function makeCtx(dict, lang, paths, extra = {}) {
+  const other = LOCALES.find((l) => l !== lang);
+  const t = dict[lang];
+  return {
+    t,
+    lang,
+    base: prefix(lang),
+    path: paths[lang],
+    canonical: SITE + paths[lang],
+    altLang: other,
+    altHref: paths[other],
+    altLabel: other.toUpperCase(),
+    hreflang:
+      LOCALES.map((l) => `<link rel="alternate" hreflang="${l}" href="${SITE}${paths[l]}">`).join('\n') +
+      `\n<link rel="alternate" hreflang="x-default" href="${SITE}${paths[DEFAULT]}">`,
+    year: new Date().getFullYear(),
+    pageTitle: escAttr(extra.title ?? t.meta.title),
+    pageDescription: escAttr(extra.description ?? t.meta.description),
+    hero: extra.hero ?? '',
+    content: extra.content ?? '',
+  };
+}
+
+async function writePage(path, html) {
+  const outDir = join(DIST, ...path.split('/').filter(Boolean));
+  await mkdir(outDir, { recursive: true });
+  await writeFile(join(outDir, 'index.html'), html);
+}
 
 async function build() {
   await rm(DIST, { recursive: true, force: true });
@@ -72,41 +101,46 @@ async function build() {
   await cp(join(root, 'public'), DIST, { recursive: true });
   await cp(join(SRC, 'assets'), join(DIST, 'assets'), { recursive: true });
 
-  const partials = await loadPartials();
+  const partials = await loadDir(join(SRC, 'partials'));
+  const templates = await loadDir(join(SRC, 'templates'));
   const dict = {};
-  for (const l of LOCALES) dict[l] = JSON.parse(await readFile(join(SRC, 'i18n', `${l}.json`), 'utf8'));
-
-  const pages = (await readdir(join(SRC, 'pages'))).filter((f) => f.endsWith('.html')).map((f) => f.replace(/\.html$/, ''));
+  for (const l of LOCALES) {
+    dict[l] = JSON.parse(await readFile(join(SRC, 'i18n', `${l}.json`), 'utf8'));
+    dict[l].lang = l;
+  }
   const sitemap = [];
 
-  for (const page of pages) {
-    const tpl = includePartials(await readFile(join(SRC, 'pages', `${page}.html`), 'utf8'), partials);
+  // 1) Hand-written pages (same slug in every locale)
+  const pages = await loadDir(join(SRC, 'pages'));
+  for (const [page, raw] of Object.entries(pages)) {
+    const tpl = includePartials(raw, partials);
+    const paths = Object.fromEntries(LOCALES.map((l) => [l, page === 'index' ? prefix(l) : `${prefix(l)}${page}/`]));
     for (const lang of LOCALES) {
-      const other = LOCALES.find((l) => l !== lang);
-      const path = urlFor(lang, page);
-      const ctx = {
-        t: dict[lang],
-        lang,
-        base: lang === DEFAULT ? '/' : `/${lang}/`,
-        path,
-        canonical: SITE + path,
-        altLang: other,
-        altHref: urlFor(other, page),
-        altLabel: other.toUpperCase(),
-        hreflang: LOCALES.map((l) => `<link rel="alternate" hreflang="${l}" href="${SITE}${urlFor(l, page)}">`).join('\n') +
-          `\n<link rel="alternate" hreflang="x-default" href="${SITE}${urlFor(DEFAULT, page)}">`,
-        year: new Date().getFullYear(),
-      };
-      const html = render(tpl, ctx, `${page}.html`);
-      // 404 is served by Cloudflare from /404.html (default locale only).
+      const html = render(tpl, makeCtx(dict, lang, paths), `${page}.html`);
       if (page === '404') {
         if (lang === DEFAULT) await writeFile(join(DIST, '404.html'), html);
         continue;
       }
-      const outDir = join(DIST, ...path.split('/').filter(Boolean));
-      await mkdir(outDir, { recursive: true });
-      await writeFile(join(outDir, 'index.html'), html);
-      sitemap.push(SITE + path);
+      await writePage(paths[lang], html);
+      sitemap.push(SITE + paths[lang]);
+    }
+  }
+
+  // 2) Generated tool pages (localized slugs)
+  const tool = includePartials(templates.tool, partials);
+  const urls = {
+    home: (l) => prefix(l),
+    index: (l) => `${prefix(l)}${dict[l].conj.slug}/`,
+    verb: (l, slug) => `${prefix(l)}${dict[l].conj.slug}/${slug}/`,
+  };
+  let generated = 0;
+  for (const lang of LOCALES) {
+    const other = LOCALES.find((l) => l !== lang);
+    for (const p of conjugatorPages(dict[lang], urls, other)) {
+      const html = render(tool, makeCtx(dict, lang, { [lang]: p.path, [other]: p.alt }, p), 'tool.html');
+      await writePage(p.path, html);
+      sitemap.push(SITE + p.path);
+      generated++;
     }
   }
 
@@ -117,11 +151,10 @@ async function build() {
       .join('\n')}\n</urlset>\n`
   );
 
-  const size = (await stat(join(DIST, 'index.html'))).size;
-  console.log(`Built ${sitemap.length} pages for ${LOCALES.join(', ')} → dist/ (home: ${size} bytes)`);
+  console.log(`Built ${sitemap.length} pages (${generated} conjugator) for ${LOCALES.join(', ')} → dist/`);
 }
 
 build().catch((err) => {
-  console.error(err.message);
+  console.error(err.stack || err.message);
   process.exit(1);
 });

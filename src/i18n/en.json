@@ -17,7 +17,8 @@
     "tutor": "AI Tutor",
     "pricing": "Pricing",
     "login": "Log in",
-    "start": "Start free"
+    "start": "Start free",
+    "conjugator": "Conjugator"
   },
   "hero": {
     "kicker": "Spanish · A1 to C1 · AI tutor included",
@@ -46,10 +47,18 @@
       "label": "Speaking",
       "title": "Real conversations with Hablena",
       "text": "Order coffee, nail a job interview, argue about football. Spoken scenes at exactly your level, with instant feedback on every sentence.",
-      "scenes": ["At the café", "Job interview", "At the doctor", "Renting a flat"],
+      "scenes": [
+        "At the café",
+        "Job interview",
+        "At the doctor",
+        "Renting a flat"
+      ],
       "own": "+ your own topics"
     },
-    "conj": { "label": "Conjugator", "title": "Every verb, every tense" },
+    "conj": {
+      "label": "Conjugator",
+      "title": "Every verb, every tense"
+    },
     "vocab": {
       "label": "Vocabulary",
       "title": "Words that actually stay",
@@ -64,7 +73,11 @@
       "title": "Corrected and explained",
       "explain": "A past location uses estar in the preterite. “Soy” is present-tense ser."
     },
-    "listen": { "label": "Listening & Reading", "title": "Stories at your level", "transcript": "Transcript" },
+    "listen": {
+      "label": "Listening & Reading",
+      "title": "Stories at your level",
+      "transcript": "Transcript"
+    },
     "grammar": {
       "label": "Grammar",
       "title": "Finally makes sense",
@@ -77,11 +90,31 @@
     "title": "From hola to fluent.",
     "text": "Built on the official European CEFR levels, so you always know exactly where you stand. Ready for the DELE exam when you are.",
     "levels": [
-      { "code": "A1", "name": "Beginner", "text": "Introduce yourself, order food, find your way." },
-      { "code": "A2", "name": "Elementary", "text": "Talk about your day, your past and your plans." },
-      { "code": "B1", "name": "Intermediate", "text": "Handle travel, work and everyday life with ease." },
-      { "code": "B2", "name": "Upper intermediate", "text": "Follow series and news, debate your opinion." },
-      { "code": "C1", "name": "Advanced", "text": "Speak fluently, precisely and spontaneously." }
+      {
+        "code": "A1",
+        "name": "Beginner",
+        "text": "Introduce yourself, order food, find your way."
+      },
+      {
+        "code": "A2",
+        "name": "Elementary",
+        "text": "Talk about your day, your past and your plans."
+      },
+      {
+        "code": "B1",
+        "name": "Intermediate",
+        "text": "Handle travel, work and everyday life with ease."
+      },
+      {
+        "code": "B2",
+        "name": "Upper intermediate",
+        "text": "Follow series and news, debate your opinion."
+      },
+      {
+        "code": "C1",
+        "name": "Advanced",
+        "text": "Speak fluently, precisely and spontaneously."
+      }
     ]
   },
   "tutor": {
@@ -90,9 +123,21 @@
     "title2": "Always on.",
     "text": "Hablena talks with you about your day, your work and your plans. She explains every mistake in your language and keeps track of what you need to practise next.",
     "points": [
-      { "n": "01", "title": "Speaks at your level", "text": "Slow and simple at A1, natural and fast at C1. Hablena adapts with every sentence you say." },
-      { "n": "02", "title": "Explains in your language", "text": "Every correction comes in English or German, with the reason behind it, not just the right answer." },
-      { "n": "03", "title": "Remembers what you need", "text": "Words and structures you struggle with come back in later conversations, until they stick." }
+      {
+        "n": "01",
+        "title": "Speaks at your level",
+        "text": "Slow and simple at A1, natural and fast at C1. Hablena adapts with every sentence you say."
+      },
+      {
+        "n": "02",
+        "title": "Explains in your language",
+        "text": "Every correction comes in English or German, with the reason behind it, not just the right answer."
+      },
+      {
+        "n": "03",
+        "title": "Remembers what you need",
+        "text": "Words and structures you struggle with come back in later conversations, until they stick."
+      }
     ]
   },
   "plans": {
@@ -106,7 +151,13 @@
       "name": "Free",
       "desc": "Everything you need to get started.",
       "price": "€0",
-      "items": ["First lessons of the A1 course", "Complete grammar library", "Verb conjugator", "Spanish dictionary", "Placement test"],
+      "items": [
+        "First lessons of the A1 course",
+        "Complete grammar library",
+        "Verb conjugator",
+        "Spanish dictionary",
+        "Placement test"
+      ],
       "cta": "Create free account"
     },
     "premium": {
@@ -119,7 +170,14 @@
       "perYear": "/ year",
       "noteMonthly": "Billed monthly. Cancel anytime.",
       "noteYearly": "Just €5 a month, billed once a year.",
-      "items": ["Full course, A1 to C1", "Unlimited conversations with Hablena", "Writing correction with explanations", "All listening and reading content", "Smart vocabulary trainer", "Level tests and certificates"],
+      "items": [
+        "Full course, A1 to C1",
+        "Unlimited conversations with Hablena",
+        "Writing correction with explanations",
+        "All listening and reading content",
+        "Smart vocabulary trainer",
+        "Level tests and certificates"
+      ],
       "cta": "Try Premium free for 7 days"
     }
   },
@@ -145,5 +203,86 @@
     "title": "¡Uy! Lost in translation.",
     "text": "This page doesn’t exist, or it moved somewhere else.",
     "button": "Back to the homepage"
+  },
+  "links": {
+    "conjugator": "/conjugation/"
+  },
+  "conj": {
+    "slug": "conjugation",
+    "breadcrumb": "Conjugator",
+    "indexTitle": "Spanish verb conjugator",
+    "indexLead": "Every tense of the {count} most important Spanish verbs. Irregular forms are highlighted, so you see at a glance what to learn.",
+    "indexMetaTitle": "Spanish Verb Conjugator – All Tenses | Hablena",
+    "indexMetaDesc": "Free Spanish verb conjugator: {count} essential verbs in every tense, from present to subjunctive, with irregular forms highlighted.",
+    "verbMetaTitle": "{verb} conjugation – all tenses | Hablena",
+    "verbMetaDesc": "Conjugate “{verb}” ({translation}) in every Spanish tense: present, preterite, imperfect, future, subjunctive and imperative. Irregular forms highlighted.",
+    "search": "Search a verb, e.g. tener",
+    "searchLabel": "Search Spanish verbs",
+    "noResults": "No verb found. More verbs are added regularly.",
+    "gerund": "Gerund",
+    "participle": "Participle",
+    "legend": "Forms in red are irregular: they don’t follow the regular pattern.",
+    "types": {
+      "regular": "Regular",
+      "irregular": "Irregular",
+      "stem": "Stem-changing"
+    },
+    "groups": {
+      "irregular": "Irregular verbs",
+      "stem": "Stem-changing verbs",
+      "regular": "Regular verbs"
+    },
+    "tenses": {
+      "presente": {
+        "name": "Present",
+        "es": "Presente",
+        "use": "What happens now or usually."
+      },
+      "indefinido": {
+        "name": "Preterite",
+        "es": "Pretérito indefinido",
+        "use": "Finished actions at a specific time in the past."
+      },
+      "imperfecto": {
+        "name": "Imperfect",
+        "es": "Pretérito imperfecto",
+        "use": "Background, habits and descriptions in the past."
+      },
+      "perfecto": {
+        "name": "Present perfect",
+        "es": "Pretérito perfecto",
+        "use": "Past actions connected to now: today, this week, ever."
+      },
+      "futuro": {
+        "name": "Future",
+        "es": "Futuro simple",
+        "use": "What will happen, or a guess about now."
+      },
+      "condicional": {
+        "name": "Conditional",
+        "es": "Condicional",
+        "use": "What would happen; polite requests."
+      },
+      "subjuntivo": {
+        "name": "Present subjunctive",
+        "es": "Presente de subjuntivo",
+        "use": "Wishes, doubts and emotions: after “que”."
+      },
+      "subjuntivoImperfecto": {
+        "name": "Imperfect subjunctive",
+        "es": "Imperfecto de subjuntivo",
+        "use": "Hypotheses and wishes about the past: “si yo fuera…”."
+      },
+      "imperativo": {
+        "name": "Imperative",
+        "es": "Imperativo afirmativo",
+        "use": "Commands and instructions."
+      }
+    },
+    "ctaTitle": "Know the forms. Now use them.",
+    "ctaText": "Tables are a start. Practise “{verb}” in real conversations with Hablena, your AI Spanish tutor.",
+    "ctaButton": "Start learning free",
+    "more": "More verbs like this",
+    "all": "All verbs"
   }
 }
