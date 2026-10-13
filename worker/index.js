@@ -66,6 +66,7 @@ async function handleApi(request, env, url, ctx) {
     case 'GET /api/progress': return getProgress(request, env);
     case 'POST /api/progress': return saveProgress(request, env);
     case 'GET /api/stats': return getStats(request, env, url);
+    case 'GET /api/words': return getWords(request, env);
     case 'GET /api/audio/status': return audioStatus(env);
     default: return json({ error: 'not_found' }, 404);
   }
@@ -181,6 +182,7 @@ async function deleteAccount(request, env) {
   await env.DB.batch([
     env.DB.prepare('DELETE FROM progress WHERE user_id = ?').bind(user.id),
     env.DB.prepare('DELETE FROM activity WHERE user_id = ?').bind(user.id),
+    env.DB.prepare('DELETE FROM word_stats WHERE user_id = ?').bind(user.id),
     env.DB.prepare('DELETE FROM sessions WHERE user_id = ?').bind(user.id),
     env.DB.prepare('DELETE FROM users WHERE id = ?').bind(user.id),
   ]);
@@ -221,6 +223,16 @@ async function saveProgress(request, env) {
        last_completed_at = excluded.last_completed_at`
   ).bind(user.id, lessonId, correct, total, now, now).run();
 
+  // Per-word results (optional): which words were answered right or wrong in this session
+  const words = Array.isArray(body.words) ? body.words.slice(0, MAX_WORDS_PER_SAVE) : [];
+  const valid = words.filter((w) => w && typeof w.w === 'string' && w.w.length > 0 && w.w.length <= 80);
+  if (valid.length) {
+    await env.DB.batch(valid.map((w) => env.DB.prepare(
+      `INSERT INTO word_stats (user_id, word, right_count, wrong_count, last_seen) VALUES (?, ?, ?, ?, ?)
+       ON CONFLICT (user_id, word) DO UPDATE SET right_count = right_count + excluded.right_count, wrong_count = wrong_count + excluded.wrong_count, last_seen = excluded.last_seen`
+    ).bind(user.id, w.w, w.ok ? 1 : 0, w.ok ? 0 : 1, now)));
+  }
+
   const xp = xpFor(correct, total);
   const day = localDay(body.today, now);
   await env.DB.prepare(
@@ -233,6 +245,7 @@ async function saveProgress(request, env) {
 // 5 XP for finishing, up to 10 more for accuracy.
 export const xpFor = (correct, total) => 5 + Math.round((10 * correct) / total);
 export const DAILY_GOAL_XP = 20;
+const MAX_WORDS_PER_SAVE = 80;
 const DAILY_GOALS = [10, 20, 30, 40]; // about 5, 10, 15 and 20 minutes a day
 const MOTIVES = ['travel', 'work', 'family', 'culture', 'brain'];
 
@@ -263,6 +276,13 @@ async function statsFor(env, userId, today, goal = DAILY_GOAL_XP) {
   }
   const xpTotal = results.reduce((n, r) => n + r.xp, 0);
   return { streak, bestStreak: Math.max(bestStreak, streak), xpTotal, xpToday: days.get(today) || 0, dailyGoal: goal, activeToday: days.has(today) };
+}
+
+async function getWords(request, env) {
+  const user = await currentUser(request, env);
+  if (!user) return json({ error: 'unauthorized' }, 401);
+  const { results } = await env.DB.prepare('SELECT word, right_count, wrong_count, last_seen FROM word_stats WHERE user_id = ?').bind(user.id).all();
+  return json({ words: results.map((r) => ({ w: r.word, right: r.right_count, wrong: r.wrong_count, last: r.last_seen })) });
 }
 
 async function getStats(request, env, url) {

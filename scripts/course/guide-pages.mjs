@@ -21,7 +21,7 @@ export function guidePages(t, urls, otherLang) {
       alt: urls.guide(otherLang, u.id),
       title: `${ap.guide}: ${u.title[lang]} | Hablena`,
       description: ap.guideLead,
-      vars: { appUrl: urls.app(lang) },
+      vars: { appUrl: urls.app(lang), wordsUrl: urls.words(lang), learnActive: ' is-active', wordsActive: '' },
       content: `
 <div class="guide">
   <a class="guide__back" href="${urls.app(lang)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>${esc(ap.backToCourse)}</a>

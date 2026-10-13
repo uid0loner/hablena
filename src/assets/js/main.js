@@ -343,6 +343,18 @@ document.documentElement.classList.add('js');
       applyProgress(progress.progress || []);
       if (stats) applyStats(stats);
       applyBadges(progress.progress || [], stats || {});
+      const vaultCard = app.querySelector('[data-vault-card]');
+      const mini = document.getElementById('vault-mini');
+      if (vaultCard && mini) {
+        hablenaLearnedWords(JSON.parse(mini.textContent)).then((words) => {
+          if (!words || !words.length) return;
+          const seen = new Set();
+          const uniq = words.filter((w) => !seen.has(w.es) && seen.add(w.es));
+          const weak = uniq.filter((w) => w.strength < 0.5).length;
+          vaultCard.querySelector('[data-vault-text]').textContent = vaultCard.dataset.text.replace('{n}', uniq.length).replace('{weak}', weak);
+          vaultCard.querySelector('[data-vault-weak]').hidden = weak < 1;
+        }).catch(() => {});
+      }
       app.removeAttribute('aria-busy');
     })
     .catch(() => location.replace(D.login));
@@ -375,8 +387,7 @@ document.documentElement.classList.add('js');
 
 // Listen buttons on guide pages: natural voice recording, browser speech as fallback.
 (() => {
-  const buttons = document.querySelectorAll('[data-say]');
-  if (!buttons.length) return;
+  const buttons = { forEach: (fn) => document.querySelectorAll('[data-say]').forEach(fn) };
   let current = null;
   const fallback = (text) => {
     if (!('speechSynthesis' in window)) return;
@@ -386,7 +397,9 @@ document.documentElement.classList.add('js');
     u.rate = 0.9;
     speechSynthesis.speak(u);
   };
-  buttons.forEach((btn) => btn.addEventListener('click', () => {
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-say]');
+    if (!btn) return;
     if (current) current.pause();
     const a = new Audio(btn.dataset.src);
     current = a;
@@ -398,7 +411,7 @@ document.documentElement.classList.add('js');
     const fail = () => { if (!fell) { fell = true; fallback(btn.dataset.say); } };
     a.play().catch((err) => { if (!err || err.name !== 'NotAllowedError') fail(); });
     a.addEventListener('error', fail, { once: true });
-  }));
+  });
 })();
 
 // App header on pages outside the learning path (guides): streak, XP and avatar.
@@ -506,4 +519,78 @@ document.documentElement.classList.add('js');
     steps.forEach((s) => io.observe(s));
     show(0);
   }
+})();
+
+// Word strength (spaced review): right answers stretch the review interval, mistakes shrink it.
+const HABLENA_INTERVALS = [1, 2, 4, 7, 14, 30];
+function hablenaStrength(st) {
+  if (!st) return 0.6;
+  const level = Math.max(0, st.right - 2 * st.wrong);
+  const days = (Date.now() - st.last) / 86_400_000;
+  const decay = Math.max(0, Math.min(1, 1 - days / (HABLENA_INTERVALS[Math.min(level, 5)] * 2)));
+    const accuracy = (st.right + 1) / (st.right + st.wrong + 1);
+    return decay * Math.pow(accuracy, 1.5);
+}
+async function hablenaLearnedWords(allWords) {
+  const [prog, words] = await Promise.all([
+    fetch('/api/progress', { credentials: 'same-origin' }).then((r) => (r.ok ? r.json() : null)),
+    fetch('/api/words', { credentials: 'same-origin' }).then((r) => (r.ok ? r.json() : null)),
+  ]);
+  if (!prog) return null;
+  const done = new Set(prog.progress.map((p) => p.lessonId));
+  const stats = new Map((words?.words || []).map((w) => [w.w, w]));
+  return allWords.filter((w) => done.has(w.lesson) || stats.has(w.es)).map((w) => ({ ...w, strength: hablenaStrength(stats.get(w.es)), stat: stats.get(w.es) }));
+}
+
+// Word vault page
+(() => {
+  const vault = document.querySelector('[data-vault]');
+  if (!vault) return;
+  const all = JSON.parse(document.getElementById('vault-data').textContent);
+  const levels = JSON.parse(vault.dataset.levels);
+  const list = vault.querySelector('[data-v-list]');
+  const search = vault.querySelector('[data-v-search]');
+  const SPK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4zM15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
+  let learned = [];
+  let filter = 'all';
+  const lvl = (s) => (s >= 0.75 ? 3 : s >= 0.5 ? 2 : s >= 0.25 ? 1 : 0);
+  const render = () => {
+    const q = search.value.trim().toLowerCase();
+    const items = learned
+      .filter((w) => filter === 'all' || (filter === 'weak' ? w.strength < 0.5 : w.strength >= 0.75))
+      .filter((w) => !q || w.es.toLowerCase().includes(q) || w.tr.toLowerCase().includes(q))
+      .sort((a, b) => a.strength - b.strength);
+    list.innerHTML = '';
+    items.forEach((w) => {
+      const li = document.createElement('li');
+      const n = lvl(w.strength);
+      li.className = `vword vword--l${n}`;
+      li.innerHTML = `<button class="say-btn" type="button"></button><span class="vword__text"><span class="vword__es" lang="es"></span><span class="vword__tr"></span></span><span class="vword__meter" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="vword__lvl"></span>`;
+      const btn = li.querySelector('button');
+      btn.dataset.say = w.es; btn.dataset.src = w.src; btn.setAttribute('aria-label', w.es); btn.innerHTML = SPK;
+      li.querySelector('.vword__es').textContent = w.es;
+      li.querySelector('.vword__tr').textContent = w.tr;
+      li.querySelector('.vword__lvl').textContent = levels[n];
+      li.querySelectorAll('.vword__meter i').forEach((bar, i) => bar.classList.toggle('is-on', i <= n));
+      list.append(li);
+    });
+    vault.querySelector('[data-v-empty]').hidden = learned.length > 0;
+    vault.querySelector('[data-v-nomatch]').hidden = !(learned.length > 0 && items.length === 0);
+  };
+  vault.querySelectorAll('[data-v-filter]').forEach((b) => b.addEventListener('click', () => {
+    filter = b.dataset.vFilter;
+    vault.querySelectorAll('[data-v-filter]').forEach((x) => { x.classList.toggle('is-active', x === b); x.setAttribute('aria-pressed', String(x === b)); });
+    render();
+  }));
+  search.addEventListener('input', render);
+  hablenaLearnedWords(all).then((words) => {
+    if (!words) { location.replace(vault.dataset.login); return; }
+    learned = words;
+    const weak = words.filter((w) => w.strength < 0.5).length;
+    vault.querySelector('[data-v-known]').textContent = String(words.length);
+    vault.querySelector('[data-v-strong]').textContent = String(words.filter((w) => w.strength >= 0.75).length);
+    vault.querySelector('[data-v-weak]').textContent = String(weak);
+    vault.querySelector('[data-v-practice]').hidden = weak < 1;
+    render();
+  }).catch(() => location.replace(vault.dataset.login));
 })();

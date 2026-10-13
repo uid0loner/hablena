@@ -664,5 +664,30 @@
     "ctaText": "With dialogues, listening and writing, so the words really stick. Free.",
     "ctaButton": "Start for free",
     "moreTitle": "More topics"
+  },
+  "vault": {
+    "tab": "Words",
+    "title": "Your vocabulary",
+    "lead": "Every word from your lessons. Words you haven’t practised for a while or often get wrong grow weaker and come back in your reviews.",
+    "known": "words learned",
+    "strong": "well known",
+    "weak": "getting weak",
+    "practiceWeak": "Practise weak words",
+    "all": "All",
+    "filterWeak": "Weak",
+    "filterStrong": "Strong",
+    "search": "Search a word…",
+    "empty": "Your words appear here as soon as you finish your first lesson.",
+    "noMatch": "No words found.",
+    "levels": [
+      "weak",
+      "fading",
+      "good",
+      "strong"
+    ],
+    "sideTitle": "Vocabulary",
+    "sideText": "{n} words learned, {weak} getting weak.",
+    "sideTextNone": "Learn words in your lessons and they will show up here.",
+    "sideButton": "Open vocabulary"
   }
 }

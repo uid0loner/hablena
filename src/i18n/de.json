@@ -664,5 +664,30 @@
     "ctaText": "Mit Dialogen, Hörübungen und Schreiben, damit die Wörter wirklich hängen bleiben. Kostenlos.",
     "ctaButton": "Kostenlos starten",
     "moreTitle": "Weitere Themen"
+  },
+  "vault": {
+    "tab": "Wörter",
+    "title": "Dein Wortschatz",
+    "lead": "Alle Wörter aus deinen Lektionen. Was du länger nicht geübt oder öfter falsch gemacht hast, wird schwächer und kommt in der Wiederholung zurück.",
+    "known": "Wörter gelernt",
+    "strong": "sitzen",
+    "weak": "werden schwach",
+    "practiceWeak": "Schwache Wörter üben",
+    "all": "Alle",
+    "filterWeak": "Schwach",
+    "filterStrong": "Sitzt",
+    "search": "Wort suchen …",
+    "empty": "Hier erscheinen deine Wörter, sobald du die erste Lektion geschafft hast.",
+    "noMatch": "Keine Wörter gefunden.",
+    "levels": [
+      "schwach",
+      "festigen",
+      "gut",
+      "sitzt"
+    ],
+    "sideTitle": "Wortschatz",
+    "sideText": "{n} Wörter gelernt, {weak} werden schwach.",
+    "sideTextNone": "Lerne Wörter in deinen Lektionen, sie landen dann hier.",
+    "sideButton": "Zum Wortschatz"
   }
 }

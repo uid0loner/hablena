@@ -140,6 +140,14 @@
   };
   const pick = (list) => (Array.isArray(list) ? list[Math.floor(Math.random() * list.length)] : list);
 
+  // Which words were tested, and how it went: sent with the result for spaced review
+  let wordResults = [];
+  function trackWords(step, ok) {
+    const refs = ['choice', 'reverse', 'listen', 'type', 'match'].includes(step.t) && step.v !== undefined && !step.es
+      ? (Array.isArray(step.v) ? step.v : [step.v]) : [];
+    refs.forEach((i) => L.vocab[i] && wordResults.push({ w: L.vocab[i].es, ok }));
+  }
+
   function registerResult(ok) {
     if (ok) {
       correct++;
@@ -462,6 +470,7 @@
     else if (current.auto) {
       primary.hidden = true;
       current.onDone = (ok) => {
+        trackWords(step, ok);
         registerResult(ok);
         phase = 'feedback';
         showFeedback(ok, '', ok ? '' : S.matchMistakes);
@@ -482,6 +491,7 @@
     if (primary.disabled) return;
     if (current.intro || phase === 'feedback') return next();
     const { ok, answer, note } = current.evaluate();
+    trackWords(steps[index], ok);
     registerResult(ok);
     phase = 'feedback';
     showFeedback(ok, answer, note);
@@ -574,7 +584,7 @@
     try {
       const res = await fetch('/api/progress', {
         method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lessonId: L.id, correct, total: scored, today: localToday() }),
+        body: JSON.stringify({ lessonId: L.id, correct, total: scored, today: localToday(), words: wordResults }),
       });
       if (res.status === 401) {
         note.innerHTML = '';
@@ -594,6 +604,17 @@
     }
   }
 
+  // Same rule as the word vault: right answers stretch the review interval, mistakes shrink it.
+  const INTERVALS = [1, 2, 4, 7, 14, 30];
+  function wordStrength(st) {
+    if (!st) return 0.6;
+    const level = Math.max(0, st.right - 2 * st.wrong);
+    const days = (Date.now() - st.last) / 86_400_000;
+    const decay = Math.max(0, Math.min(1, 1 - days / (INTERVALS[Math.min(level, 5)] * 2)));
+    const accuracy = (st.right + 1) / (st.right + st.wrong + 1);
+    return decay * Math.pow(accuracy, 1.5);
+  }
+
   // ---------- practice mode: a fresh mixed review from the lessons you have finished ----------
   async function buildPractice() {
     let doneIds = [];
@@ -601,11 +622,24 @@
       const res = await fetch('/api/progress', { credentials: 'same-origin' });
       if (res.ok) doneIds = (await res.json()).progress.map((p) => p.lessonId);
     } catch {}
-    // ?unit=u3 turns practice into the unit test: every word of that unit
-    const unit = new URLSearchParams(location.search).get('unit');
+    // ?unit=u3 turns practice into the unit test: every word of that unit.
+    // ?focus=weak reviews the words that are fading or often wrong.
+    const params = new URLSearchParams(location.search);
+    const unit = params.get('unit');
     let pool = unit && /^u\d{1,3}$/.test(unit) ? L.pool.filter((v) => v.lesson.startsWith(unit + '-')) : L.pool.filter((v) => doneIds.includes(v.lesson));
+    if (params.get('focus') === 'weak') {
+      try {
+        const res = await fetch('/api/words', { credentials: 'same-origin' });
+        if (res.ok) {
+          const stats = new Map((await res.json()).words.map((x) => [x.w, x]));
+          const scoreOf = (v) => wordStrength(stats.get(v.es));
+          const weak = pool.filter((v) => scoreOf(v) < 0.5).sort((a, b) => scoreOf(a) - scoreOf(b));
+          if (weak.length >= 1) pool = [...weak, ...shuffle(pool.filter((v) => !weak.includes(v)))].slice(0, Math.max(8, weak.length));
+        }
+      } catch {}
+    }
     if (pool.length < 8) pool = L.pool.filter((v) => v.lesson === L.pool[0].lesson);
-    const chosen = shuffle(pool).slice(0, 12);
+    const chosen = params.get('focus') === 'weak' ? pool.slice(0, 12) : shuffle(pool).slice(0, 12);
     L.vocab = chosen.map(({ es, tr }) => ({ es, tr }));
     const typeable = (v) => !/[,…]/.test(v.es);
     const order = ['choice', 'listen', 'reverse', 'type', 'choice', 'match', 'listen', 'type', 'reverse', 'choice'];
@@ -636,6 +670,7 @@
     if (L.mode === 'story') { stage.innerHTML = ''; thread = null; }
     correct = 0;
     combo = 0;
+    wordResults = [];
     startedAt = Date.now();
     done.hidden = true;
     stage.hidden = false;

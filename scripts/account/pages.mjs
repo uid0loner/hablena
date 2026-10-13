@@ -2,6 +2,7 @@
 import { readFileSync } from 'node:fs';
 import { UNITS } from '../course/units.mjs';
 import { STORIES } from '../course/stories.mjs';
+import { ALL_LESSONS } from '../course/units.mjs';
 
 const MASCOT = readFileSync(new URL('../../src/partials/mascot.html', import.meta.url), 'utf8').trim();
 
@@ -171,7 +172,7 @@ export function accountPages(t, urls, otherLang, site) {
     alt: urls.app(otherLang),
     title: `${a.appTitle} | Hablena`,
     description: a.appTitle,
-    vars: { appUrl: urls.app(lang) },
+    vars: { appUrl: urls.app(lang), wordsUrl: urls.words(lang), learnActive: ' is-active', wordsActive: '' },
     content: `
 <div class="learn" data-app data-login="${urls.login(lang)}" data-home="${urls.home(lang)}" data-messages="${messages}" data-score-label="${esc(ap.bestScore)}" data-review-label="${esc(ap.review)}" data-start-label="${esc(ap.start)}" data-goal-text="${esc(ap.goalText)}" data-goal-done="${esc(ap.goalDone)}" data-streak-hint="${esc(ap.streakHint)}" data-streak-active="${esc(ap.streakActive)}">
   <div class="learn__path">
@@ -205,6 +206,16 @@ export function accountPages(t, urls, otherLang, site) {
       <ul class="badges">${Object.entries(ap.badges.items).map(([k, [name, desc]]) => `
         <li class="badge-a badge-a--${BADGE_STYLE[k][1]}" data-badge="${k}" title="${esc(desc)}"><span class="badge-a__icon">${BADGE_ICON[BADGE_STYLE[k][0]]}</span><span class="badge-a__name">${esc(name)}</span><span class="sr-only">${esc(desc)}</span></li>`).join('')}
       </ul>
+    </section>
+
+    <section class="side-card side-card--vault" data-vault-card data-text="${esc(t.vault.sideText)}" data-none="${esc(t.vault.sideTextNone)}">
+      <div class="side-card__head"><h2>${esc(t.vault.sideTitle)}</h2></div>
+      <p data-vault-text>${esc(t.vault.sideTextNone)}</p>
+      <script type="application/json" id="vault-mini">${JSON.stringify(ALL_LESSONS.flatMap((l) => l.vocab.map((w) => ({ es: w.es, lesson: l.id })))).replace(/</g, '\\u003c')}</script>
+      <div class="side-card__row">
+        <a class="lp-cta lp-cta--ghost side-card__cta" href="${urls.words(lang)}">${esc(t.vault.sideButton)}</a>
+        <a class="lp-cta lp-cta--red side-card__cta" href="${urls.practice(lang)}?focus=weak" data-vault-weak hidden>${esc(t.vault.practiceWeak)}</a>
+      </div>
     </section>
 
     <section class="side-card side-card--practice">

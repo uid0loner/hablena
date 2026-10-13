@@ -19,6 +19,7 @@ import { lessonPages } from './course/pages.mjs';
 import { guidePages } from './course/guide-pages.mjs';
 import { vocabPages } from './vocab/pages.mjs';
 import { storyPages } from './course/story-pages.mjs';
+import { wordsPage } from './account/words-page.mjs';
 import { audioManifest } from './course/audio.mjs';
 import { UNITS, ALL_LESSONS } from './course/units.mjs';
 import { CHARACTERS } from './course/characters.mjs';
@@ -176,6 +177,7 @@ async function build() {
     lesson: (l, id) => `${prefix(l)}app/learn/${id}/`,
     guide: (l, id) => `${prefix(l)}app/guide/${id}/`,
     story: (l, id) => `${prefix(l)}app/story/${id}/`,
+    words: (l) => `${prefix(l)}app/words/`,
     practice: (l) => `${prefix(l)}app/practice/`,
     vocabIndex: (l) => `${prefix(l)}${dict[l].vocab.slug}/`,
     vocab: (l, slug) => `${prefix(l)}${dict[l].vocab.slug}/${slug}/`,
@@ -184,7 +186,7 @@ async function build() {
   let generated = 0;
   for (const lang of LOCALES) {
     const other = LOCALES.find((l) => l !== lang);
-    for (const p of [...conjugatorPages(dict[lang], urls, other), ...grammarPages(dict[lang], urls, other), ...legalPages(dict[lang], urls, other, site), ...accountPages(dict[lang], urls, other, site), ...lessonPages(dict[lang], urls, other), ...guidePages(dict[lang], urls, other), ...vocabPages(dict[lang], urls, other), ...storyPages(dict[lang], urls, other)]) {
+    for (const p of [...conjugatorPages(dict[lang], urls, other), ...grammarPages(dict[lang], urls, other), ...legalPages(dict[lang], urls, other, site), ...accountPages(dict[lang], urls, other, site), ...lessonPages(dict[lang], urls, other), ...guidePages(dict[lang], urls, other), ...vocabPages(dict[lang], urls, other), ...storyPages(dict[lang], urls, other), wordsPage(dict[lang], urls, other)]) {
       const tpl = compiled[p.template || 'tool'];
       if (!tpl) throw new Error(`Unknown template "${p.template}" for ${p.path}`);
       const html = render(tpl, makeCtx(dict, lang, { [lang]: p.path, [other]: p.alt }, p), `${p.template || 'tool'}.html`);

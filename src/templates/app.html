@@ -8,9 +8,13 @@
       <span class="brand__name">hablena</span>
     </a>
     <nav class="ah__tabs" aria-label="{{t.a11y.mainNav}}">
-      <a class="ah__tab is-active" href="{{appUrl}}" aria-current="page">
+      <a class="ah__tab{{learnActive}}" href="{{appUrl}}">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5L12 4l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" fill="currentColor"/></svg>
         <span>{{t.app.learnTab}}</span>
+      </a>
+      <a class="ah__tab{{wordsActive}}" href="{{wordsUrl}}">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+        <span>{{t.vault.tab}}</span>
       </a>
       <a class="ah__tab" href="{{t.links.grammar}}">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h10a4 4 0 0 1 4 4v12H9a4 4 0 0 1-4-4z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M9 9h6M9 13h4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>

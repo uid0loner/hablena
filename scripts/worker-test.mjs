@@ -131,6 +131,12 @@ await call('POST', '/api/progress', { cookie: li.cookie, body: { lessonId: 'u1-l
   const before = (await call('GET', '/api/progress', { cookie: li.cookie })).data.progress.length;
   const pr = await call('POST', '/api/progress', { cookie: li.cookie, body: { lessonId: 'practice', correct: 8, total: 10, today: day(0) } });
   const after = (await call('GET', '/api/progress', { cookie: li.cookie })).data.progress.length;
+  await call('POST', '/api/progress', { cookie: li.cookie, body: { lessonId: 'u1-l3', correct: 1, total: 2, today: day(0), words: [{ w: 'hola', ok: true }, { w: 'adiós', ok: false }, { w: 'x'.repeat(200), ok: true }, null] } });
+  await call('POST', '/api/progress', { cookie: li.cookie, body: { lessonId: 'u1-l3', correct: 2, total: 2, today: day(0), words: [{ w: 'hola', ok: true }] } });
+  const ws = (await call('GET', '/api/words', { cookie: li.cookie })).data.words;
+  const hola = ws.find((x) => x.w === 'hola');
+  check('word stats stored and summed', ws.length === 2 && hola.right === 2 && hola.wrong === 0 && ws.find((x) => x.w === 'adiós').wrong === 1);
+  check('words need login', (await call('GET', '/api/words')).status === 401);
   check('story progress accepted', (await call('POST', '/api/progress', { cookie: li.cookie, body: { lessonId: 'u1-s1', correct: 3, total: 3, today: day(0) } })).status === 200);
   check('practice earns XP without lesson progress', pr.status === 200 && pr.data.xp === 13 && after === before);
 }
@@ -142,6 +148,7 @@ check('delete 200', del.status === 200);
 check('user removed', !env.DB.raw.prepare("SELECT 1 FROM users WHERE email = 'nico@example.com'").get());
 check('progress removed', !env.DB.raw.prepare('SELECT 1 FROM progress').get());
 check('activity removed', !env.DB.raw.prepare('SELECT 1 FROM activity').get());
+check('word stats removed', !env.DB.raw.prepare("SELECT 1 FROM word_stats WHERE word = 'hola'").get());
 check('sessions removed', !env.DB.raw.prepare('SELECT 1 FROM sessions s LEFT JOIN users u ON u.id = s.user_id WHERE u.id IS NULL').get());
 
 check('unknown route → 404', (await call('GET', '/api/nothing')).status === 404);
