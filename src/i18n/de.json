@@ -20,7 +20,8 @@
     "start": "Kostenlos starten",
     "conjugator": "Konjugator",
     "grammar": "Grammatik",
-    "course": "Kurs"
+    "course": "Kurs",
+    "vocab": "Wortschatz"
   },
   "hero": {
     "kicker": "Spanisch · A1 bis C1 · mit KI-Tutorin",
@@ -61,7 +62,8 @@
     "imprint": "/de/impressum/",
     "privacy": "/de/datenschutz/",
     "signup": "/de/registrieren/",
-    "login": "/de/anmelden/"
+    "login": "/de/anmelden/",
+    "vocab": "/de/wortschatz/"
   },
   "conj": {
     "slug": "konjugation",
@@ -344,7 +346,11 @@
     "dialogueHeading": "Wähle die passende Antwort",
     "showTranslation": "Übersetzung zeigen",
     "you": "Du",
-    "articleNote": "Denk an den Artikel: {answer}"
+    "articleNote": "Denk an den Artikel: {answer}",
+    "nextLesson": "Nächste Lektion",
+    "nextUnit": "Weiter zu „{unit}“",
+    "unitDone": "Einheit „{unit}“ geschafft! Teste dich mit dem Pokal auf deinem Lernpfad.",
+    "unitTest": "Einheitentest"
   },
   "app": {
     "learnTab": "Lernen",
@@ -369,7 +375,48 @@
     "backToCourse": "Zurück zum Kurs",
     "practiceTitle": "Üben",
     "practiceText": "Eine schnelle gemischte Wiederholung der Wörter aus deinen fertigen Lektionen. Zählt für dein Tagesziel.",
-    "practiceButton": "Jetzt üben"
+    "practiceButton": "Jetzt üben",
+    "badges": {
+      "title": "Erfolge",
+      "items": {
+        "first": [
+          "Erster Schritt",
+          "Deine erste Lektion"
+        ],
+        "five": [
+          "In Fahrt",
+          "5 Lektionen geschafft"
+        ],
+        "ten": [
+          "Dranbleiber",
+          "10 Lektionen geschafft"
+        ],
+        "unit": [
+          "Einheit komplett",
+          "Eine ganze Einheit"
+        ],
+        "perfect": [
+          "¡Perfecto!",
+          "Eine Lektion ohne Fehler"
+        ],
+        "streak3": [
+          "Feuer gefangen",
+          "3 Tage am Stück"
+        ],
+        "streak7": [
+          "Eine Woche",
+          "7 Tage am Stück"
+        ],
+        "xp100": [
+          "100 XP",
+          "100 XP gesammelt"
+        ],
+        "xp500": [
+          "500 XP",
+          "500 XP gesammelt"
+        ]
+      }
+    }
   },
   "course": {
     "kicker": "01 — Der Kurs",
@@ -594,5 +641,23 @@
       "acc": "Genauigkeit",
       "time": "Zeit"
     }
+  },
+  "vocab": {
+    "slug": "wortschatz",
+    "breadcrumb": "Wortschatz",
+    "indexMetaTitle": "Spanisch Vokabeln nach Themen, mit Aussprache | Hablena",
+    "indexMetaDesc": "Spanischer Grundwortschatz nach Themen: Begrüßung, Essen, Stadt, Einkaufen, Reisen, Arbeit. Jedes Wort mit Übersetzung und Aussprache zum Anhören.",
+    "indexTitle": "Spanisch Vokabeln nach Themen",
+    "indexLead": "Alle Wörter und Wendungen aus dem Hablena-Kurs, sortiert nach Themen. Mit Übersetzung und echter Aussprache zum Anhören.",
+    "cardSub": "{n} Wörter · {topics}",
+    "unitMetaTitle": "Spanisch Vokabeln: {title} – mit Aussprache | Hablena",
+    "unitMetaDesc": "{n} spanische Wörter und Wendungen zum Thema {title}: {topics}. Mit Übersetzung und Aussprache zum Anhören.",
+    "unitTitle": "Spanisch Vokabeln: {title}",
+    "unitLead": "{n} Wörter und Wendungen mit Übersetzung. Tipp auf den Lautsprecher, um sie zu hören.",
+    "ctaKicker": "Mit Hablena lernen",
+    "ctaTitle": "Lerne „{title}“ in fünf Minuten am Tag.",
+    "ctaText": "Mit Dialogen, Hörübungen und Schreiben, damit die Wörter wirklich hängen bleiben. Kostenlos.",
+    "ctaButton": "Kostenlos starten",
+    "moreTitle": "Weitere Themen"
   }
 }

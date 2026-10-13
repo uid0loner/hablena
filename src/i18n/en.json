@@ -20,7 +20,8 @@
     "start": "Start free",
     "conjugator": "Conjugator",
     "grammar": "Grammar",
-    "course": "Course"
+    "course": "Course",
+    "vocab": "Vocabulary"
   },
   "hero": {
     "kicker": "Spanish · A1 to C1 · AI tutor included",
@@ -61,7 +62,8 @@
     "imprint": "/imprint/",
     "privacy": "/privacy/",
     "signup": "/signup/",
-    "login": "/login/"
+    "login": "/login/",
+    "vocab": "/vocabulary/"
   },
   "conj": {
     "slug": "conjugation",
@@ -344,7 +346,11 @@
     "dialogueHeading": "Choose the best reply",
     "showTranslation": "Show translation",
     "you": "You",
-    "articleNote": "Don’t forget the article: {answer}"
+    "articleNote": "Don’t forget the article: {answer}",
+    "nextLesson": "Next lesson",
+    "nextUnit": "On to “{unit}”",
+    "unitDone": "Unit “{unit}” complete! Test yourself with the trophy on your path.",
+    "unitTest": "Unit test"
   },
   "app": {
     "learnTab": "Learn",
@@ -369,7 +375,48 @@
     "backToCourse": "Back to the course",
     "practiceTitle": "Practice",
     "practiceText": "A quick mixed review of the words from your finished lessons. Earns XP for your daily goal.",
-    "practiceButton": "Start practice"
+    "practiceButton": "Start practice",
+    "badges": {
+      "title": "Achievements",
+      "items": {
+        "first": [
+          "First step",
+          "Your first lesson"
+        ],
+        "five": [
+          "On a roll",
+          "5 lessons done"
+        ],
+        "ten": [
+          "Keeps going",
+          "10 lessons done"
+        ],
+        "unit": [
+          "Unit complete",
+          "A whole unit"
+        ],
+        "perfect": [
+          "¡Perfecto!",
+          "A lesson without mistakes"
+        ],
+        "streak3": [
+          "On fire",
+          "3 days in a row"
+        ],
+        "streak7": [
+          "One week",
+          "7 days in a row"
+        ],
+        "xp100": [
+          "100 XP",
+          "100 XP earned"
+        ],
+        "xp500": [
+          "500 XP",
+          "500 XP earned"
+        ]
+      }
+    }
   },
   "course": {
     "kicker": "01 — The course",
@@ -594,5 +641,23 @@
       "acc": "Accuracy",
       "time": "Time"
     }
+  },
+  "vocab": {
+    "slug": "vocabulary",
+    "breadcrumb": "Vocabulary",
+    "indexMetaTitle": "Spanish vocabulary by topic, with pronunciation | Hablena",
+    "indexMetaDesc": "Essential Spanish vocabulary by topic: greetings, food, the city, shopping, travel, work. Every word with its translation and pronunciation to listen to.",
+    "indexTitle": "Spanish vocabulary by topic",
+    "indexLead": "Every word and phrase from the Hablena course, sorted by topic. With translations and real pronunciation to listen to.",
+    "cardSub": "{n} words · {topics}",
+    "unitMetaTitle": "Spanish vocabulary: {title}, with pronunciation | Hablena",
+    "unitMetaDesc": "{n} Spanish words and phrases about {title}: {topics}. With translations and pronunciation to listen to.",
+    "unitTitle": "Spanish vocabulary: {title}",
+    "unitLead": "{n} words and phrases with translations. Tap the speaker to hear them.",
+    "ctaKicker": "Learn with Hablena",
+    "ctaTitle": "Learn “{title}” in five minutes a day.",
+    "ctaText": "With dialogues, listening and writing, so the words really stick. Free.",
+    "ctaButton": "Start for free",
+    "moreTitle": "More topics"
   }
 }

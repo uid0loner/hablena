@@ -48,9 +48,11 @@
       <span data-streak-text></span>
     </p>
     <p class="lp-save" data-save-note hidden></p>
+    <p class="lp-unitdone" data-unit-done hidden>{{unitDoneText}}</p>
     <div class="lp-done__actions">
-      <a class="lp-cta lp-cta--green" href="{{appUrl}}">{{t.learn.toCourse}}</a>
-      <button class="lp-cta lp-cta--ghost" type="button" data-restart>{{t.learn.repeat}}</button>
+      {{nextButton}}
+      <a class="lp-cta {{courseButtonClass}}" href="{{appUrl}}">{{t.learn.toCourse}}</a>
+      <button class="lp-link" type="button" data-restart>{{t.learn.repeat}}</button>
     </div>
   </section>
 </div>

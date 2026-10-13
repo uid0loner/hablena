@@ -517,6 +517,8 @@
     sfx('complete');
     confetti();
 
+    const unitDone = $('[data-unit-done]');
+    if (unitDone && unitDone.textContent.trim()) unitDone.hidden = false;
     const accuracy = Math.round((correct / scored) * 100);
     const secs = Math.round((Date.now() - startedAt) / 1000);
     $('[data-done-title]').textContent = accuracy === 100 ? S.perfect : S.wellDone;
@@ -556,7 +558,9 @@
       const res = await fetch('/api/progress', { credentials: 'same-origin' });
       if (res.ok) doneIds = (await res.json()).progress.map((p) => p.lessonId);
     } catch {}
-    let pool = L.pool.filter((v) => doneIds.includes(v.lesson));
+    // ?unit=u3 turns practice into the unit test: every word of that unit
+    const unit = new URLSearchParams(location.search).get('unit');
+    let pool = unit && /^u\d{1,3}$/.test(unit) ? L.pool.filter((v) => v.lesson.startsWith(unit + '-')) : L.pool.filter((v) => doneIds.includes(v.lesson));
     if (pool.length < 8) pool = L.pool.filter((v) => v.lesson === L.pool[0].lesson);
     const chosen = shuffle(pool).slice(0, 12);
     L.vocab = chosen.map(({ es, tr }) => ({ es, tr }));

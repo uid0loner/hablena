@@ -263,6 +263,8 @@ document.documentElement.classList.add('js');
       const finished = unit.querySelectorAll('[data-node].is-done').length;
       unit.querySelector('[data-unit-count]').textContent = `${finished}/${all}`;
       unit.classList.toggle('is-complete', finished === all);
+      const trophy = unit.querySelector('[data-trophy]');
+      if (trophy) { trophy.tabIndex = finished === all ? 0 : -1; trophy.setAttribute('aria-disabled', String(finished !== all)); }
     });
     const current = app.querySelector('.node.is-current');
     if (current && current.getBoundingClientRect().top > window.innerHeight * 0.8) {
@@ -283,6 +285,25 @@ document.documentElement.classList.add('js');
     bar.classList.toggle('is-full', pct >= 100);
     app.querySelector('[data-goal-msg]').textContent = pct >= 100 ? D.goalDone : D.goalText.replace('{xp}', s.xpToday).replace('{goal}', s.dailyGoal);
     app.querySelector('[data-streak-msg]').textContent = s.activeToday ? D.streakActive : D.streakHint;
+  };
+
+  const applyBadges = (progress, s) => {
+    const done = progress.length;
+    const unitDone = [...app.querySelectorAll('[data-unit]')].some((u) => u.classList.contains('is-complete'));
+    const earned = {
+      first: done >= 1, five: done >= 5, ten: done >= 10, unit: unitDone,
+      perfect: progress.some((p) => p.bestCorrect === p.total),
+      streak3: (s.bestStreak || 0) >= 3, streak7: (s.bestStreak || 0) >= 7,
+      xp100: (s.xpTotal || 0) >= 100, xp500: (s.xpTotal || 0) >= 500,
+    };
+    let n = 0;
+    app.querySelectorAll('[data-badge]').forEach((b) => {
+      const on = !!earned[b.dataset.badge];
+      b.classList.toggle('is-earned', on);
+      if (on) n++;
+    });
+    const count = app.querySelector('[data-badge-count]');
+    if (count) count.textContent = count.textContent.replace(/^\d+/, String(n));
   };
 
   fetch('/api/me', { credentials: 'same-origin' })
@@ -308,6 +329,7 @@ document.documentElement.classList.add('js');
       ]);
       applyProgress(progress.progress || []);
       if (stats) applyStats(stats);
+      applyBadges(progress.progress || [], stats || {});
       app.removeAttribute('aria-busy');
     })
     .catch(() => location.replace(D.login));

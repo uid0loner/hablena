@@ -252,8 +252,17 @@ async function statsFor(env, userId, today, goal = DAILY_GOAL_XP) {
   let streak = 0;
   let cursor = days.has(today) ? today : prevDay(today);
   while (days.has(cursor)) { streak++; cursor = prevDay(cursor); }
+  // Longest run of consecutive days, for achievements
+  let bestStreak = 0;
+  let run = 0;
+  let prev = null;
+  for (const day of [...days.keys()].sort()) {
+    run = prev && prevDay(day) === prev ? run + 1 : 1;
+    bestStreak = Math.max(bestStreak, run);
+    prev = day;
+  }
   const xpTotal = results.reduce((n, r) => n + r.xp, 0);
-  return { streak, xpTotal, xpToday: days.get(today) || 0, dailyGoal: goal, activeToday: days.has(today) };
+  return { streak, bestStreak: Math.max(bestStreak, streak), xpTotal, xpToday: days.get(today) || 0, dailyGoal: goal, activeToday: days.has(today) };
 }
 
 async function getStats(request, env, url) {

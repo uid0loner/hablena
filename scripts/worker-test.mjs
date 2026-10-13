@@ -117,6 +117,7 @@ await call('POST', '/api/progress', { cookie: li.cookie, body: { lessonId: 'u1-l
   env.DB.raw.prepare('INSERT INTO activity (user_id, day, xp, lessons) VALUES (?, ?, 10, 1), (?, ?, 10, 1)').run(uid, day(-1), uid, day(-2));
   const st = (await call('GET', `/api/stats?today=${day(0)}`, { cookie: li.cookie })).data;
   check('streak counts consecutive days', st.streak === 3, JSON.stringify(st));
+  check('best streak', st.bestStreak === 3);
   const tomorrowView = (await call('GET', `/api/stats?today=${day(1)}`, { cookie: li.cookie })).data;
   check('streak survives until the day is over', tomorrowView.streak === 3 && tomorrowView.activeToday === false);
   const forged = (await call('GET', '/api/stats?today=2001-01-01', { cookie: li.cookie })).data;

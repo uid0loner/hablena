@@ -106,6 +106,14 @@ export function accountPages(t, urls, otherLang, site) {
     lock: '<svg class="node__icon node__icon--lock" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="currentColor"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" stroke-width="2.6"/></svg>',
     trophy: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v5a5 5 0 0 1-10 0zM7 5H4v2a3 3 0 0 0 3 3M17 5h3v2a3 3 0 0 1-3 3M12 13v4M8 21h8M9 17h6v4H9z" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>',
   };
+  const BADGE_ICON = {
+    star: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9z" fill="currentColor"/></svg>',
+    flame: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 1.5-5 3-6 0 2 1 3 2 3 0-3-1-6 1-9z" fill="currentColor"/></svg>',
+    bolt: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z" fill="currentColor"/></svg>',
+    trophy: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v5a5 5 0 0 1-10 0zM7 5H4v2a3 3 0 0 0 3 3M17 5h3v2a3 3 0 0 1-3 3M12 13v4M8 21h8M9 17h6v4H9z" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>',
+    check: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  };
+  const BADGE_STYLE = { first: ['star', 'red'], five: ['star', 'blue'], ten: ['star', 'navy'], unit: ['trophy', 'gold'], perfect: ['check', 'green'], streak3: ['flame', 'orange'], streak7: ['flame', 'red'], xp100: ['bolt', 'gold'], xp500: ['bolt', 'purple'] };
   const total = UNITS.reduce((n, u) => n + u.lessons.length, 0);
   let n = 0;
   const ap = t.app;
@@ -143,7 +151,7 @@ export function accountPages(t, urls, otherLang, site) {
           </div>
         </li>`;
         }).join('')}
-        <li class="node node--trophy" style="--x:0" aria-hidden="true"><span class="node__btn">${ICONS.trophy}</span></li>
+        <li class="node node--trophy" style="--x:0"><a class="node__btn" href="${urls.practice(lang)}?unit=${u.id}" tabindex="-1" aria-disabled="true" data-trophy aria-label="${esc(t.learn.unitTest)}: ${esc(u.title[lang])}">${ICONS.trophy}</a></li>
       </ol>
       <div class="punit__mascot" aria-hidden="true" style="--side:${ui % 2 ? -1 : 1}">${MASCOT}</div>
     </section>`;
@@ -182,6 +190,13 @@ export function accountPages(t, urls, otherLang, site) {
       <div class="side-card__head"><h2>${esc(ap.dailyGoal)}</h2><span class="side-card__xp"><span data-stat-xptoday>0</span>/<span data-stat-goal>20</span> XP</span></div>
       <div class="goalbar" role="progressbar" aria-label="${esc(ap.dailyGoal)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-goalbar><span></span></div>
       <p data-goal-msg>${esc(ap.goalText.replace('{xp}', '0').replace('{goal}', '20'))}</p>
+    </section>
+
+    <section class="side-card" aria-labelledby="badges-title">
+      <div class="side-card__head"><h2 id="badges-title">${esc(ap.badges.title)}</h2><span class="side-card__xp" data-badge-count>0/${Object.keys(ap.badges.items).length}</span></div>
+      <ul class="badges">${Object.entries(ap.badges.items).map(([k, [name, desc]]) => `
+        <li class="badge-a badge-a--${BADGE_STYLE[k][1]}" data-badge="${k}" title="${esc(desc)}"><span class="badge-a__icon">${BADGE_ICON[BADGE_STYLE[k][0]]}</span><span class="badge-a__name">${esc(name)}</span><span class="sr-only">${esc(desc)}</span></li>`).join('')}
+      </ul>
     </section>
 
     <section class="side-card side-card--practice">

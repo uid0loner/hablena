@@ -52,10 +52,27 @@ function practicePage(t, urls, otherLang) {
       lessonId: 'practice',
       lessonTitle: esc(t.app.practiceTitle),
       lessonGoal: esc(t.app.practiceText),
+      nextButton: '',
+      courseButtonClass: 'lp-cta--green',
+      unitDoneText: '',
       vocabCount: pool.length,
       lessonJson: safeJson(data),
       stringsJson: safeJson(t.learn),
     },
+  };
+}
+
+// "Next lesson" on the done screen; finishing a unit says so and points to the next unit.
+function nextVars(t, urls, lang, index) {
+  const lesson = ALL_LESSONS[index];
+  const next = ALL_LESSONS[index + 1];
+  const unitEnds = !next || next.unit.id !== lesson.unit.id;
+  if (!next) return { nextButton: '', courseButtonClass: 'lp-cta--green', unitDoneText: esc(t.learn.unitDone.replace('{unit}', lesson.unit.title[lang])) };
+  const label = unitEnds ? t.learn.nextUnit.replace('{unit}', next.unit.title[lang]) : t.learn.nextLesson;
+  return {
+    nextButton: `<a class="lp-cta lp-cta--green" href="${urls.lesson(lang, next.id)}" data-next>${esc(label)}</a>`,
+    courseButtonClass: 'lp-cta--ghost',
+    unitDoneText: unitEnds ? esc(t.learn.unitDone.replace('{unit}', lesson.unit.title[lang])) : '',
   };
 }
 
@@ -76,6 +93,7 @@ export function lessonPages(t, urls, otherLang) {
       lessonGoal: esc(lesson.goal[lang]),
       vocabCount: lesson.vocab.length,
       lessonJson: safeJson(localize(lesson, lang, index)),
+      ...nextVars(t, urls, lang, index),
       stringsJson: safeJson(t.learn),
     },
   }))];

@@ -1571,3 +1571,55 @@ h1, h2, h3, p { margin: 0; }
 .lp-body, .ob-body { overflow-x: hidden; }
 .ob__main { overflow-x: clip; }
 .lp { overflow-x: clip; }
+
+/* unit test trophy and unit-complete note */
+.node--trophy .node__btn { pointer-events: none; }
+.punit.is-complete .node--trophy .node__btn { pointer-events: auto; cursor: pointer; animation: trophy-glow 2.4s ease-in-out infinite; }
+@keyframes trophy-glow { 50% { box-shadow: 0 7px 0 #D9A300, 0 0 0 10px rgba(255,196,0,.25); } }
+.lp-unitdone { margin: 0; padding: 12px 16px; border-radius: 16px; background: var(--gold-tint); color: var(--navy); font-weight: 700; max-width: 440px; }
+.lp-unitdone[hidden] { display: none; }
+@media (prefers-reduced-motion: reduce) { .punit.is-complete .node--trophy .node__btn { animation: none; } }
+
+/* achievements */
+.badges { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 8px; }
+.badge-a { --c: var(--red); --d: var(--red-dark); display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }
+.badge-a__icon { width: 56px; height: 56px; border-radius: 18px; display: inline-flex; align-items: center; justify-content: center;
+  background: #E9ECF2; color: #C5CBD9; box-shadow: 0 4px 0 #D4D9E3; transition: transform .2s ease; }
+.badge-a__icon svg { width: 28px; height: 28px; }
+.badge-a__name { font-size: 12px; font-weight: 800; line-height: 1.2; color: #A3ABBF; }
+.badge-a.is-earned .badge-a__icon { background: var(--c); color: var(--white); box-shadow: 0 4px 0 var(--d); }
+.badge-a.is-earned .badge-a__name { color: var(--navy); }
+.badge-a.is-earned:hover .badge-a__icon { transform: translateY(-2px) rotate(-4deg); }
+.badge-a--blue { --c: var(--pick); --d: var(--pick-dark); }
+.badge-a--navy { --c: var(--navy); --d: #000A1F; }
+.badge-a--gold { --c: var(--gold); --d: #C99700; }
+.badge-a--gold.is-earned .badge-a__icon { color: var(--navy); }
+.badge-a--green { --c: var(--ok); --d: var(--ok-dark); }
+.badge-a--orange { --c: #FF8A00; --d: #CC6E00; }
+.badge-a--purple { --c: #7A3EC8; --d: #5B2A99; }
+
+/* public vocabulary pages */
+.vpage { padding-block: 48px 96px; display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 48px; align-items: start; }
+@media (max-width: 960px) { .vpage { grid-template-columns: minmax(0, 1fr); } }
+.vpage__main { display: flex; flex-direction: column; gap: 40px; min-width: 0; }
+.vsection__head { display: flex; align-items: center; gap: 12px; }
+.vsection__head h2 { margin: 0; font-family: var(--font-display); font-stretch: 105%; font-weight: 900; font-size: clamp(22px, 2.6vw, 28px); color: var(--navy); }
+.vsection__num { flex: none; padding: 4px 10px; border-radius: 10px; background: var(--red); color: var(--white); font-weight: 800; font-size: 14px; box-shadow: 0 3px 0 var(--red-dark); }
+.vlist { list-style: none; margin: 14px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+@media (max-width: 640px) { .vlist { grid-template-columns: minmax(0, 1fr); } }
+.vlist li { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 12px; padding: 10px 12px; border-radius: 14px; background: var(--surface); }
+.vlist__es { font-size: 17px; font-weight: 800; color: var(--navy); }
+.vlist__tr { font-size: 14px; color: var(--muted); }
+.vlist .say-btn { width: 36px; height: 36px; border-radius: 11px; }
+.vpage__side { position: sticky; top: 24px; display: flex; flex-direction: column; gap: 18px; }
+@media (max-width: 960px) { .vpage__side { position: static; } }
+.vcta { padding: 26px; border-radius: 24px; background: var(--navy); color: var(--white); display: flex; flex-direction: column; gap: 10px; box-shadow: 0 30px 60px -30px rgba(10,22,51,.6); }
+.vcta__kicker { margin: 0; font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); }
+.vcta h2 { margin: 0; font-family: var(--font-display); font-stretch: 105%; font-weight: 900; font-size: 24px; line-height: 1.15; }
+.vcta p { margin: 0 0 8px; color: var(--navy-text); line-height: 1.5; }
+.vcta .btn3d { width: 100%; white-space: nowrap; padding: 0 16px; }
+.vmore { padding: 20px; border: 2px solid #EEF0F5; border-radius: 20px; }
+.vmore h2 { margin: 0 0 10px; font-size: 17px; font-weight: 800; color: var(--navy); }
+.vmore ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.vmore a { display: block; padding: 8px 0; font-weight: 700; color: var(--navy); text-decoration: none; }
+.vmore a:hover { color: var(--red); }
