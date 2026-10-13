@@ -182,7 +182,7 @@ export function accountPages(t, urls, otherLang, site) {
     <section class="soon">
       <p class="soon__kicker">${esc(a.courseLabel)}</p>
       <h2>${esc(a.courseTitle)}</h2>
-      <p>${esc(a.courseText)}</p>
+      <p>${esc(a.courseText.replace('{units}', String(UNITS.length)))}</p>
     </section>
   </div>
 

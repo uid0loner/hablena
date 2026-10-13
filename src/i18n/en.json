@@ -15,7 +15,6 @@
   "nav": {
     "method": "Method",
     "levels": "Levels",
-    "tutor": "AI Tutor",
     "pricing": "Pricing",
     "login": "Log in",
     "start": "Start free",
@@ -23,16 +22,6 @@
     "grammar": "Grammar",
     "course": "Course",
     "vocab": "Vocabulary"
-  },
-  "hero": {
-    "kicker": "Spanish · A1 to C1 · AI tutor included",
-    "title1": "Speak",
-    "title2": "Spanish.",
-    "title3": "For real.",
-    "lead": "The complete Spanish course with a tutor you actually talk to. Every lesson, every tool, every level. Built to get you speaking, not collecting points.",
-    "cta": "Start learning free",
-    "cta2": "Find your level",
-    "note": "Free to start. No credit card."
   },
   "cta": {
     "text": "Shall we talk? Your first real conversation is five minutes away.",
@@ -141,7 +130,7 @@
       }
     },
     "ctaTitle": "Know the forms. Now use them.",
-    "ctaText": "Tables are a start. Practise “{verb}” in real conversations with Hablena, your AI Spanish tutor.",
+    "ctaText": "Tables are a start. Practise “{verb}” in short lessons with real voices, dialogues and stories – five minutes a day, free.",
     "ctaButton": "Start learning free",
     "more": "More verbs like this",
     "all": "All verbs"
@@ -167,7 +156,7 @@
     "score": "{score} of {total} correct",
     "verbsTitle": "Conjugate the verbs",
     "ctaTitle": "Rules are step one.",
-    "ctaText": "Hablena uses them with you in real conversations and corrects you right when it matters.",
+    "ctaText": "In the lessons you practise them in dialogues, listening and writing – and Hablena shows you right away what’s correct.",
     "ctaButton": "Start learning free",
     "more": "More grammar guides",
     "all": "All topics"
@@ -211,7 +200,7 @@
     "greetingNoName": "¡Hola!",
     "courseLabel": "Coming next",
     "courseTitle": "More units are on their way.",
-    "courseText": "Five units are ready, from your first “hola” to talking about your weekend. Next up: past tense, travel stories and spoken conversations with Hablena.",
+    "courseText": "{units} units are ready, from your first “hola” to childhood memories and plans for the future. Coming next: more B1, longer stories and real conversations with Hablena.",
     "grammarTitle": "Grammar guides",
     "grammarText": "Ser vs. estar, por vs. para and more, with quizzes.",
     "conjTitle": "Verb conjugator",

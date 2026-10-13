@@ -15,7 +15,6 @@
   "nav": {
     "method": "Methode",
     "levels": "Niveaus",
-    "tutor": "KI-Tutorin",
     "pricing": "Preise",
     "login": "Anmelden",
     "start": "Kostenlos starten",
@@ -23,16 +22,6 @@
     "grammar": "Grammatik",
     "course": "Kurs",
     "vocab": "Wortschatz"
-  },
-  "hero": {
-    "kicker": "Spanisch · A1 bis C1 · mit KI-Tutorin",
-    "title1": "Spanisch",
-    "title2": "sprechen.",
-    "title3": "Wirklich.",
-    "lead": "Der komplette Spanischkurs mit einer Tutorin, mit der du wirklich sprichst. Jede Lektion, jedes Tool, jedes Niveau. Gemacht, damit du sprichst, nicht Punkte sammelst.",
-    "cta": "Kostenlos loslegen",
-    "cta2": "Mein Niveau testen",
-    "note": "Kostenlos starten. Ohne Kreditkarte."
   },
   "cta": {
     "text": "Sprechen wir? Dein erstes echtes Gespräch ist nur fünf Minuten entfernt.",
@@ -141,7 +130,7 @@
       }
     },
     "ctaTitle": "Formen gelernt. Jetzt anwenden.",
-    "ctaText": "Tabellen sind ein Anfang. Übe „{verb}“ in echten Gesprächen mit Hablena, deiner KI-Tutorin für Spanisch.",
+    "ctaText": "Tabellen sind ein Anfang. Übe „{verb}“ in kurzen Lektionen mit echten Stimmen, Dialogen und Geschichten – fünf Minuten am Tag, kostenlos.",
     "ctaButton": "Kostenlos loslegen",
     "more": "Ähnliche Verben",
     "all": "Alle Verben"
@@ -167,7 +156,7 @@
     "score": "{score} von {total} richtig",
     "verbsTitle": "Die Verben konjugieren",
     "ctaTitle": "Regeln sind Schritt eins.",
-    "ctaText": "Hablena wendet sie mit dir in echten Gesprächen an und korrigiert dich genau dann, wenn es zählt.",
+    "ctaText": "In den Lektionen übst du sie in Dialogen, Hör- und Schreibübungen – und Hablena zeigt dir sofort, was richtig ist.",
     "ctaButton": "Kostenlos loslegen",
     "more": "Weitere Grammatik-Themen",
     "all": "Alle Themen"
@@ -211,7 +200,7 @@
     "greetingNoName": "¡Hola!",
     "courseLabel": "Als Nächstes",
     "courseTitle": "Weitere Einheiten sind unterwegs.",
-    "courseText": "Fünf Einheiten sind fertig, vom ersten „hola“ bis zum Erzählen übers Wochenende. Als Nächstes: Vergangenheit, Reisegeschichten und echte Gespräche mit Hablena.",
+    "courseText": "{units} Einheiten sind fertig, vom ersten „hola“ bis zu Erinnerungen an früher und Plänen für die Zukunft. Als Nächstes: mehr B1, längere Geschichten und echte Gespräche mit Hablena.",
     "grammarTitle": "Grammatik-Themen",
     "grammarText": "Ser oder estar, por oder para und mehr, mit Quiz.",
     "conjTitle": "Verb-Konjugator",
