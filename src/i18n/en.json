@@ -2,7 +2,8 @@
   "meta": {
     "title": "Hablena – Speak Spanish. For real.",
     "description": "Speak Spanish in five minutes a day: short lessons, real voices and real dialogues. Free to start, no app needed.",
-    "ogLocale": "en_US"
+    "ogLocale": "en_US",
+    "manifest": "/manifest.webmanifest"
   },
   "a11y": {
     "skip": "Skip to content",
@@ -235,7 +236,8 @@
       "code_invalid": "We don't recognise this code. Please check the spelling.",
       "code_expired": "Sorry, this code has expired.",
       "code_used": "This code has already been used up.",
-      "code_already_redeemed": "You have already redeemed this code."
+      "code_already_redeemed": "You have already redeemed this code.",
+      "wrong_password": "Your current password is not correct."
     },
     "unit": "Unit",
     "lessonDone": "Done",
@@ -312,6 +314,20 @@
       "redeemButton": "Redeem",
       "redeemed": "¡Genial! Your Premium is unlocked. {plan}.",
       "admin": "Open admin area"
+    },
+    "settings": {
+      "title": "Edit account",
+      "name": "First name",
+      "nameButton": "Save name",
+      "emailTitle": "Change email",
+      "newEmail": "New email address",
+      "emailButton": "Change email",
+      "passwordTitle": "Change password",
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "passwordButton": "Change password",
+      "saved": "Saved.",
+      "passwordSaved": "Password changed. Other devices have been logged out."
     }
   },
   "learn": {
@@ -484,7 +500,14 @@
       "Fr",
       "Sa",
       "Su"
-    ]
+    ],
+    "install": {
+      "title": "Hablena as an app",
+      "text": "Put Hablena on your home screen – it opens like a real app, no app store needed.",
+      "button": "Install",
+      "ios": "In Safari, tap “Share”, then “Add to Home Screen”.",
+      "dismiss": "Not now"
+    }
   },
   "course": {
     "kicker": "01 — The course",

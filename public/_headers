@@ -11,3 +11,14 @@
 /admin/*
   X-Robots-Tag: noindex, nofollow
   Cache-Control: no-store
+
+/sw.js
+  Cache-Control: no-cache
+  Service-Worker-Allowed: /
+
+/*.webmanifest
+  Content-Type: application/manifest+json
+  Cache-Control: public, max-age=3600
+
+/icons/*
+  Cache-Control: public, max-age=604800

@@ -72,6 +72,9 @@ async function handleApi(request, env, url, ctx) {
     case 'GET /api/access': return getAccess(request, env, url);
     case 'POST /api/me/delete': return deleteAccount(request, env);
     case 'POST /api/me/goal': return setGoal(request, env);
+    case 'POST /api/me/profile': return updateProfile(request, env);
+    case 'POST /api/me/password': return changePassword(request, env);
+    case 'POST /api/me/email': return changeEmail(request, env);
     case 'GET /api/progress': return getProgress(request, env);
     case 'POST /api/progress': return saveProgress(request, env);
     case 'GET /api/stats': return getStats(request, env, url);
@@ -219,6 +222,57 @@ async function deleteAccount(request, env) {
     env.DB.prepare('DELETE FROM users WHERE id = ?').bind(user.id),
   ]);
   return json({ ok: true }, 200, { 'Set-Cookie': clearCookie() });
+}
+
+// Account settings. Changing the email or password needs the current password; wrong attempts count
+// towards the same per-email limit as failed logins.
+async function checkCurrentPassword(env, user, password, now) {
+  const key = await sha256Hex(`login:${user.email}`);
+  if ((await countEvents(env, key, now - LOGIN_WINDOW_MS)) >= LOGIN_MAX_FAILURES) return json({ error: 'too_many_requests' }, 429);
+  if (await verifyPassword(String(password || '').slice(0, MAX_PASSWORD), user.password)) return null;
+  await recordEvent(env, key, now);
+  return json({ error: 'wrong_password' }, 401);
+}
+
+async function updateProfile(request, env) {
+  const user = await currentUser(request, env);
+  if (!user) return json({ error: 'unauthorized' }, 401);
+  const body = await readJson(request);
+  if (!body || typeof body.name !== 'string') return json({ error: 'invalid_request' }, 400);
+  const name = body.name.trim().slice(0, 60);
+  await env.DB.prepare('UPDATE users SET name = ? WHERE id = ?').bind(name || null, user.id).run();
+  return json({ ok: true, name: name || null });
+}
+
+async function changePassword(request, env) {
+  const user = await currentUser(request, env, true);
+  if (!user) return json({ error: 'unauthorized' }, 401);
+  const body = await readJson(request);
+  const next = body && typeof body.next === 'string' ? body.next : '';
+  const now = Date.now();
+  const refused = await checkCurrentPassword(env, user, body?.current, now);
+  if (refused) return refused;
+  if (next.length < MIN_PASSWORD || next.length > MAX_PASSWORD) return json({ error: 'weak_password' }, 400);
+  // New password, every other device is logged out, this one gets a fresh session.
+  await env.DB.batch([
+    env.DB.prepare('UPDATE users SET password = ? WHERE id = ?').bind(await hashPassword(next), user.id),
+    env.DB.prepare('DELETE FROM sessions WHERE user_id = ?').bind(user.id),
+  ]);
+  return json({ ok: true }, 200, { 'Set-Cookie': await createSession(env, user.id, now) });
+}
+
+async function changeEmail(request, env) {
+  const user = await currentUser(request, env, true);
+  if (!user) return json({ error: 'unauthorized' }, 401);
+  const body = await readJson(request);
+  const email = normalizeEmail(body?.email);
+  if (!email) return json({ error: 'invalid_email' }, 400);
+  const refused = await checkCurrentPassword(env, user, body?.password, Date.now());
+  if (refused) return refused;
+  if (email === user.email) return json({ ok: true, email });
+  if (await env.DB.prepare('SELECT 1 FROM users WHERE email = ?').bind(email).first()) return json({ error: 'email_taken' }, 409);
+  await env.DB.prepare('UPDATE users SET email = ? WHERE id = ?').bind(email, user.id).run();
+  return json({ ok: true, email });
 }
 
 async function getProgress(request, env) {

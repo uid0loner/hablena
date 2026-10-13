@@ -335,6 +335,29 @@ await call('POST', '/api/progress', { cookie: li.cookie, body: { lessonId: 'u1-l
   check('unknown admin route', (await acall('GET', '/api/admin/nope', { cookie: bossCookie })).status === 404);
 }
 
+// Account settings: name, password, email
+{
+  const su = await call('POST', '/api/auth/signup', { body: { email: 'settings@example.com', password: 'correct horse battery' }, ip: '9.9.9.1' });
+  const other = await call('POST', '/api/auth/login', { body: { email: 'settings@example.com', password: 'correct horse battery' }, ip: '9.9.9.1' });
+  check('profile: name saved', (await call('POST', '/api/me/profile', { cookie: su.cookie, body: { name: '  Carla  ' } })).data.name === 'Carla'
+    && (await call('GET', '/api/me', { cookie: su.cookie })).data.user.name === 'Carla');
+  check('password: wrong current refused', (await call('POST', '/api/me/password', { cookie: su.cookie, body: { current: 'nope', next: 'new password 123' } })).data.error === 'wrong_password');
+  check('password: too short refused', (await call('POST', '/api/me/password', { cookie: su.cookie, body: { current: 'correct horse battery', next: 'short' } })).data.error === 'weak_password');
+  const pw = await call('POST', '/api/me/password', { cookie: su.cookie, body: { current: 'correct horse battery', next: 'new password 123' } });
+  check('password: changed, fresh session', pw.status === 200 && pw.cookie && (await call('GET', '/api/me', { cookie: pw.cookie })).status === 200);
+  check('password: other devices logged out', (await call('GET', '/api/me', { cookie: other.cookie })).status === 401);
+  check('password: new one works', (await call('POST', '/api/auth/login', { body: { email: 'settings@example.com', password: 'new password 123' }, ip: '9.9.9.2' })).status === 200);
+  check('email: needs password', (await call('POST', '/api/me/email', { cookie: pw.cookie, body: { email: 'carla@example.com', password: 'wrong' } })).status === 401);
+  check('email: invalid refused', (await call('POST', '/api/me/email', { cookie: pw.cookie, body: { email: 'nope', password: 'new password 123' } })).data.error === 'invalid_email');
+  check('email: taken refused', (await call('POST', '/api/me/email', { cookie: pw.cookie, body: { email: 'nico@example.com', password: 'new password 123' } })).status === 409);
+  const em = await call('POST', '/api/me/email', { cookie: pw.cookie, body: { email: 'Carla@Example.com', password: 'new password 123' } });
+  check('email: changed', em.status === 200 && (await call('GET', '/api/me', { cookie: pw.cookie })).data.user.email === 'carla@example.com');
+  check('email: log in with new address', (await call('POST', '/api/auth/login', { body: { email: 'carla@example.com', password: 'new password 123' }, ip: '9.9.9.3' })).status === 200);
+  let limited = false;
+  for (let i = 0; i < 12 && !limited; i++) limited = (await call('POST', '/api/me/password', { cookie: pw.cookie, body: { current: 'guess' + i, next: 'whatever 12345' } })).status === 429;
+  check('password: guessing is rate limited', limited);
+}
+
 // Account deletion
 check('delete needs password', (await call('POST', '/api/me/delete', { cookie: li.cookie, body: { password: 'nope' } })).status === 401);
 const del = await call('POST', '/api/me/delete', { cookie: li.cookie, body: { password: 'correct horse battery' } });

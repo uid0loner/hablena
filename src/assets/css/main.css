@@ -372,7 +372,8 @@ h1, h2, h3, p { margin: 0; }
 
 /* 404 */
 .notfound { min-height: 70vh; display: flex; align-items: center; }
-.notfound .display { margin-bottom: 24px; }
+.notfound .display { margin-bottom: 24px; overflow-wrap: anywhere; }
+@media (max-width: 520px) { .notfound .display--xl { font-size: clamp(34px, 10.5vw, 46px); } }
 .notfound p { font-size: 20px; color: rgba(255,255,255,.88); margin-bottom: 32px; max-width: 520px; }
 
 /* ==========================================================================
@@ -1868,3 +1869,24 @@ h1, h2, h3, p { margin: 0; }
   .prem-table { font-size: 14px; }
   .prem-table th, .prem-table td { padding: 11px 10px; }
 }
+
+/* Edit account (name, email, password) */
+.acct-edit { border-top: 1px solid var(--line); padding-top: 4px; }
+.acct-edit summary { cursor: pointer; font-weight: 700; color: var(--navy); min-height: 44px; display: flex; align-items: center; }
+.acct-form { display: flex; flex-direction: column; gap: 12px; padding: 4px 0 16px; }
+.acct-form + .acct-form { border-top: 1px dashed var(--line); padding-top: 16px; }
+.acct-form h3 { margin: 0; font-size: 16px; font-weight: 800; color: var(--navy); }
+.acct-form .field input { min-height: 46px; padding: 0 14px; border: 2px solid var(--line); border-radius: 12px; font-size: 16px; }
+.acct-form .field input:focus { outline: none; border-color: var(--navy); }
+.acct-form .field label { font-size: 14px; font-weight: 700; color: var(--ink-2); }
+.acct-form .btn { min-height: 46px; }
+.acct-form__ok { margin: 0; padding: 10px 12px; border-radius: 10px; background: var(--ok-tint); color: var(--ok-dark); font-weight: 700; font-size: 14px; }
+
+/* Install as app */
+.install { background: linear-gradient(160deg, #FFF7D6, #FFFFFF 70%); border-color: #FFE27A; }
+.install__head { display: flex; align-items: center; gap: 12px; }
+.install__head img { border-radius: 12px; box-shadow: 0 3px 0 #D9A600; }
+.install__head h2 { margin: 0; font-size: 18px; }
+.install p { margin: 0; font-size: 15px; line-height: 1.5; color: var(--ink-2); }
+.install__actions { display: flex; align-items: center; gap: 12px; }
+.install__actions .lp-cta { flex: 1; min-height: 46px; }

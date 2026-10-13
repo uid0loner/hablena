@@ -387,6 +387,8 @@ document.documentElement.classList.add('js');
       const goalSelect = app.querySelector('[data-goal-select]');
       if (goalSelect && user.dailyGoal) goalSelect.value = String(user.dailyGoal);
       applyPlan(user);
+      const nameInput = app.querySelector('#acct-name');
+      if (nameInput) nameInput.value = user.name || '';
       app.querySelector('[data-user-email]').textContent = user.email;
       app.querySelector('[data-user-since]').textContent = new Date(user.createdAt).toLocaleDateString(document.documentElement.lang, { year: 'numeric', month: 'long', day: 'numeric' });
       const [progress, stats] = await Promise.all([
@@ -435,6 +437,42 @@ document.documentElement.classList.add('js');
   bindRedeem(app.querySelector('[data-redeem-form]'), messages, (p) => planT.redeemed.replace('{plan}', planLabel(p)), async () => {
     const me = await fetch('/api/me', { credentials: 'same-origin' }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
     if (me) { applyPlan(me.user); applyLocks(me.access); }
+  });
+
+  // Edit account: name, email (needs password), password (needs the current one)
+  app.querySelectorAll('[data-acct-form]').forEach((form) => {
+    const kind = form.dataset.acctForm;
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const box = form.querySelector('[data-auth-error]');
+      const ok = form.querySelector('[data-ok]');
+      const btn = form.querySelector('button[type="submit"]');
+      box.hidden = true; ok.hidden = true;
+      const v = (id) => form.querySelector('#' + id).value;
+      let path, body;
+      if (kind === 'profile') { path = '/api/me/profile'; body = { name: v('acct-name') }; }
+      if (kind === 'email') {
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v('acct-email').trim())) return showError(box, messages, 'invalid_email');
+        path = '/api/me/email'; body = { email: v('acct-email').trim(), password: v('acct-email-pw') };
+      }
+      if (kind === 'password') {
+        if (v('acct-pw-new').length < 10) return showError(box, messages, 'weak_password');
+        path = '/api/me/password'; body = { current: v('acct-pw-current'), next: v('acct-pw-new') };
+      }
+      btn.disabled = true;
+      const res = await post(path, body).catch(() => null);
+      btn.disabled = false;
+      if (!res || !res.ok) return showError(box, messages, res ? res.data.error || 'server_error' : 'network');
+      ok.hidden = false;
+      form.querySelectorAll('input[type="password"]').forEach((i) => { i.value = ''; });
+      if (kind === 'profile') {
+        const name = res.data.name;
+        const greet = document.querySelector('[data-greeting]');
+        if (greet) greet.textContent = name ? greet.dataset.template.replace('{name}', name) : greet.dataset.fallback;
+        document.querySelectorAll('[data-avatar]').forEach((a) => { a.textContent = (name || app.querySelector('[data-user-email]').textContent || '?').trim().charAt(0).toUpperCase(); });
+      }
+      if (kind === 'email') { app.querySelector('[data-user-email]').textContent = res.data.email; form.querySelector('#acct-email').value = ''; }
+    });
   });
 
   // Paywall (switched on in the admin portal): units after the free ones lead to the Premium page.
@@ -740,3 +778,43 @@ function applyGameStats(scope, s) {
     if (s.questBonus > 0) bonus.querySelector('span').textContent = bonus.dataset.done;
   }
 }
+
+// Installable app: register the service worker and offer "add to home screen" in the app.
+(() => {
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+  }
+  const card = document.querySelector('[data-install]');
+  if (!card) return;
+  const KEY = 'hablena-install-dismissed';
+  const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  let dismissed = false;
+  try { dismissed = localStorage.getItem(KEY) === '1'; } catch {}
+  if (standalone || dismissed) return;
+  let deferred = null;
+  const go = card.querySelector('[data-install-go]');
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferred = e;
+    card.hidden = false;
+  });
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) && !/crios|fxios/i.test(navigator.userAgent);
+  if (ios) {
+    const text = card.querySelector('[data-install-text]');
+    text.textContent = `${text.textContent} ${text.dataset.ios}`;
+    go.hidden = true;
+    card.hidden = false;
+  }
+  go.addEventListener('click', async () => {
+    if (!deferred) return;
+    deferred.prompt();
+    const choice = await deferred.userChoice.catch(() => null);
+    deferred = null;
+    if (choice && choice.outcome === 'accepted') card.hidden = true;
+  });
+  card.querySelector('[data-install-dismiss]').addEventListener('click', () => {
+    card.hidden = true;
+    try { localStorage.setItem(KEY, '1'); } catch {}
+  });
+  window.addEventListener('appinstalled', () => { card.hidden = true; });
+})();

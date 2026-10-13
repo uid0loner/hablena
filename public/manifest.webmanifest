@@ -1,0 +1,41 @@
+{
+  "name": "Hablena",
+  "short_name": "Hablena",
+  "description": "Learn Spanish in five minutes a day – with real voices, stories and a streak that keeps you going.",
+  "lang": "en",
+  "id": "/app/",
+  "start_url": "/app/?source=app",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFFFFF",
+  "theme_color": "#C8102E",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Practice",
+      "url": "/app/practice/"
+    },
+    {
+      "name": "Words",
+      "url": "/app/words/"
+    }
+  ]
+}

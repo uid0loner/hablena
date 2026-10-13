@@ -197,6 +197,15 @@ export function accountPages(t, urls, otherLang, site) {
       <p class="freeze" title="${esc(ap.freezesHint)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20M4 6.5l16 11M20 6.5l-16 11M9 3.5l3 2.5 3-2.5M9 20.5l3-2.5 3 2.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span data-freezes data-one="${esc(ap.freezes)}" data-none="${esc(ap.freezesNone)}">${esc(ap.freezesNone)}</span></p>
     </section>
 
+    <section class="side-card install" data-install hidden aria-labelledby="install-title">
+      <div class="install__head"><img src="/icons/icon-192.png" alt="" width="48" height="48"><h2 id="install-title">${esc(ap.install.title)}</h2></div>
+      <p data-install-text data-ios="${esc(ap.install.ios)}">${esc(ap.install.text)}</p>
+      <div class="install__actions">
+        <button class="lp-cta lp-cta--green" type="button" data-install-go>${esc(ap.install.button)}</button>
+        <button class="lp-link" type="button" data-install-dismiss>${esc(ap.install.dismiss)}</button>
+      </div>
+    </section>
+
     <section class="side-card side-card--quests" aria-labelledby="quests-title" data-quests data-labels="${esc(JSON.stringify({ xp: ap.questXp, lessons: ap.questLessons, perfect: ap.questPerfect, practice: ap.questPractice }))}">
       <div class="side-card__head"><h2 id="quests-title">${esc(ap.questsTitle)}</h2></div>
       <ul class="quests" data-quest-list></ul>
@@ -276,6 +285,31 @@ export function accountPages(t, urls, otherLang, site) {
           </div>
           <p class="auth-error" role="alert" data-auth-error hidden></p>
           <p class="redeem__ok" role="status" data-redeem-ok hidden></p>
+        </form>
+      </details>
+      <details class="acct-edit">
+        <summary>${esc(a.settings.title)}</summary>
+        <form class="acct-form" data-acct-form="profile" novalidate>
+          ${field({ id: 'acct-name', label: a.settings.name, autocomplete: 'given-name', required: false })}
+          <p class="auth-error" role="alert" data-auth-error hidden></p>
+          <p class="acct-form__ok" role="status" data-ok hidden>${esc(a.settings.saved)}</p>
+          <button class="btn btn--navy" type="submit">${esc(a.settings.nameButton)}</button>
+        </form>
+        <form class="acct-form" data-acct-form="email" novalidate>
+          <h3>${esc(a.settings.emailTitle)}</h3>
+          ${field({ id: 'acct-email', label: a.settings.newEmail, type: 'email', autocomplete: 'email' })}
+          ${field({ id: 'acct-email-pw', label: a.settings.currentPassword, type: 'password', autocomplete: 'current-password' })}
+          <p class="auth-error" role="alert" data-auth-error hidden></p>
+          <p class="acct-form__ok" role="status" data-ok hidden>${esc(a.settings.saved)}</p>
+          <button class="btn btn--navy" type="submit">${esc(a.settings.emailButton)}</button>
+        </form>
+        <form class="acct-form" data-acct-form="password" novalidate>
+          <h3>${esc(a.settings.passwordTitle)}</h3>
+          ${field({ id: 'acct-pw-current', label: a.settings.currentPassword, type: 'password', autocomplete: 'current-password' })}
+          ${field({ id: 'acct-pw-new', label: a.settings.newPassword, type: 'password', autocomplete: 'new-password', hint: a.passwordHint, minlength: 10 })}
+          <p class="auth-error" role="alert" data-auth-error hidden></p>
+          <p class="acct-form__ok" role="status" data-ok hidden>${esc(a.settings.passwordSaved)}</p>
+          <button class="btn btn--navy" type="submit">${esc(a.settings.passwordButton)}</button>
         </form>
       </details>
       <a class="side-link side-link--admin" href="/admin/" data-admin-link hidden><span class="side-link__icon side-link__icon--navy" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z" fill="currentColor"/></svg></span><span><strong>${esc(a.plan.admin)}</strong></span></a>
