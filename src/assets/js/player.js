@@ -666,6 +666,11 @@
         note.hidden = false;
         return;
       }
+      if (res.status === 402) {
+        done.hidden = true;
+        window.dispatchEvent(new CustomEvent('hablena:paywall'));
+        return;
+      }
       if (!res.ok) throw new Error();
       const data = await res.json();
       await showRewards(data);
@@ -752,7 +757,43 @@
     show(0);
   });
 
+  // Paywall (only when switched on in the admin portal): premium units and the free daily practice limit.
+  // Checked before the first exercise; if the server cannot be reached, the lesson simply starts.
+  async function lockedReason() {
+    const unit = L.mode === 'practice' ? new URLSearchParams(location.search).get('unit') : L.id;
+    const unitNo = (id) => { const m = /^u(\d{1,3})(?:-|$)/.exec(id || ''); return m ? Number(m[1]) : 0; };
+    try {
+      const res = await fetch(`/api/access?today=${localToday()}`, { credentials: 'same-origin' });
+      if (!res.ok) return null;
+      const a = await res.json();
+      if (!a.paywall || a.premium) return null;
+      if (unitNo(unit) > a.freeUnits) return { kind: 'unit', guest: !a.loggedIn };
+      if (L.mode === 'practice' && !unit && a.loggedIn && a.practiceToday >= a.freePracticePerDay) return { kind: 'practice', limit: a.freePracticePerDay };
+    } catch {}
+    return null;
+  }
+  function showWall(reason) {
+    const wall = document.querySelector('[data-wall]');
+    if (reason.kind === 'practice') {
+      $('[data-wall-title]', wall).textContent = wall.dataset.practiceTitle;
+      $('[data-wall-text]', wall).textContent = wall.dataset.practiceText.replace('{n}', reason.limit);
+    } else if (reason.guest) {
+      $('[data-wall-text]', wall).textContent = wall.dataset.guestText;
+      $('[data-wall-login]', wall).hidden = false;
+    }
+    stage.hidden = true;
+    sheet.hidden = true;
+    progress.hidden = true;
+    wall.hidden = false;
+    wall.querySelector('.lp-cta').focus();
+  }
+  // A save the server refused because of the paywall (e.g. limits changed meanwhile)
+  window.addEventListener('hablena:paywall', () => lockedReason().then((r) => showWall(r || { kind: 'unit' })));
+
   stage.setAttribute('tabindex', '-1');
-  if (L.mode === 'practice') buildPractice().then(() => { startedAt = Date.now(); show(0); });
-  else show(0);
+  lockedReason().then((reason) => {
+    if (reason) return showWall(reason);
+    if (L.mode === 'practice') buildPractice().then(() => { startedAt = Date.now(); show(0); });
+    else show(0);
+  });
 })();

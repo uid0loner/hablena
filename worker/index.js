@@ -1,6 +1,7 @@
 // Hablena Worker: serves the static site and the /api/* endpoints.
 // No dependencies: Web Crypto for password hashing and tokens, D1 for storage.
 import { handleAdmin, redeemCode, isAdmin, premiumOf } from './admin.js';
+import { getSettings, hasPremium, lockReason } from './access.js';
 
 const SESSION_COOKIE = '__Host-hablena_session';
 const SESSION_DAYS = 30;
@@ -68,6 +69,7 @@ async function handleApi(request, env, url, ctx) {
     case 'POST /api/auth/login': return login(request, env);
     case 'POST /api/auth/logout': return logout(request, env);
     case 'GET /api/me': return me(request, env);
+    case 'GET /api/access': return getAccess(request, env, url);
     case 'POST /api/me/delete': return deleteAccount(request, env);
     case 'POST /api/me/goal': return setGoal(request, env);
     case 'GET /api/progress': return getProgress(request, env);
@@ -173,8 +175,22 @@ async function me(request, env) {
       id: user.id, email: user.email, name: user.name, lang: user.lang, createdAt: user.created_at, dailyGoal: user.daily_goal, motive: user.motive,
       premium: premiumOf(user), admin: isAdmin(user, env), isTest: !!user.is_test, expiresAt: user.expires_at || null,
     },
-    paywall: env.PAYWALL === 'on',
+    access: { ...(await getSettings(env)), premium: hasPremium(user, env) },
   }, 200, { 'Cache-Control': 'no-store' });
+}
+
+// What the current visitor may use: paywall settings plus, when logged in, premium and today's practice count.
+// Public (guests get the settings only), so lesson pages can show the paywall before a lesson starts.
+async function getAccess(request, env, url) {
+  const settings = await getSettings(env);
+  const user = await currentUser(request, env);
+  let practiceToday = 0;
+  if (user) {
+    const day = localDay(url.searchParams.get('today'), Date.now());
+    const row = await env.DB.prepare('SELECT practice FROM activity WHERE user_id = ? AND day = ?').bind(user.id, day).first();
+    practiceToday = row ? row.practice || 0 : 0;
+  }
+  return json({ ...settings, loggedIn: !!user, premium: hasPremium(user, env), practiceToday }, 200, { 'Cache-Control': 'no-store' });
 }
 
 async function setGoal(request, env) {
@@ -228,6 +244,16 @@ async function saveProgress(request, env) {
     return json({ error: 'invalid_request' }, 400);
   }
   const now = Date.now();
+  // Paywall (only when switched on in the admin portal): premium units and the daily practice limit.
+  const settings = await getSettings(env);
+  if (settings.paywall && !hasPremium(user, env, now)) {
+    const unitId = practice ? (typeof body.unit === 'string' ? body.unit : '') : lessonId;
+    if (lockReason(settings, false, unitId)) return json({ error: 'premium_required' }, 402);
+    if (practice) {
+      const row = await env.DB.prepare('SELECT practice FROM activity WHERE user_id = ? AND day = ?').bind(user.id, localDay(body.today, now)).first();
+      if ((row ? row.practice || 0 : 0) >= settings.freePracticePerDay) return json({ error: 'practice_limit' }, 402);
+    }
+  }
   // A practice session earns XP but is not a lesson, so it leaves the lesson progress alone.
   if (!practice) await env.DB.prepare(
     `INSERT INTO progress (user_id, lesson_id, best_correct, total, attempts, first_completed_at, last_completed_at)

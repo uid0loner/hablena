@@ -203,6 +203,52 @@ document.documentElement.classList.add('js');
     show(0);
   });
 
+  // Voucher codes (account section and the Premium page)
+  const longDate = (ms) => new Date(ms).toLocaleDateString(document.documentElement.lang, { year: 'numeric', month: 'long', day: 'numeric' });
+  const bindRedeem = (form, messages, okText, after) => form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const box = form.querySelector('[data-auth-error]');
+    const okBox = form.querySelector('[data-redeem-ok]');
+    const input = form.elements.code;
+    const btn = form.querySelector('button');
+    box.hidden = true; okBox.hidden = true;
+    const code = input.value.trim();
+    if (!code) { input.focus(); return; }
+    btn.disabled = true;
+    const res = await post('/api/me/redeem', { code }).catch(() => null);
+    btn.disabled = false;
+    if (!res || !res.ok) { showError(box, messages, res ? res.data.error || 'server_error' : 'network'); return; }
+    input.value = '';
+    okBox.textContent = okText(res.data.premium);
+    okBox.hidden = false;
+    window.HablenaSfx?.play?.('complete');
+    if (after) after();
+  });
+
+  // Premium page: current status, limits from the admin settings, voucher codes
+  const prem = document.querySelector('[data-premium-page]');
+  if (prem) {
+    const T = JSON.parse(prem.dataset.t);
+    const status = prem.querySelector('[data-prem-status]');
+    const form = prem.querySelector('[data-redeem-form]');
+    const label = (p) => (p.lifetime ? T.lifetime : T.until.replace('{date}', longDate(p.until)));
+    const refresh = () => fetch('/api/me', { credentials: 'same-origin' }).then((r) => (r.ok ? r.json() : null)).then((me) => {
+      if (!me) { form.hidden = true; prem.querySelector('[data-prem-login]').hidden = false; return; }
+      const p = me.user.premium || {};
+      const a = me.access || {};
+      const free = a.freeUnits === 1 ? '1' : `1–${a.freeUnits}`;
+      prem.querySelectorAll('[data-tpl]').forEach((td) => {
+        td.textContent = td.dataset.tpl.replace('{free}', free).replace('{units}', prem.dataset.units).replace('{practice}', a.freePracticePerDay);
+      });
+      prem.classList.toggle('is-premium', !!p.active);
+      status.textContent = p.lifetime ? T.lifetimeActive : p.active ? T.active.replace('{date}', longDate(p.until)) : a.paywall ? '' : T.freeOpen;
+      status.hidden = !status.textContent;
+      document.querySelectorAll('[data-avatar]').forEach((el) => el.classList.toggle('is-premium', !!p.active));
+    }).catch(() => {});
+    bindRedeem(form, readMessages(prem), (p) => T.redeemed.replace('{plan}', label(p)), refresh);
+    refresh();
+  }
+
   // App area: learning path, streak and XP
   const app = document.querySelector('[data-app]');
   if (!app) return;
@@ -327,7 +373,8 @@ document.documentElement.classList.add('js');
   fetch('/api/me', { credentials: 'same-origin' })
     .then(async (res) => {
       if (res.status === 401 || res.status === 503) { location.replace(D.login); return; }
-      const { user } = await res.json();
+      const meData = await res.json();
+      const { user } = meData;
       const greet = document.querySelector('[data-greeting]');
       if (greet && user.name) greet.textContent = greet.dataset.template.replace('{name}', user.name);
       const avatar = document.querySelector('[data-avatar]');
@@ -347,6 +394,7 @@ document.documentElement.classList.add('js');
         fetch(`/api/stats?today=${today()}`, { credentials: 'same-origin' }).then((r) => (r.ok ? r.json() : null)),
       ]);
       applyProgress(progress.progress || []);
+      applyLocks(meData.access);
       if (stats) applyStats(stats);
       applyBadges(progress.progress || [], stats || {});
       const vaultCard = app.querySelector('[data-vault-card]');
@@ -368,7 +416,6 @@ document.documentElement.classList.add('js');
   // Plan (Free / Premium / Lifetime), test-access notice, admin link and voucher codes
   const planCard = app.querySelector('[data-plan]');
   const planT = (() => { try { return JSON.parse(planCard.dataset.t); } catch { return {}; } })();
-  const longDate = (ms) => new Date(ms).toLocaleDateString(document.documentElement.lang, { year: 'numeric', month: 'long', day: 'numeric' });
   const planLabel = (p) => (p.lifetime ? planT.lifetime : planT.until.replace('{date}', longDate(p.until)));
   function applyPlan(user) {
     if (!planCard) return;
@@ -376,6 +423,8 @@ document.documentElement.classList.add('js');
     planCard.classList.toggle('is-premium', !!p.active);
     planCard.classList.toggle('is-lifetime', !!p.lifetime);
     planCard.querySelector('[data-plan-name]').textContent = p.lifetime ? planT.lifetime : p.active ? planT.premium : planT.free;
+    const more = app.querySelector('[data-plan-more]');
+    if (more) more.hidden = !!p.lifetime;
     planCard.querySelector('[data-plan-sub]').textContent = p.lifetime ? planT.lifetimeText : p.active ? planT.until.replace('{date}', longDate(p.until)) : planT.freeText;
     document.querySelectorAll('[data-avatar]').forEach((a) => a.classList.toggle('is-premium', !!p.active));
     const test = app.querySelector('[data-plan-test]');
@@ -383,27 +432,30 @@ document.documentElement.classList.add('js');
     const adminLink = app.querySelector('[data-admin-link]');
     if (adminLink) adminLink.hidden = !user.admin;
   }
-  const redeemForm = app.querySelector('[data-redeem-form]');
-  redeemForm?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const box = redeemForm.querySelector('[data-auth-error]');
-    const okBox = redeemForm.querySelector('[data-redeem-ok]');
-    const input = redeemForm.elements.code;
-    const btn = redeemForm.querySelector('button');
-    box.hidden = true; okBox.hidden = true;
-    const code = input.value.trim();
-    if (!code) { input.focus(); return; }
-    btn.disabled = true;
-    const res = await post('/api/me/redeem', { code }).catch(() => null);
-    btn.disabled = false;
-    if (!res || !res.ok) { showError(box, messages, res ? res.data.error || 'server_error' : 'network'); return; }
-    input.value = '';
-    okBox.textContent = planT.redeemed.replace('{plan}', planLabel(res.data.premium));
-    okBox.hidden = false;
+  bindRedeem(app.querySelector('[data-redeem-form]'), messages, (p) => planT.redeemed.replace('{plan}', planLabel(p)), async () => {
     const me = await fetch('/api/me', { credentials: 'same-origin' }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
-    if (me) applyPlan(me.user);
-    window.HablenaSfx?.play?.('complete');
+    if (me) { applyPlan(me.user); applyLocks(me.access); }
   });
+
+  // Paywall (switched on in the admin portal): units after the free ones lead to the Premium page.
+  function applyLocks(access) {
+    const locked = !!access && access.paywall && !access.premium;
+    app.querySelectorAll('[data-unit]').forEach((unit) => {
+      const n = Number(unit.dataset.unit.replace(/^u/, ''));
+      const on = locked && n > access.freeUnits;
+      unit.classList.toggle('is-premium-locked', on);
+      unit.querySelectorAll('[data-go]').forEach((go) => {
+        go.dataset.href ||= go.getAttribute('href');
+        go.setAttribute('href', on ? D.premiumUrl : go.dataset.href);
+        if (on) go.textContent = D.premiumUnlock;
+        go.classList.toggle('lp-cta--gold', on);
+      });
+      unit.querySelectorAll('[data-story-node] a, [data-trophy]').forEach((a) => {
+        a.dataset.href ||= a.getAttribute('href');
+        a.setAttribute('href', on ? D.premiumUrl : a.dataset.href);
+      });
+    });
+  }
 
   const goalSelect = app.querySelector('[data-goal-select]');
   goalSelect?.addEventListener('change', async () => {

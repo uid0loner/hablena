@@ -72,6 +72,18 @@
     </div>
   </section>
 </div>
+<section class="lp-wall" data-wall hidden aria-labelledby="wall-title" data-practice-text="{{t.premium.practiceText}}" data-practice-title="{{t.premium.practiceTitle}}" data-guest-text="{{t.premium.guestText}}">
+  <div class="lp-wall__card">
+    <span class="lp-wall__crown" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 7l4.5 4L12 4l4.5 7L21 7l-2 12H5z" fill="currentColor"/></svg></span>
+    <p class="lp-wall__kicker">{{t.premium.wallKicker}}</p>
+    <h1 id="wall-title" data-wall-title>{{t.premium.wallTitle}}</h1>
+    <p class="lp-wall__text" data-wall-text>{{t.premium.wallText}}</p>
+    <ul class="lp-wall__list">{{#each t.premium.features}}<li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg><span>{{this}}</span></li>{{/each}}</ul>
+    <a class="lp-cta lp-cta--gold" href="{{t.links.premium}}">{{t.premium.see}}</a>
+    <a class="lp-cta lp-cta--ghost" href="{{loginUrl}}" data-wall-login hidden>{{t.premium.login}}</a>
+    <a class="lp-link" href="{{appUrl}}">{{t.premium.back}}</a>
+  </div>
+</section>
 <template id="mascot-tpl">{{> mascot}}</template>
 <script type="application/json" id="lesson-data">{{lessonJson}}</script>
 <script type="application/json" id="player-strings">{{stringsJson}}</script>

@@ -1787,3 +1787,84 @@ h1, h2, h3, p { margin: 0; }
 .lvl-badge--md { width: 48px; height: 52px; }
 .lvl-badge--md b { font-size: 19px; }
 .side-card--level .lp-level__bar span { transition: width .8s ease; }
+
+/* ==========================================================================
+   Premium: gold CTA, locked units on the path, paywall in the player, Premium page
+   ========================================================================== */
+.lp-cta--gold { --face: var(--gold); --ledge: #D9A600; --txt: var(--navy); }
+.punit__premium { display: none; margin-left: 10px; padding: 2px 8px 2px 6px; border-radius: 8px; background: var(--gold); color: var(--navy); font-size: 11px; letter-spacing: .08em; vertical-align: 1px; opacity: 1; }
+.punit__premium svg { display: inline-block; width: 12px; height: 12px; margin-right: 4px; vertical-align: -1px; }
+.punit.is-premium-locked .punit__premium { display: inline-block; }
+.punit.is-premium-locked .node__start { display: none !important; }
+.punit.is-premium-locked .node.is-current .node__btn { --face: var(--gold); --ledge: #D9A600; color: var(--navy); }
+.punit.is-premium-locked .node.is-current .node__btn::before { border-top-color: var(--gold); border-right-color: var(--gold); }
+.punit.is-premium-locked .node__pop-locked { display: none; }
+.punit.is-premium-locked .node.is-locked .node__go { display: flex; }
+
+.acct-plan__more { align-self: flex-start; margin-top: -4px; font-weight: 800; font-size: 14px; color: var(--pick); text-decoration: none; }
+.acct-plan__more:hover { text-decoration: underline; }
+
+/* Paywall in the lesson player */
+.lp-wall { flex: 1; width: 100%; display: grid; place-items: center; padding: 24px var(--gutter) 48px; animation: lp-up .3s ease; }
+.lp-wall__card { width: 100%; max-width: 480px; display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; }
+.lp-wall__crown { width: 88px; height: 88px; border-radius: 26px; display: grid; place-items: center; background: var(--gold); color: var(--navy); box-shadow: 0 6px 0 #D9A600; transform: rotate(-6deg); margin-bottom: 6px; }
+.lp-wall__crown svg { width: 50px; height: 50px; }
+.lp-wall__kicker { margin: 0; font-size: 13px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #B78A00; }
+.lp-wall h1 { margin: 0; font-family: var(--font-display); font-stretch: 105%; font-weight: 900; font-size: clamp(28px, 5vw, 38px); line-height: 1.05; color: var(--navy); }
+.lp-wall__text { margin: 0; font-size: 17px; line-height: 1.5; color: var(--ink-2); }
+.lp-wall__list { list-style: none; margin: 6px 0 8px; padding: 16px 18px; width: 100%; display: flex; flex-direction: column; gap: 10px; text-align: left; border: 2px solid #EEF0F5; border-radius: 16px; }
+.lp-wall__list li { display: flex; gap: 10px; align-items: flex-start; font-weight: 700; color: var(--navy); }
+.lp-wall__list svg { flex: none; width: 22px; height: 22px; color: var(--ok); }
+.lp-wall .lp-cta { width: 100%; }
+
+/* Premium page */
+.prem { max-width: 880px; margin: 0 auto; padding: 32px var(--gutter) 96px; display: flex; flex-direction: column; gap: 28px; }
+.prem__hero { position: relative; overflow: hidden; padding: 40px clamp(20px, 5vw, 48px); border-radius: 24px; background: var(--navy); color: var(--white); text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.prem__hero::before { content: ''; position: absolute; inset: auto -20% -60% -20%; height: 120%; background: radial-gradient(closest-side, rgba(255,196,0,.28), transparent 70%); pointer-events: none; }
+.prem__crown { position: relative; width: 84px; height: 84px; border-radius: 24px; display: grid; place-items: center; background: var(--gold); color: var(--navy); box-shadow: 0 6px 0 #D9A600; transform: rotate(-6deg); margin-bottom: 8px; }
+.prem__crown svg { width: 48px; height: 48px; }
+.prem__kicker { position: relative; margin: 0; font-size: 13px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
+.prem__hero h1 { position: relative; margin: 0; font-family: var(--font-display); font-stretch: 108%; font-weight: 900; font-size: clamp(32px, 5.4vw, 52px); line-height: 1; letter-spacing: -.01em; }
+.prem__lead { position: relative; margin: 0; max-width: 520px; font-size: 18px; line-height: 1.5; color: var(--navy-text); }
+.prem__status { position: relative; margin: 8px 0 0; padding: 10px 16px; border-radius: 12px; background: rgba(255,255,255,.1); font-weight: 800; color: var(--gold); }
+.prem__features { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.prem-feature { display: flex; align-items: center; gap: 14px; padding: 16px; border: 2px solid #EEF0F5; border-radius: 16px; font-weight: 800; color: var(--navy); line-height: 1.3; }
+.prem-feature__icon { flex: none; width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; color: var(--white); background: var(--red); box-shadow: 0 4px 0 var(--red-dark); }
+.prem-feature__icon svg { width: 24px; height: 24px; }
+.prem-feature--1 .prem-feature__icon { background: var(--pick); box-shadow: 0 4px 0 var(--pick-dark); }
+.prem-feature--2 .prem-feature__icon { background: var(--ok); box-shadow: 0 4px 0 var(--ok-dark); }
+.prem-feature--3 .prem-feature__icon { background: #7A3EC8; box-shadow: 0 4px 0 #5B2A99; }
+.prem__prices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.prem-price { position: relative; padding: 22px; border: 2px solid #EEF0F5; border-radius: 18px; display: flex; flex-direction: column; gap: 4px; }
+.prem-price--best { border-color: var(--gold); background: var(--gold-tint); }
+.prem-price__tag { position: absolute; top: -12px; right: 16px; padding: 4px 10px; border-radius: 8px; background: var(--red); color: var(--white); font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.prem-price__name { margin: 0; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; font-size: 13px; }
+.prem-price__amount { margin: 0; display: flex; align-items: baseline; gap: 6px; color: var(--navy); }
+.prem-price__amount b { font-family: var(--font-display); font-stretch: 105%; font-weight: 900; font-size: 38px; }
+.prem-price__amount span { font-weight: 700; color: var(--muted); }
+.prem-price__note { margin: 0; font-size: 14px; font-weight: 700; color: #8A6A00; }
+.prem__buy { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+.prem__buy p { margin: 0; max-width: 520px; font-size: 15px; color: var(--muted); }
+.prem__cta { width: 100%; max-width: 480px; gap: 10px; white-space: nowrap; }
+@media (max-width: 420px) { .prem__cta { white-space: normal; } }
+.prem__cta svg { width: 22px; height: 22px; }
+.prem__cta:disabled { --face: var(--gold-tint); --ledge: #F0D98A; --txt: #7A5B00; }
+.prem__compare h2, .prem__code h2 { margin: 0 0 12px; font-family: var(--font-display); font-stretch: 105%; font-weight: 900; font-size: 24px; color: var(--navy); }
+.prem-table { width: 100%; border-collapse: separate; border-spacing: 0; border: 2px solid #EEF0F5; border-radius: 16px; overflow: hidden; font-size: 15px; }
+.prem-table th, .prem-table td { padding: 13px 14px; text-align: left; border-bottom: 1px solid #EEF0F5; }
+.prem-table tr:last-child th, .prem-table tr:last-child td { border-bottom: 0; }
+.prem-table thead th { background: var(--surface); font-size: 13px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.prem-table thead th.is-premium { color: #8A6A00; }
+.prem-table thead th svg { display: inline-block; width: 14px; height: 14px; margin-right: 5px; vertical-align: -1px; color: var(--gold); }
+.prem-table tbody th { font-weight: 700; color: var(--navy); }
+.prem-table td { color: var(--ink-2); }
+.prem-table td.is-premium { background: #FFFBEB; font-weight: 800; color: var(--navy); }
+.prem__code { padding: 22px; border: 2px solid #EEF0F5; border-radius: 18px; }
+.prem__login { width: 100%; }
+.prem__back { align-self: center; font-weight: 800; color: var(--pick); text-decoration: none; }
+.prem.is-premium .prem__buy { display: none; }
+@media (max-width: 640px) {
+  .prem__features, .prem__prices { grid-template-columns: minmax(0, 1fr); }
+  .prem-table { font-size: 14px; }
+  .prem-table th, .prem-table td { padding: 11px 10px; }
+}

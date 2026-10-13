@@ -63,7 +63,9 @@
     "privacy": "/privacy/",
     "signup": "/signup/",
     "login": "/login/",
-    "vocab": "/vocabulary/"
+    "vocab": "/vocabulary/",
+    "premium": "/app/premium/",
+    "app": "/app/"
   },
   "conj": {
     "slug": "conjugation",
@@ -750,5 +752,79 @@
     "sideText": "{n} words learned, {weak} getting weak.",
     "sideTextNone": "Learn words in your lessons and they will show up here.",
     "sideButton": "Open vocabulary"
+  },
+  "premium": {
+    "badge": "Premium",
+    "unlock": "Unlock with Premium",
+    "unitLocked": "This unit is part of Premium.",
+    "wallKicker": "Hablena Premium",
+    "wallTitle": "This lesson is part of Premium",
+    "wallText": "With Premium you get the whole course: every unit, story and unit test – plus every new lesson.",
+    "practiceTitle": "That's enough practice for today",
+    "practiceText": "Free includes {n} practice sessions a day. With Premium you practise as often as you like – and Hablena remembers every weak word.",
+    "guestText": "Log in to keep learning. Premium opens the whole course.",
+    "see": "See Premium",
+    "back": "Back to the course",
+    "login": "Log in",
+    "features": [
+      "Every unit and every new lesson",
+      "Practice without a daily limit",
+      "All stories and unit tests",
+      "Coming soon: real conversations with Hablena"
+    ],
+    "pageTitle": "Hablena Premium",
+    "pageLead": "Learn as much and as often as you like – with every unit, story and test.",
+    "compareTitle": "Free and Premium compared",
+    "compareFeature": "Feature",
+    "rows": [
+      {
+        "name": "Units",
+        "free": "Unit {free}",
+        "premium": "All {units} units + new ones"
+      },
+      {
+        "name": "Practice",
+        "free": "{practice}× a day",
+        "premium": "No limit"
+      },
+      {
+        "name": "Stories to listen to",
+        "free": "Unit {free}",
+        "premium": "All"
+      },
+      {
+        "name": "Unit tests",
+        "free": "Unit {free}",
+        "premium": "All"
+      },
+      {
+        "name": "Word vault",
+        "free": "Yes",
+        "premium": "Yes"
+      },
+      {
+        "name": "Conjugator & grammar",
+        "free": "Yes",
+        "premium": "Yes"
+      },
+      {
+        "name": "Streak, XP & daily quests",
+        "free": "Yes",
+        "premium": "Yes"
+      }
+    ],
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "yearlySave": "Save 50%",
+    "perMonth": "/ month",
+    "perYear": "/ year",
+    "yearlyNote": "that's €5 a month",
+    "soon": "Payment opens soon",
+    "soonText": "Right now Hablena is still completely free. As soon as Premium can be booked, you'll find it right here.",
+    "haveCode": "Got a voucher code?",
+    "active": "You have Premium – active until {date}.",
+    "lifetimeActive": "You have Premium Lifetime. ¡Gracias!",
+    "freeOpen": "Everything is unlocked right now – just start learning.",
+    "yearlyPrice": "€59.99"
   }
 }

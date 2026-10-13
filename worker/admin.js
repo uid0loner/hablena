@@ -1,6 +1,7 @@
 // Admin API (/api/admin/*): user management, premium, test accounts, codes and an audit log.
 // Admins are users with role 'admin' or whose email is listed in the ADMIN_EMAILS variable.
 // Every change is written to admin_log. Shared helpers are passed in from index.js.
+import { getSettings, cleanSettings, saveSettings } from './access.js';
 
 export const LIFETIME = 253402214400000; // 9999-12-31, means "premium forever"
 const DAY = 86_400_000;
@@ -83,6 +84,7 @@ export async function handleAdmin(request, env, url, route, h) {
       totals: { users: users.n, newWeek: newWeek.n, premium: premium.n, lifetime: lifetime.n, blocked: blocked.n, tests: tests.n, activeToday: activeToday.n, activeWeek: activeWeek.n, lessonsWeek: lessonsWeek.n, xpWeek: xpWeek.n },
       days,
       recent,
+      settings: await getSettings(env),
       me: { id: admin.id, email: admin.email },
     });
   }
@@ -171,6 +173,20 @@ export async function handleAdmin(request, env, url, route, h) {
     if (!res.meta?.changes) return json({ error: 'not_found' }, 404);
     await log(`code_${codeMatch[2]}d`, null, { code: codeMatch[1] });
     return ok();
+  }
+
+  // ---------- settings (paywall) ----------
+  if (route === 'GET /api/admin/settings') {
+    const settings = await getSettings(env);
+    const affected = await env.DB.prepare('SELECT COUNT(*) AS n FROM users WHERE (premium_until IS NULL OR premium_until <= ?) AND role != ?').bind(now, 'admin').first();
+    return ok({ settings, freeUsers: affected.n });
+  }
+  if (route === 'POST /api/admin/settings') {
+    const values = cleanSettings(await readJson(request));
+    if (!values || values.error) return json({ error: 'invalid_request', field: values?.error }, 400);
+    await saveSettings(env, values, admin.email);
+    await log('settings_updated', null, values);
+    return ok({ settings: await getSettings(env) });
   }
 
   // ---------- log ----------

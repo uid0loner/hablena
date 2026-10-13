@@ -203,7 +203,7 @@
 
   function route() {
     const [path, query = ''] = location.hash.replace(/^#\/?/, '').split('?');
-    const name = ['overview', 'users', 'test', 'codes', 'log'].includes(path) ? path : 'overview';
+    const name = ['overview', 'users', 'test', 'codes', 'settings', 'log'].includes(path) ? path : 'overview';
     const params = new URLSearchParams(query);
     $$('[data-nav]').forEach((a) => {
       const on = a.dataset.nav === name;
@@ -214,7 +214,7 @@
     if (name === 'users' && params.has('q')) { usersState.q = params.get('q'); usersState.page = 0; }
     current = name;
     view.innerHTML = '<div class="adm-loading"><span class="adm-spin"></span></div>';
-    ({ overview: renderOverview, users: renderUsers, test: renderTest, codes: renderCodes, log: renderLog })[name]();
+    ({ overview: renderOverview, users: renderUsers, test: renderTest, codes: renderCodes, settings: renderSettings, log: renderLog })[name]();
     $('#main').focus({ preventScroll: true });
     window.scrollTo(0, 0);
   }
@@ -243,7 +243,7 @@
     const pct = a ? Math.min(100, Math.round((a.charsThisMonth / Math.max(1, a.monthlyLimit)) * 100)) : 0;
     view.innerHTML = `
       <header class="adm-head">
-        <div><h1>Übersicht</h1><p>Stand ${esc(fmtDateTime(Date.now()))}</p></div>
+        <div><h1>Übersicht</h1><p>Stand ${esc(fmtDateTime(Date.now()))} · <a href="#/settings" class="badge ${r.data.settings?.paywall ? 'badge--premium' : 'badge--ok'}" style="text-decoration:none">${r.data.settings?.paywall ? `Paywall an · ${r.data.settings.freeUnits} freie Einheit${r.data.settings.freeUnits === 1 ? '' : 'en'}` : 'Paywall aus · alles frei'}</a></p></div>
         <div class="adm-head__actions">
           <a class="adm-btn" href="#/codes">${ICON.plus}Gutscheincodes</a>
           <a class="adm-btn adm-btn--gold" href="#/test">${ICON.plus}Testzugang</a>
@@ -666,7 +666,7 @@
     premium_granted: 'Premium vergeben', premium_revoked: 'Premium entzogen', user_updated: 'Konto geändert',
     password_reset: 'Passwort zurückgesetzt', sessions_ended: 'Überall abgemeldet', user_deleted: 'Konto gelöscht',
     test_account_created: 'Testzugang erstellt', codes_created: 'Codes erstellt', code_disabled: 'Code deaktiviert',
-    code_enabled: 'Code aktiviert', code_redeemed: 'Code eingelöst',
+    code_enabled: 'Code aktiviert', code_redeemed: 'Code eingelöst', settings_updated: 'Einstellungen geändert',
   };
   const actionLabel = (a) => ACTIONS[a] || a;
   function detailText(e) {
@@ -688,6 +688,13 @@
       case 'codes_created': return `${d.count} × ${d.lifetime ? 'Lifetime' : daysLabel(d.days)}, je ${d.maxUses}× einlösbar`;
       case 'code_disabled': case 'code_enabled': return d.code || '';
       case 'code_redeemed': return `${d.code || ''} → ${d.until === LIFETIME ? 'Lifetime' : `bis ${fmtDate(d.until)}`}`;
+      case 'settings_updated': {
+        const parts = [];
+        if (d.paywall) parts.push(`Paywall ${d.paywall === 'on' ? 'an' : 'aus'}`);
+        if (d.freeUnits) parts.push(`${d.freeUnits} freie Einheit${d.freeUnits === '1' ? '' : 'en'}`);
+        if (d.freePracticePerDay !== undefined) parts.push(`${d.freePracticePerDay}× Üben am Tag`);
+        return parts.join(', ');
+      }
       case 'test_account_created': return `Zugang ${d.accountDays ? daysLabel(d.accountDays) : 'unbefristet'}, Premium ${d.lifetime ? 'Lifetime' : d.premiumDays ? daysLabel(d.premiumDays) : 'keins'}`;
       default: return '';
     }
@@ -923,6 +930,58 @@
       const data = await act(`/api/admin/codes/${encodeURIComponent(b.dataset.codeToggle)}/${b.dataset.to}`, {}, b.dataset.to === 'disable' ? 'Code deaktiviert' : 'Code aktiviert');
       if (data) loadCodes();
     }));
+  }
+
+  // ======================================================================
+  // Settings (paywall)
+  // ======================================================================
+  async function renderSettings() {
+    const r = await api('/api/admin/settings');
+    if (current !== 'settings') return;
+    if (!r.ok) { view.innerHTML = `<div class="adm-empty">${esc(errorText(r.data.error))}</div>`; return; }
+    const st = r.data.settings;
+    view.innerHTML = `
+      <header class="adm-head"><div><h1>Einstellungen</h1><p>Was Free-Nutzer bekommen und was Premium freischaltet. Premium-Nutzer und Admins sind nie eingeschränkt.</p></div></header>
+      <div class="adm-split">
+        <section class="adm-card">
+          <div class="adm-card__head"><h2>Paywall</h2><span class="badge ${st.paywall ? 'badge--premium' : 'badge--ok'}" data-pw-badge>${st.paywall ? 'Aktiv' : 'Aus'}</span></div>
+          <form class="adm-card__body" data-settings-form novalidate>
+            <label class="adm-switch">
+              <input type="checkbox" name="paywall"${st.paywall ? ' checked' : ''}>
+              <span class="adm-switch__track" aria-hidden="true"><span></span></span>
+              <span><b>Paywall einschalten</b><small>Ausgeschaltet ist der ganze Kurs für alle kostenlos.</small></span>
+            </label>
+            <div class="adm-row" style="margin-top:20px;align-items:flex-start">
+              <label class="adm-field"><span>Kostenlose Einheiten</span><input class="adm-input" type="number" name="freeUnits" min="1" max="99" value="${st.freeUnits}"><small>Einheit 1 bis zu dieser Zahl ist für alle frei.</small></label>
+              <label class="adm-field"><span>Üben pro Tag (Free)</span><input class="adm-input" type="number" name="freePracticePerDay" min="0" max="50" value="${st.freePracticePerDay}"><small>Übungsrunden ohne Premium pro Tag. 0 = Üben nur mit Premium.</small></label>
+            </div>
+            <div class="adm-row" style="margin-top:20px"><button class="adm-btn adm-btn--primary" type="submit">Speichern</button></div>
+          </form>
+        </section>
+        <section class="adm-card">
+          <div class="adm-card__head"><h2>Auswirkung</h2></div>
+          <div class="adm-card__body" style="font-size:14px;color:var(--ink-2)">
+            <p style="margin-top:0"><b data-pw-free>${nf.format(r.data.freeUsers)}</b> ${r.data.freeUsers === 1 ? 'Konto ohne Premium wäre' : 'Konten ohne Premium wären'} mit Paywall eingeschränkt.</p>
+            <ul style="padding-left:18px;margin:0 0 12px">
+              <li>Einheiten nach den freien führen zur Premium-Seite (Lektionen, Geschichten, Einheitentests).</li>
+              <li>Fortschritt in gesperrten Einheiten wird nicht gespeichert.</li>
+              <li>Nach dem Übungslimit erscheint ein Premium-Hinweis.</li>
+            </ul>
+            <p style="margin-bottom:0" class="muted">Solange die Bezahlung (Paddle) nicht angebunden ist, gibt es Premium nur über dich: im Benutzer-Panel, per Testzugang oder Gutscheincode.</p>
+          </div>
+        </section>
+      </div>`;
+    const form = $('[data-settings-form]');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const f = form.elements;
+      const body = { paywall: f.paywall.checked, freeUnits: Math.round(Number(f.freeUnits.value)), freePracticePerDay: Math.round(Number(f.freePracticePerDay.value)) };
+      if (!(body.freeUnits >= 1 && body.freeUnits <= 99)) return toast('Kostenlose Einheiten: 1 bis 99.', true);
+      if (!(body.freePracticePerDay >= 0 && body.freePracticePerDay <= 50)) return toast('Üben pro Tag: 0 bis 50.', true);
+      if (body.paywall && !st.paywall && !(await confirmDialog({ title: 'Paywall einschalten?', html: `<p>${nf.format(r.data.freeUsers)} ${r.data.freeUsers === 1 ? 'Konto ohne Premium sieht' : 'Konten ohne Premium sehen'} danach nur noch ${body.freeUnits === 1 ? 'Einheit 1' : `Einheit 1–${body.freeUnits}`} und ${r.data.freeUsers === 1 ? 'kann' : 'können'} ${body.freePracticePerDay}× am Tag üben.</p>`, ok: 'Einschalten', danger: false }))) return;
+      const data = await act('/api/admin/settings', body, 'Einstellungen gespeichert');
+      if (data) renderSettings();
+    });
   }
 
   // ======================================================================

@@ -130,7 +130,7 @@ export function accountPages(t, urls, otherLang, site) {
     <section class="punit punit--${ui % 5}" aria-labelledby="unit-${u.id}" data-unit="${u.id}">
       <header class="punit__banner">
         <div>
-          <p class="punit__kicker">${esc(a.unit)} ${ui + 1} · ${u.level}</p>
+          <p class="punit__kicker">${esc(a.unit)} ${ui + 1} · ${u.level}<span class="punit__premium"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7l4.5 4L12 4l4.5 7L21 7l-2 12H5z" fill="currentColor"/></svg>${esc(t.premium.badge)}</span></p>
           <h2 id="unit-${u.id}">${esc(u.title[lang])}</h2>
         </div>
         <div class="punit__side">
@@ -174,7 +174,7 @@ export function accountPages(t, urls, otherLang, site) {
     description: a.appTitle,
     vars: { appUrl: urls.app(lang), wordsUrl: urls.words(lang), learnActive: ' is-active', wordsActive: '' },
     content: `
-<div class="learn" data-app data-login="${urls.login(lang)}" data-home="${urls.home(lang)}" data-messages="${messages}" data-score-label="${esc(ap.bestScore)}" data-review-label="${esc(ap.review)}" data-start-label="${esc(ap.start)}" data-goal-text="${esc(ap.goalText)}" data-goal-done="${esc(ap.goalDone)}" data-streak-hint="${esc(ap.streakHint)}" data-streak-active="${esc(ap.streakActive)}">
+<div class="learn" data-app data-premium-url="${urls.premium(lang)}" data-premium-unlock="${esc(t.premium.unlock)}" data-login="${urls.login(lang)}" data-home="${urls.home(lang)}" data-messages="${messages}" data-score-label="${esc(ap.bestScore)}" data-review-label="${esc(ap.review)}" data-start-label="${esc(ap.start)}" data-goal-text="${esc(ap.goalText)}" data-goal-done="${esc(ap.goalDone)}" data-streak-hint="${esc(ap.streakHint)}" data-streak-active="${esc(ap.streakActive)}">
   <div class="learn__path">
     <h1 class="learn__hello" data-greeting data-template="${esc(a.greeting)}" data-fallback="${esc(a.greetingNoName)}">${esc(a.greetingNoName)}</h1>
     <p class="learn__motive" data-motive-line data-lines="${esc(JSON.stringify(a.motiveLine))}" hidden></p>
@@ -252,6 +252,7 @@ export function accountPages(t, urls, otherLang, site) {
         <span class="acct-plan__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 7l4.5 4L12 4l4.5 7L21 7l-2 12H5z" fill="currentColor"/></svg></span>
         <span class="acct-plan__text"><strong data-plan-name>${esc(a.plan.free)}</strong><span data-plan-sub>${esc(a.plan.freeText)}</span></span>
       </div>
+      <a class="acct-plan__more" href="${urls.premium(lang)}" data-plan-more>${esc(t.premium.see)} →</a>
       <p class="acct-plan__test" data-plan-test hidden></p>
       <dl class="account__facts">
         <div><dt>${esc(a.email)}</dt><dd data-user-email>…</dd></div>

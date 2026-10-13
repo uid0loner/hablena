@@ -63,7 +63,9 @@
     "privacy": "/de/datenschutz/",
     "signup": "/de/registrieren/",
     "login": "/de/anmelden/",
-    "vocab": "/de/wortschatz/"
+    "vocab": "/de/wortschatz/",
+    "premium": "/de/app/premium/",
+    "app": "/de/app/"
   },
   "conj": {
     "slug": "konjugation",
@@ -750,5 +752,79 @@
     "sideText": "{n} Wörter gelernt, {weak} werden schwach.",
     "sideTextNone": "Lerne Wörter in deinen Lektionen, sie landen dann hier.",
     "sideButton": "Zum Wortschatz"
+  },
+  "premium": {
+    "badge": "Premium",
+    "unlock": "Mit Premium freischalten",
+    "unitLocked": "Diese Einheit gehört zu Premium.",
+    "wallKicker": "Hablena Premium",
+    "wallTitle": "Diese Lektion gehört zu Premium",
+    "wallText": "Mit Premium lernst du den ganzen Kurs: alle Einheiten, Geschichten und Einheitentests – und jede neue Lektion.",
+    "practiceTitle": "Für heute genug geübt",
+    "practiceText": "Mit Free übst du {n}× am Tag. Mit Premium übst du so oft du willst – und Hablena merkt sich jedes schwache Wort.",
+    "guestText": "Melde dich an, um weiterzulernen. Mit Premium ist der ganze Kurs offen.",
+    "see": "Premium ansehen",
+    "back": "Zurück zum Kurs",
+    "login": "Anmelden",
+    "features": [
+      "Alle Einheiten und jede neue Lektion",
+      "Üben ohne Tageslimit",
+      "Alle Geschichten und Einheitentests",
+      "Bald: echte Gespräche mit Hablena"
+    ],
+    "pageTitle": "Hablena Premium",
+    "pageLead": "Lern so viel und so oft du willst – mit allen Einheiten, Geschichten und Tests.",
+    "compareTitle": "Free und Premium im Vergleich",
+    "compareFeature": "Funktion",
+    "rows": [
+      {
+        "name": "Einheiten",
+        "free": "Einheit {free}",
+        "premium": "Alle {units} Einheiten + neue"
+      },
+      {
+        "name": "Üben",
+        "free": "{practice}× am Tag",
+        "premium": "Ohne Limit"
+      },
+      {
+        "name": "Geschichten zum Anhören",
+        "free": "Einheit {free}",
+        "premium": "Alle"
+      },
+      {
+        "name": "Einheitentests",
+        "free": "Einheit {free}",
+        "premium": "Alle"
+      },
+      {
+        "name": "Wortschatz-Tresor",
+        "free": "Ja",
+        "premium": "Ja"
+      },
+      {
+        "name": "Konjugator & Grammatik",
+        "free": "Ja",
+        "premium": "Ja"
+      },
+      {
+        "name": "Streak, XP & Tagesaufgaben",
+        "free": "Ja",
+        "premium": "Ja"
+      }
+    ],
+    "monthly": "Monatlich",
+    "yearly": "Jährlich",
+    "yearlySave": "50 % sparen",
+    "perMonth": "/ Monat",
+    "perYear": "/ Jahr",
+    "yearlyNote": "entspricht 5 € im Monat",
+    "soon": "Bezahlung startet in Kürze",
+    "soonText": "Im Moment ist Hablena noch komplett kostenlos. Sobald Premium buchbar ist, findest du es genau hier.",
+    "haveCode": "Du hast einen Gutscheincode?",
+    "active": "Du hast Premium – aktiv bis {date}.",
+    "lifetimeActive": "Du hast Premium Lifetime. ¡Gracias!",
+    "freeOpen": "Gerade ist alles freigeschaltet – lern einfach los.",
+    "yearlyPrice": "59,99 €"
   }
 }

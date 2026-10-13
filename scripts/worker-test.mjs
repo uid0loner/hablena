@@ -290,6 +290,41 @@ await call('POST', '/api/progress', { cookie: li.cookie, body: { lessonId: 'u1-l
   check('codes list', (await acall('GET', '/api/admin/codes', { cookie: bossCookie })).data.codes.length === 3);
   check('bad code format', (await acall('POST', '/api/me/redeem', { cookie: pc, body: { code: '<x>' } })).status === 400);
 
+  // Paywall (settings)
+  {
+    const guest = await acall('GET', '/api/access');
+    check('access: public, paywall off by default', guest.status === 200 && guest.data.paywall === false && guest.data.loggedIn === false && guest.data.freeUnits === 1);
+    const freeSignup = await acall('POST', '/api/auth/signup', { body: { email: 'free@example.com', password: 'correct horse battery' }, ip: '7.7.7.9' });
+    const fc = cookieOf(freeSignup);
+    const S = (body, cookie = bossCookie) => acall('POST', '/api/admin/settings', { cookie, body });
+    check('settings: normal user forbidden', (await S({ paywall: true }, fc)).status === 403);
+    check('settings: invalid value rejected', (await S({ freeUnits: 0 })).status === 400);
+    const set = await S({ paywall: true, freeUnits: 1, freePracticePerDay: 1 });
+    check('settings: saved', set.status === 200 && set.data.settings.paywall === true && set.data.settings.freePracticePerDay === 1);
+    check('settings: readable with free-user count', (await acall('GET', '/api/admin/settings', { cookie: bossCookie })).data.freeUsers >= 1);
+    const today = new Date().toISOString().slice(0, 10);
+    const save = (cookie, lessonId, extra = {}) => acall('POST', '/api/progress', { cookie, body: { lessonId, correct: 5, total: 6, today, ...extra } });
+    check('paywall: free unit allowed', (await save(fc, 'u1-l1')).status === 200);
+    const locked = await save(fc, 'u2-l1');
+    check('paywall: premium unit locked', locked.status === 402 && locked.data.error === 'premium_required');
+    check('paywall: premium story locked', (await save(fc, 'u2-s1')).status === 402);
+    check('paywall: premium unit test locked', (await save(fc, 'practice', { unit: 'u3' })).status === 402);
+    check('paywall: first practice allowed', (await save(fc, 'practice')).status === 200);
+    const limit = await save(fc, 'practice');
+    check('paywall: daily practice limit', limit.status === 402 && limit.data.error === 'practice_limit');
+    const acc = await acall('GET', `/api/access?today=${today}`, { cookie: fc });
+    check('access: logged-in view', acc.data.paywall === true && acc.data.premium === false && acc.data.practiceToday === 1 && acc.data.loggedIn === true);
+    check('me: access block', (await acall('GET', '/api/me', { cookie: fc })).data.access.paywall === true);
+    check('paywall: admins are never limited', (await save(bossCookie, 'u4-l1')).status === 200);
+    const freeId = env.DB.raw.prepare("SELECT id FROM users WHERE email = 'free@example.com'").get().id;
+    await acall('POST', `/api/admin/users/${freeId}/premium`, { cookie: bossCookie, body: { mode: 'days', days: 1 } });
+    check('paywall: premium unlocks units', (await save(fc, 'u2-l1')).status === 200);
+    check('paywall: premium practises without limit', (await save(fc, 'practice')).status === 200);
+    check('access: premium flag', (await acall('GET', '/api/access', { cookie: fc })).data.premium === true);
+    await S({ paywall: false });
+    check('paywall off: everything open again', (await save(cookieOf(await acall('POST', '/api/auth/login', { body: { email: 'free@example.com', password: 'correct horse battery' }, ip: '7.7.7.9' })), 'u5-l1')).status === 200);
+  }
+
   // Log and deletion
   const lg = await acall('GET', '/api/admin/log', { cookie: bossCookie });
   check('audit log', lg.status === 200 && lg.data.entries.some((e) => e.action === 'premium_granted') && lg.data.entries.some((e) => e.action === 'code_redeemed'));

@@ -67,6 +67,7 @@ no tracking, self-hosted fonts). Update it whenever accounts, payments or new se
 | `GET /api/me` | current user |
 | `POST /api/me/delete` | delete account (password required) |
 | `POST /api/me/redeem` | redeem a premium voucher code |
+| `GET /api/access` | paywall rules, premium and today's practice count for the visitor |
 | `/api/admin/*` | admin portal API (see below) |
 | `GET /api/progress` | lesson progress of the current user |
 | `POST /api/progress` | save a lesson result, returns XP and streak |
@@ -104,7 +105,15 @@ German, noindex) manages accounts through `/api/admin/*` (`worker/admin.js`):
 Who is admin: everyone whose login email is listed in the Cloudflare variable `ADMIN_EMAILS`
 (comma-separated, Worker → Settings → Variables and Secrets), plus users given the admin role in the portal.
 Premium is stored as `users.premium_until` (lifetime = year 9999); `GET /api/me` returns `premium`, `admin`
-and `expiresAt`. A paywall is not active yet (`PAYWALL` is reserved for it); payments come later.
+and `expiresAt`.
+
+- **Einstellungen**: the paywall (off by default) with the number of free units and free practice sessions
+  per day, stored in the `settings` table. When it is on, learners without premium see a premium screen in
+  lessons, stories and unit tests after the free units and after the daily practice limit; the Worker also
+  refuses to save progress there (`402 premium_required` / `practice_limit`). Premium users and admins are never
+  limited. `GET /api/access` (public) tells pages the current rules. The Premium page lives at `/app/premium/`
+  (prices, Free vs Premium, voucher codes); its buy button says "soon" until payments (Paddle) are connected.
+  Lesson content itself is part of the static pages, so the paywall is a product gate, not DRM.
 
 ## Course
 
