@@ -6,7 +6,7 @@ const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replac
 function address(site, lang) {
   return `${esc(site.owner)}<br>${esc(site.street)}<br>${esc(site.zip)} ${esc(site.city)}<br>${esc(site.country[lang])}`;
 }
-const mail = (site) => `<a href="mailto:${esc(site.email)}">${esc(site.email)}</a>`;
+const mail = (site, key = 'email') => `<a href="mailto:${esc(site[key])}">${esc(site[key])}</a>`;
 
 const IMPRINT = {
   de: (s) => `
@@ -35,7 +35,7 @@ const PRIVACY = {
 <p class="legal__note">Kurz gesagt: Hablena nutzt kein Tracking und keine Analyse-Tools und lädt keine Inhalte von Drittanbietern wie Google Fonts. Ein Cookie setzen wir nur, wenn du dich anmeldest, damit du eingeloggt bleibst. Für ein Benutzerkonto speichern wir nur das, was dafür nötig ist.</p>
 
 <h2>1. Verantwortlicher</h2>
-<p>${address(s, 'de')}<br>E-Mail: ${mail(s)}</p>
+<p>${address(s, 'de')}<br>E-Mail: ${mail(s)}<br>Fragen zum Datenschutz: ${mail(s, 'privacyEmail')}</p>
 
 <h2>2. Hosting und Auslieferung der Website</h2>
 <p>Diese Website wird über Cloudflare ausgeliefert (Cloudflare, Inc., 101 Townsend St., San Francisco, CA 94107, USA). Beim Aufruf einer Seite verarbeitet Cloudflare technisch notwendige Daten, insbesondere Ihre IP-Adresse, Datum und Uhrzeit des Zugriffs, die aufgerufene Adresse sowie Browser- und Geräteinformationen. Diese Daten werden benötigt, um die Website auszuliefern und vor Angriffen zu schützen.</p>
@@ -58,7 +58,7 @@ const PRIVACY = {
 <p>Wenn Sie uns per E-Mail kontaktieren, verarbeiten wir Ihre Angaben, um Ihre Anfrage zu beantworten. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO, soweit Ihre Anfrage mit einem Vertrag zusammenhängt, ansonsten Art. 6 Abs. 1 lit. f DSGVO. Wir löschen die Daten, sobald sie für die Bearbeitung nicht mehr erforderlich sind und keine gesetzlichen Aufbewahrungspflichten bestehen.</p>
 
 <h2>6. Ihre Rechte</h2>
-<p>Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18), Datenübertragbarkeit (Art. 20) und Widerspruch gegen Verarbeitungen auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO (Art. 21). Wenden Sie sich dazu einfach per E-Mail an uns.</p>
+<p>Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18), Datenübertragbarkeit (Art. 20) und Widerspruch gegen Verarbeitungen auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO (Art. 21). Wenden Sie sich dazu einfach per E-Mail an ${mail(s, 'privacyEmail')}.</p>
 <p>Außerdem können Sie sich bei einer Datenschutz-Aufsichtsbehörde beschweren, zum Beispiel bei der für uns zuständigen Landesbeauftragten für Datenschutz und Informationsfreiheit der Freien Hansestadt Bremen.</p>
 
 <h2>7. Änderungen</h2>
@@ -69,7 +69,7 @@ const PRIVACY = {
 <p class="legal__note">In short: Hablena uses no tracking or analytics tools and loads nothing from third parties such as Google Fonts. We only set a cookie when you log in, so that you stay logged in. For a user account we store only what is needed for it.</p>
 
 <h2>1. Controller</h2>
-<p>${address(s, 'en')}<br>Email: ${mail(s)}</p>
+<p>${address(s, 'en')}<br>Email: ${mail(s)}<br>Privacy questions: ${mail(s, 'privacyEmail')}</p>
 
 <h2>2. Hosting and delivery of the website</h2>
 <p>This website is delivered via Cloudflare (Cloudflare, Inc., 101 Townsend St., San Francisco, CA 94107, USA). When you open a page, Cloudflare processes technically necessary data, in particular your IP address, the date and time of access, the requested address and browser and device information. This data is needed to deliver the website and protect it against attacks.</p>
@@ -92,7 +92,7 @@ const PRIVACY = {
 <p>If you contact us by email, we process your details to answer your request. The legal basis is Art. 6(1)(b) GDPR where your request relates to a contract, otherwise Art. 6(1)(f) GDPR. We delete the data once it is no longer needed for handling your request and no statutory retention obligations apply.</p>
 
 <h2>6. Your rights</h2>
-<p>You have the right of access (Art. 15 GDPR), rectification (Art. 16), erasure (Art. 17), restriction of processing (Art. 18), data portability (Art. 20) and to object to processing based on Art. 6(1)(f) GDPR (Art. 21). Simply contact us by email.</p>
+<p>You have the right of access (Art. 15 GDPR), rectification (Art. 16), erasure (Art. 17), restriction of processing (Art. 18), data portability (Art. 20) and to object to processing based on Art. 6(1)(f) GDPR (Art. 21). Simply email us at ${mail(s, 'privacyEmail')}.</p>
 <p>You also have the right to lodge a complaint with a data protection supervisory authority, for example the State Commissioner for Data Protection and Freedom of Information of the Free Hanseatic City of Bremen, which is responsible for us.</p>
 
 <h2>7. Changes</h2>

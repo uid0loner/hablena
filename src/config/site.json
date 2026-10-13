@@ -3,7 +3,15 @@
   "street": "Neue Str. 62",
   "zip": "27576",
   "city": "Bremerhaven",
-  "country": { "en": "Germany", "de": "Deutschland" },
+  "country": {
+    "en": "Germany",
+    "de": "Deutschland"
+  },
   "email": "support@hablena.com",
-  "legalUpdated": { "en": "October 2026", "de": "Oktober 2026" }
+  "legalUpdated": {
+    "en": "October 2026",
+    "de": "Oktober 2026"
+  },
+  "privacyEmail": "privacy@hablena.com",
+  "securityEmail": "security@hablena.com"
 }

@@ -1,0 +1,8 @@
+# Found a security issue in Hablena? Thank you – please tell us privately.
+Contact: mailto:security@hablena.com
+Expires: 2027-10-13T00:00:00.000Z
+Preferred-Languages: de, en
+Canonical: https://hablena.com/.well-known/security.txt
+
+# Please do not access or change other people's data, do not run denial-of-service
+# or spam tests, and give us reasonable time to fix an issue before publishing it.
