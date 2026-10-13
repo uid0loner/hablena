@@ -106,7 +106,7 @@
 
   // ---------- state ----------
   let steps = L.exercises || [];
-  let scored = steps.filter((s) => s.t !== 'intro').length;
+  let scored = steps.filter((s) => s.t !== 'intro' && s.t !== 'line').length;
   let index = 0;
   let correct = 0;
   let combo = 0;
@@ -201,8 +201,48 @@
     return shuffle(pool).slice(0, n);
   };
 
+  // ---------- story mode: the conversation builds up on screen, questions in between ----------
+  let thread = null;
+  const storyHead = () => {
+    stage.innerHTML = '';
+    stage.classList.add('lp-stage--story');
+    const faces = (L.cast || []).map((r) => h('span', { class: `st-face lp-say__face--${r}`, html: SPEAKERS[r]?.svg || '' }));
+    stage.append(h('header', { class: 'st-head' },
+      h('div', { class: 'st-head__faces', 'aria-hidden': 'true' }, faces),
+      h('p', { class: 'st-head__kicker' }, S.storyKicker),
+      h('h1', { class: 'st-head__title' }, L.title),
+      h('p', { class: 'st-head__scene' }, L.scene),
+      h('p', { class: 'st-head__hint' }, S.tapToTranslate)));
+    thread = h('div', { class: 'st-thread' });
+    stage.append(thread);
+  };
+  const scrollToEnd = (el) => setTimeout(() => el.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' }), 30);
+
   // ---------- step renderers ----------
   const render = {
+    line(step) {
+      const who = SPEAKERS[step.s] || {};
+      const narrator = step.s === 'hablena' || !who.svg;
+      const side = narrator ? 'narrator' : (L.cast.indexOf(step.s) % 2 ? 'right' : 'left');
+      const tr = h('span', { class: 'st-line__tr', hidden: true }, step.tr);
+      const bubble = h('button', { type: 'button', class: 'st-line__bubble', onclick: () => { tr.hidden = !tr.hidden; speak(step.es, step.s); } },
+        narrator ? null : h('span', { class: 'st-line__name' }, who.name),
+        h('span', { class: 'st-line__es', lang: 'es' }, step.es), tr);
+      const row = h('div', { class: `st-line st-line--${side}` },
+        narrator ? null : h('span', { class: `st-face lp-say__face--${step.s}`, html: who.svg, 'aria-hidden': 'true' }),
+        bubble);
+      thread.append(row);
+      scrollToEnd(row);
+      setTimeout(() => speak(step.es, step.s), 200);
+      return { intro: true };
+    },
+    question(step) {
+      const list = optionList(shuffle(step.options), step.answer, { layout: 'stack' });
+      const card = h('div', { class: 'st-q' }, h('p', { class: 'st-q__prompt' }, step.prompt), list.el);
+      thread.append(card);
+      scrollToEnd(card);
+      return list;
+    },
     intro(step) {
       const cards = step.v.map((i) => {
         const v = L.vocab[i];
@@ -397,13 +437,16 @@
     if (step.t === 'build') texts.push(step.es, ...words(step.es), ...(step.extra || []));
     if (step.t === 'type' && step.es) texts.push(step.es);
     if (step.t === 'dialogue') { texts.push(step.line.es); clip(step.answer, 'hablena'); }
+    if (step.t === 'line') texts.push(step.es);
     texts.forEach((t) => clip(t, step.s));
   }
 
   function show(i) {
     index = i;
     phase = 'answer';
-    stage.innerHTML = '';
+    const story = L.mode === 'story';
+    if (!story) stage.innerHTML = '';
+    else if (!thread) storyHead();
     resetSheet();
     setProgress();
     const step = steps[i];
@@ -413,7 +456,7 @@
     preloadStep(step);
     if (steps[i + 1]) preloadStep(steps[i + 1]);
     current = render[step.t](step);
-    replay(stage, 'is-enter');
+    if (!story) replay(stage, 'is-enter');
     primary.hidden = false;
     if (current.intro) setPrimary(S.continue, true, 'red');
     else if (current.auto) {
@@ -590,6 +633,7 @@
 
   $('[data-restart]').addEventListener('click', async () => {
     if (L.mode === 'practice') await buildPractice();
+    if (L.mode === 'story') { stage.innerHTML = ''; thread = null; }
     correct = 0;
     combo = 0;
     startedAt = Date.now();

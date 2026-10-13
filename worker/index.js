@@ -206,7 +206,7 @@ async function saveProgress(request, env) {
   const total = body ? Number(body.total) : NaN;
   const correct = body ? Number(body.correct) : NaN;
   const practice = lessonId === 'practice';
-  if ((!practice && !/^u\d{1,3}-l\d{1,3}$/.test(lessonId)) || !Number.isInteger(total) || !Number.isInteger(correct) || total < 1 || total > 100 || correct < 0 || correct > total) {
+  if ((!practice && !/^u\d{1,3}-[ls]\d{1,3}$/.test(lessonId)) || !Number.isInteger(total) || !Number.isInteger(correct) || total < 1 || total > 100 || correct < 0 || correct > total) {
     return json({ error: 'invalid_request' }, 400);
   }
   const now = Date.now();

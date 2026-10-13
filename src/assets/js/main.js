@@ -263,6 +263,19 @@ document.documentElement.classList.add('js');
       const finished = unit.querySelectorAll('[data-node].is-done').length;
       unit.querySelector('[data-unit-count]').textContent = `${finished}/${all}`;
       unit.classList.toggle('is-complete', finished === all);
+      const storyNode = unit.querySelector('[data-story-node]');
+      if (storyNode) {
+        const sid = storyNode.dataset.storyNode;
+        const open = finished === all;
+        const heard = done.has(sid);
+        storyNode.classList.toggle('is-locked', !open);
+        storyNode.classList.toggle('is-available', open && !heard);
+        storyNode.classList.toggle('is-done', heard);
+        const link = storyNode.querySelector('a');
+        link.tabIndex = open ? 0 : -1;
+        link.setAttribute('aria-disabled', String(!open));
+        if (open) link.removeAttribute('title');
+      }
       const trophy = unit.querySelector('[data-trophy]');
       if (trophy) { trophy.tabIndex = finished === all ? 0 : -1; trophy.setAttribute('aria-disabled', String(finished !== all)); }
     });
@@ -288,7 +301,7 @@ document.documentElement.classList.add('js');
   };
 
   const applyBadges = (progress, s) => {
-    const done = progress.length;
+    const done = progress.filter((p) => /-l\d+$/.test(p.lessonId)).length;
     const unitDone = [...app.querySelectorAll('[data-unit]')].some((u) => u.classList.contains('is-complete'));
     const earned = {
       first: done >= 1, five: done >= 5, ten: done >= 10, unit: unitDone,

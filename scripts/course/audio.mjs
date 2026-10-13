@@ -4,6 +4,7 @@
 import { ALL_LESSONS } from './units.mjs';
 import { clipHash } from './audio-hash.mjs';
 import { demoClips } from './demo.mjs';
+import { STORIES } from './stories.mjs';
 import { VOICE_CONFIG, voiceOf, withSpeakers, MAIN } from './voices.mjs';
 import { guideTexts } from './guides.mjs';
 
@@ -47,6 +48,8 @@ export function audioManifest() {
   });
   const main = voiceOf(MAIN);
   for (const t of guideTexts()) clips[clipHash(main, t)] = [t, main.provider, main.id];
+  // story scenes: every line in its speaker's voice
+  for (const st of STORIES) for (const line of st.steps.filter((x) => x.t === 'line')) { const v = voiceOf(line.s); clips[clipHash(v, line.es)] = [line.es, v.provider, v.id]; }
   // homepage demo and character introductions
   for (const [role, t] of demoClips()) { const v = voiceOf(role); clips[clipHash(v, t)] = [t, v.provider, v.id]; }
   // practice mode speaks every word in Hablena's voice
@@ -58,4 +61,11 @@ export function audioManifest() {
     voices[id] = voices[id] ? `${voices[id]}, ${v.name}` : v.name;
   }
   return { version: 2, models: VOICE_CONFIG.models, azureRegion: VOICE_CONFIG.azureRegion, voices, clips };
+}
+
+// { role: { text: hash } } for a story page
+export function storyAudioMap(story) {
+  const out = {};
+  for (const line of story.steps.filter((x) => x.t === 'line')) (out[line.s] ||= {})[line.es] = clipHash(voiceOf(line.s), line.es);
+  return out;
 }

@@ -3,6 +3,7 @@ import { UNITS, ALL_LESSONS } from './units.mjs';
 import { VOICE_CONFIG, CAST, MAIN, withSpeakers } from './voices.mjs';
 import { CHARACTERS } from './characters.mjs';
 import { lessonAudioMap } from './audio.mjs';
+import { STORIES } from './stories.mjs';
 
 let failures = 0;
 let checks = 0;
@@ -76,5 +77,28 @@ ALL_LESSONS.forEach((lesson, li) => {
     if (e.t === 'build') check(`${lesson.id} build: sentence clip`, !!map[e.s]?.[e.es]);
   }
 });
+// Stories
+const storyIds = new Set();
+for (const st of STORIES) {
+  check(`${st.id}: unique`, !storyIds.has(st.id)); storyIds.add(st.id);
+  check(`${st.id}: id format`, /^u\d{1,3}-s\d{1,3}$/.test(st.id) && st.id.startsWith(st.unit + '-'));
+  check(`${st.id}: unit exists`, UNITS.some((u) => u.id === st.unit));
+  for (const l of ['en', 'de']) check(`${st.id}: title/scene ${l}`, !!st.title[l] && !!st.scene[l]);
+  const qs = st.steps.filter((x) => x.t === 'question');
+  check(`${st.id}: 2+ questions`, qs.length >= 2);
+  check(`${st.id}: starts with a line`, st.steps[0].t === 'line');
+  for (const x of st.steps) {
+    if (x.t === 'line') {
+      check(`${st.id}: speaker ${x.s} known`, x.s in VOICE_CONFIG.voices);
+      check(`${st.id}: line text`, !!x.es && !!x.tr.en && !!x.tr.de);
+    } else {
+      for (const l of ['en', 'de']) {
+        check(`${st.id}: question ${l}`, !!x.prompt[l]);
+        check(`${st.id}: 3 distinct options ${l}`, x.options.length >= 3 && new Set(x.options.map((o) => o[l])).size === x.options.length);
+      }
+    }
+  }
+}
+
 console.log(`${checks - failures}/${checks} course checks passed`);
 if (failures) process.exit(1);

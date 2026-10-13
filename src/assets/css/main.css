@@ -810,6 +810,7 @@ h1, h2, h3, p { margin: 0; }
 .lp-sheet.is-wrong .lp-feedback__text { color: var(--red-dark); }
 @media (max-width: 560px) {
   .lp-sheet__inner { flex-direction: column; align-items: stretch; }
+  .lp-feedback { flex: none; }
   .lp-feedback__icon { width: 48px; height: 48px; }
   .lp-feedback__text strong { font-size: 20px; }
   .lp-cta { width: 100%; }
@@ -1623,3 +1624,43 @@ h1, h2, h3, p { margin: 0; }
 .vmore ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
 .vmore a { display: block; padding: 8px 0; font-weight: 700; color: var(--navy); text-decoration: none; }
 .vmore a:hover { color: var(--red); }
+
+/* story mode */
+.lp-stage--story { gap: 18px; padding-bottom: 120px; }
+.st-head { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; padding: 8px 0 18px; border-bottom: 2px dashed var(--edge); }
+.st-head__faces { display: flex; margin-bottom: 6px; }
+.st-head__faces .st-face { width: 64px; margin-left: -12px; border: 3px solid var(--white); }
+.st-head__faces .st-face:first-child { margin-left: 0; }
+.st-head__kicker { margin: 0; font-size: 12px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: #7A3EC8; }
+.st-head__title { margin: 0; font-family: var(--font-display); font-stretch: 105%; font-weight: 900; font-size: clamp(26px, 3.4vw, 34px); color: var(--navy); }
+.st-head__scene { margin: 0; max-width: 460px; color: var(--ink-2); line-height: 1.5; }
+.st-head__hint { margin: 4px 0 0; font-size: 13px; font-weight: 700; color: var(--muted); }
+.st-thread { display: flex; flex-direction: column; gap: 14px; }
+.st-face { flex: none; display: block; width: 48px; aspect-ratio: 1; border-radius: 50%; overflow: hidden; background: #EEF1F7; }
+.st-face svg { width: 100%; height: 100%; display: block; transform: translateY(4%); }
+.st-line { display: flex; align-items: flex-end; gap: 10px; animation: lp-up .35s cubic-bezier(.3,1.3,.5,1) both; }
+.st-line--right { flex-direction: row-reverse; }
+.st-line--narrator { justify-content: center; }
+.st-line__bubble { max-width: 78%; display: flex; flex-direction: column; gap: 3px; padding: 12px 16px; border: 2px solid var(--edge); border-radius: 18px 18px 18px 6px; background: var(--white); text-align: left; font: inherit; color: var(--navy); cursor: pointer; }
+.st-line--right .st-line__bubble { border-radius: 18px 18px 6px 18px; background: var(--pick-tint); border-color: #C7DBF8; }
+.st-line--narrator .st-line__bubble { max-width: 92%; border: 0; background: #F3E8FF; border-radius: 16px; text-align: center; align-items: center; }
+.st-line--narrator .st-line__es { font-style: italic; font-weight: 600; font-size: 16px; color: #5B2A99; }
+.st-line__name { font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.st-line__es { font-size: 18px; font-weight: 700; line-height: 1.35; }
+.st-line__tr { font-size: 14px; color: var(--muted); }
+.st-line__tr[hidden] { display: none; }
+.st-q { margin: 6px 0; padding: 18px; border-radius: 20px; background: var(--surface); display: flex; flex-direction: column; gap: 12px; animation: lp-up .35s ease both; }
+.st-q__prompt { margin: 0; font-family: var(--font-display); font-stretch: 105%; font-weight: 800; font-size: 19px; color: var(--navy); }
+.st-q .lp-opt { min-height: 54px; font-size: 16px; }
+.st-q .lp-opt__key { display: none; }
+
+/* story node on the path */
+.node--story .node__btn { --face: #7A3EC8; --ledge: #5B2A99; }
+.node--story.is-locked .node__btn { --face: #E5E8EF; --ledge: #CDD2DE; color: #B4BBCB; pointer-events: none; }
+.node--story.is-done .node__btn { --face: #7A3EC8; --ledge: #5B2A99; color: var(--white); }
+.node--story .node__icon--story { display: block; width: 34px; height: 34px; }
+.node--story .node__label { position: absolute; right: calc(100% + 12px); top: 50%; translate: 0 -50%; white-space: nowrap; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #7A3EC8; }
+.node--story.is-locked .node__label { color: #B4BBCB; }
+.node--story.is-available .node__btn { animation: story-pulse 2.2s ease-in-out infinite; }
+@keyframes story-pulse { 50% { box-shadow: 0 7px 0 #5B2A99, 0 0 0 10px rgba(122,62,200,.18); } }
+@media (prefers-reduced-motion: reduce) { .node--story.is-available .node__btn, .st-line, .st-q { animation: none; } }

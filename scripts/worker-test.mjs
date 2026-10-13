@@ -131,6 +131,7 @@ await call('POST', '/api/progress', { cookie: li.cookie, body: { lessonId: 'u1-l
   const before = (await call('GET', '/api/progress', { cookie: li.cookie })).data.progress.length;
   const pr = await call('POST', '/api/progress', { cookie: li.cookie, body: { lessonId: 'practice', correct: 8, total: 10, today: day(0) } });
   const after = (await call('GET', '/api/progress', { cookie: li.cookie })).data.progress.length;
+  check('story progress accepted', (await call('POST', '/api/progress', { cookie: li.cookie, body: { lessonId: 'u1-s1', correct: 3, total: 3, today: day(0) } })).status === 200);
   check('practice earns XP without lesson progress', pr.status === 200 && pr.data.xp === 13 && after === before);
 }
 

@@ -350,7 +350,12 @@
     "nextLesson": "Nächste Lektion",
     "nextUnit": "Weiter zu „{unit}“",
     "unitDone": "Einheit „{unit}“ geschafft! Teste dich mit dem Pokal auf deinem Lernpfad.",
-    "unitTest": "Einheitentest"
+    "unitTest": "Einheitentest",
+    "storyKicker": "Hörgeschichte",
+    "tapToTranslate": "Tipp auf einen Satz, um die Übersetzung zu sehen",
+    "storyNode": "Geschichte",
+    "storyLocked": "Schließ alle Lektionen dieser Einheit ab, um die Geschichte freizuschalten.",
+    "listenStory": "Anhören"
   },
   "app": {
     "learnTab": "Lernen",

@@ -350,7 +350,12 @@
     "nextLesson": "Next lesson",
     "nextUnit": "On to “{unit}”",
     "unitDone": "Unit “{unit}” complete! Test yourself with the trophy on your path.",
-    "unitTest": "Unit test"
+    "unitTest": "Unit test",
+    "storyKicker": "Story",
+    "tapToTranslate": "Tap a line to see the translation",
+    "storyNode": "Story",
+    "storyLocked": "Finish all lessons of this unit to unlock the story.",
+    "listenStory": "Listen"
   },
   "app": {
     "learnTab": "Learn",

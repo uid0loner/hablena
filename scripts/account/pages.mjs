@@ -1,6 +1,7 @@
 // Sign-up, log-in and the logged-in app area. These pages are noindex and stay out of the sitemap.
 import { readFileSync } from 'node:fs';
 import { UNITS } from '../course/units.mjs';
+import { STORIES } from '../course/stories.mjs';
 
 const MASCOT = readFileSync(new URL('../../src/partials/mascot.html', import.meta.url), 'utf8').trim();
 
@@ -115,6 +116,12 @@ export function accountPages(t, urls, otherLang, site) {
   };
   const BADGE_STYLE = { first: ['star', 'red'], five: ['star', 'blue'], ten: ['star', 'navy'], unit: ['trophy', 'gold'], perfect: ['check', 'green'], streak3: ['flame', 'orange'], streak7: ['flame', 'red'], xp100: ['bolt', 'gold'], xp500: ['bolt', 'purple'] };
   const total = UNITS.reduce((n, u) => n + u.lessons.length, 0);
+  const STORY_ICON = '<svg class="node__icon node__icon--story" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14v-2a8 8 0 0 1 16 0v2" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><rect x="3" y="13" width="5" height="7" rx="2" fill="currentColor"/><rect x="16" y="13" width="5" height="7" rx="2" fill="currentColor"/></svg>';
+  const storyNode = (u) => {
+    const st = STORIES.find((x) => x.unit === u.id);
+    if (!st) return '';
+    return `<li class="node node--story is-locked" style="--x:0.9" data-story-node="${st.id}"><a class="node__btn" href="${urls.story(lang, st.id)}" tabindex="-1" aria-disabled="true" title="${esc(t.learn.storyLocked)}" aria-label="${esc(t.learn.storyNode)}: ${esc(st.title[lang])}">${STORY_ICON}</a><span class="node__label" aria-hidden="true">${esc(t.learn.storyNode)}</span></li>`;
+  };
   let n = 0;
   const ap = t.app;
 
@@ -151,6 +158,7 @@ export function accountPages(t, urls, otherLang, site) {
           </div>
         </li>`;
         }).join('')}
+        ${storyNode(u)}
         <li class="node node--trophy" style="--x:0"><a class="node__btn" href="${urls.practice(lang)}?unit=${u.id}" tabindex="-1" aria-disabled="true" data-trophy aria-label="${esc(t.learn.unitTest)}: ${esc(u.title[lang])}">${ICONS.trophy}</a></li>
       </ol>
       <div class="punit__mascot" aria-hidden="true" style="--side:${ui % 2 ? -1 : 1}">${MASCOT}</div>
