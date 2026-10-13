@@ -228,7 +228,67 @@
       "network": "No connection. Please check your internet and try again."
     },
     "unit": "Unit",
-    "lessonDone": "Done"
+    "lessonDone": "Done",
+    "side": {
+      "bubbleSignup": "¡Hola! Two minutes from now you’ll be in your first lesson.",
+      "bubbleLogin": "¡Hola de nuevo! Good to have you back.",
+      "points": [
+        "Five minutes a day",
+        "Real voices and real dialogues",
+        "Free, no credit card"
+      ]
+    },
+    "ob": {
+      "stepOf": "Step {n} of 3",
+      "motiveTitle": "Why are you learning Spanish?",
+      "motiveText": "Pick what drives you most.",
+      "motives": {
+        "travel": "Travel",
+        "work": "Work",
+        "family": "Family & friends",
+        "culture": "Culture & TV",
+        "brain": "Brain training"
+      },
+      "goalTitle": "How much time do you have each day?",
+      "goalText": "You can change your daily goal any time.",
+      "goals": [
+        {
+          "v": 10,
+          "name": "Casual",
+          "time": "5 min a day"
+        },
+        {
+          "v": 20,
+          "name": "Regular",
+          "time": "10 min a day"
+        },
+        {
+          "v": 30,
+          "name": "Serious",
+          "time": "15 min a day"
+        },
+        {
+          "v": 40,
+          "name": "Intense",
+          "time": "20 min a day"
+        }
+      ],
+      "accountTitle": "Almost there!",
+      "accountText": "Create your free account and you’ll go straight into lesson 1.",
+      "continue": "Continue",
+      "skip": "Skip",
+      "back": "Back",
+      "start": "Create account and start"
+    },
+    "motiveLine": {
+      "travel": "For your next trip.",
+      "work": "For your job.",
+      "family": "For the people who matter to you.",
+      "culture": "For films, series and music in the original.",
+      "brain": "For brain training."
+    },
+    "goalSetting": "Daily goal",
+    "goalSaved": "Saved"
   },
   "learn": {
     "close": "Close lesson",
@@ -291,7 +351,7 @@
     "streak": "day streak",
     "xpTotal": "Total XP",
     "dailyGoal": "Daily goal",
-    "goalText": "{xp} of {goal} XP today. One lesson gets you most of the way.",
+    "goalText": "{xp} of {goal} XP today. One lesson earns 5 to 15 XP.",
     "goalDone": "Daily goal reached. ¡Olé!",
     "streakHint": "Do one lesson a day to grow your streak.",
     "streakActive": "You practised today. ¡Hasta mañana!",

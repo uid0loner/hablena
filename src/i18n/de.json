@@ -228,7 +228,67 @@
       "network": "Keine Verbindung. Bitte prüf dein Internet und versuch es noch einmal."
     },
     "unit": "Einheit",
-    "lessonDone": "Geschafft"
+    "lessonDone": "Geschafft",
+    "side": {
+      "bubbleSignup": "¡Hola! In zwei Minuten bist du in deiner ersten Lektion.",
+      "bubbleLogin": "¡Hola de nuevo! Schön, dass du wieder da bist.",
+      "points": [
+        "Fünf Minuten am Tag",
+        "Echte Stimmen und echte Dialoge",
+        "Kostenlos, ohne Kreditkarte"
+      ]
+    },
+    "ob": {
+      "stepOf": "Schritt {n} von 3",
+      "motiveTitle": "Warum lernst du Spanisch?",
+      "motiveText": "Wähl, was dich am meisten antreibt.",
+      "motives": {
+        "travel": "Reisen",
+        "work": "Beruf",
+        "family": "Familie & Freunde",
+        "culture": "Kultur & Serien",
+        "brain": "Gehirnjogging"
+      },
+      "goalTitle": "Wie viel Zeit nimmst du dir am Tag?",
+      "goalText": "Du kannst dein Tagesziel jederzeit ändern.",
+      "goals": [
+        {
+          "v": 10,
+          "name": "Locker",
+          "time": "5 Min. am Tag"
+        },
+        {
+          "v": 20,
+          "name": "Normal",
+          "time": "10 Min. am Tag"
+        },
+        {
+          "v": 30,
+          "name": "Ernsthaft",
+          "time": "15 Min. am Tag"
+        },
+        {
+          "v": 40,
+          "name": "Intensiv",
+          "time": "20 Min. am Tag"
+        }
+      ],
+      "accountTitle": "Fast geschafft!",
+      "accountText": "Leg dein kostenloses Konto an, dann geht es direkt mit Lektion 1 los.",
+      "continue": "Weiter",
+      "skip": "Überspringen",
+      "back": "Zurück",
+      "start": "Konto anlegen und loslegen"
+    },
+    "motiveLine": {
+      "travel": "Für deine nächste Reise.",
+      "work": "Für deinen Job.",
+      "family": "Für die Menschen, die dir wichtig sind.",
+      "culture": "Für Filme, Serien und Musik im Original.",
+      "brain": "Fürs Gehirnjogging."
+    },
+    "goalSetting": "Tagesziel",
+    "goalSaved": "Gespeichert"
   },
   "learn": {
     "close": "Lektion schließen",
@@ -291,7 +351,7 @@
     "streak": "Tage Streak",
     "xpTotal": "XP gesamt",
     "dailyGoal": "Tagesziel",
-    "goalText": "{xp} von {goal} XP heute. Eine Lektion bringt dich fast ans Ziel.",
+    "goalText": "{xp} von {goal} XP heute. Eine Lektion bringt 5 bis 15 XP.",
     "goalDone": "Tagesziel erreicht. ¡Olé!",
     "streakHint": "Mach jeden Tag eine Lektion, damit dein Streak wächst.",
     "streakActive": "Heute schon geübt. ¡Hasta mañana!",

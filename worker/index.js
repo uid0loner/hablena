@@ -62,6 +62,7 @@ async function handleApi(request, env, url, ctx) {
     case 'POST /api/auth/logout': return logout(request, env);
     case 'GET /api/me': return me(request, env);
     case 'POST /api/me/delete': return deleteAccount(request, env);
+    case 'POST /api/me/goal': return setGoal(request, env);
     case 'GET /api/progress': return getProgress(request, env);
     case 'POST /api/progress': return saveProgress(request, env);
     case 'GET /api/stats': return getStats(request, env, url);
@@ -90,6 +91,8 @@ async function signup(request, env) {
   const password = typeof body.password === 'string' ? body.password : '';
   const name = typeof body.name === 'string' ? body.name.trim().slice(0, 60) : '';
   const lang = body.lang === 'de' ? 'de' : 'en';
+  const dailyGoal = DAILY_GOALS.includes(Number(body.dailyGoal)) ? Number(body.dailyGoal) : DAILY_GOAL_XP;
+  const motive = MOTIVES.includes(body.motive) ? body.motive : null;
 
   if (!email) return json({ error: 'invalid_email' }, 400);
   if (password.length < MIN_PASSWORD || password.length > MAX_PASSWORD) return json({ error: 'weak_password' }, 400);
@@ -105,8 +108,8 @@ async function signup(request, env) {
 
   const id = crypto.randomUUID();
   const stored = await hashPassword(password);
-  await env.DB.prepare('INSERT INTO users (id, email, name, password, lang, created_at, last_login_at) VALUES (?, ?, ?, ?, ?, ?, ?)')
-    .bind(id, email, name || null, stored, lang, now, now)
+  await env.DB.prepare('INSERT INTO users (id, email, name, password, lang, created_at, last_login_at, daily_goal, motive) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)')
+    .bind(id, email, name || null, stored, lang, now, now, dailyGoal, motive)
     .run();
   await recordEvent(env, ipKey, now);
 
@@ -155,7 +158,17 @@ async function logout(request, env) {
 async function me(request, env) {
   const user = await currentUser(request, env);
   if (!user) return json({ error: 'unauthorized' }, 401, { 'Set-Cookie': clearCookie() });
-  return json({ user: { email: user.email, name: user.name, lang: user.lang, createdAt: user.created_at } });
+  return json({ user: { email: user.email, name: user.name, lang: user.lang, createdAt: user.created_at, dailyGoal: user.daily_goal, motive: user.motive } });
+}
+
+async function setGoal(request, env) {
+  const user = await currentUser(request, env);
+  if (!user) return json({ error: 'unauthorized' }, 401);
+  const body = await readJson(request);
+  const goal = body ? Number(body.dailyGoal) : NaN;
+  if (!DAILY_GOALS.includes(goal)) return json({ error: 'invalid_request' }, 400);
+  await env.DB.prepare('UPDATE users SET daily_goal = ? WHERE id = ?').bind(goal, user.id).run();
+  return json({ ok: true, dailyGoal: goal });
 }
 
 async function deleteAccount(request, env) {
@@ -214,12 +227,14 @@ async function saveProgress(request, env) {
     `INSERT INTO activity (user_id, day, xp, lessons) VALUES (?, ?, ?, 1)
      ON CONFLICT (user_id, day) DO UPDATE SET xp = xp + excluded.xp, lessons = lessons + 1`
   ).bind(user.id, day, xp).run();
-  return json({ ok: true, xp, ...(await statsFor(env, user.id, day)) });
+  return json({ ok: true, xp, ...(await statsFor(env, user.id, day, user.daily_goal)) });
 }
 
 // 5 XP for finishing, up to 10 more for accuracy.
 export const xpFor = (correct, total) => 5 + Math.round((10 * correct) / total);
 export const DAILY_GOAL_XP = 20;
+const DAILY_GOALS = [10, 20, 30, 40]; // about 5, 10, 15 and 20 minutes a day
+const MOTIVES = ['travel', 'work', 'family', 'culture', 'brain'];
 
 // The learner's local date (sent by the browser), accepted only within a day of the server's date.
 function localDay(value, now) {
@@ -231,20 +246,20 @@ function localDay(value, now) {
 
 const prevDay = (day) => new Date(Date.parse(day + 'T00:00:00Z') - 86_400_000).toISOString().slice(0, 10);
 
-async function statsFor(env, userId, today) {
+async function statsFor(env, userId, today, goal = DAILY_GOAL_XP) {
   const { results } = await env.DB.prepare('SELECT day, xp FROM activity WHERE user_id = ? ORDER BY day DESC LIMIT 400').bind(userId).all();
   const days = new Map(results.map((r) => [r.day, r.xp]));
   let streak = 0;
   let cursor = days.has(today) ? today : prevDay(today);
   while (days.has(cursor)) { streak++; cursor = prevDay(cursor); }
   const xpTotal = results.reduce((n, r) => n + r.xp, 0);
-  return { streak, xpTotal, xpToday: days.get(today) || 0, dailyGoal: DAILY_GOAL_XP, activeToday: days.has(today) };
+  return { streak, xpTotal, xpToday: days.get(today) || 0, dailyGoal: goal, activeToday: days.has(today) };
 }
 
 async function getStats(request, env, url) {
   const user = await currentUser(request, env);
   if (!user) return json({ error: 'unauthorized' }, 401);
-  return json(await statsFor(env, user.id, localDay(url.searchParams.get('today'), Date.now())));
+  return json(await statsFor(env, user.id, localDay(url.searchParams.get('today'), Date.now()), user.daily_goal));
 }
 
 // ---------------------------------------------------------------------------
@@ -433,7 +448,7 @@ function readSessionToken(request) {
 async function currentUser(request, env, withPassword = false) {
   const token = readSessionToken(request);
   if (!token || token.length > 100) return null;
-  const cols = `u.id, u.email, u.name, u.lang, u.created_at${withPassword ? ', u.password' : ''}`;
+  const cols = `u.id, u.email, u.name, u.lang, u.created_at, u.daily_goal, u.motive${withPassword ? ', u.password' : ''}`;
   return env.DB.prepare(`SELECT ${cols} FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token_hash = ? AND s.expires_at > ?`)
     .bind(await sha256Hex(token), Date.now())
     .first();

@@ -19,46 +19,84 @@ export function accountPages(t, urls, otherLang, site) {
   const messages = esc(JSON.stringify(a.errors));
   const common = { noindex: true };
 
-  const signup = {
-    ...common,
+  const ob = a.ob;
+  const ICON = {
+    travel: '<path d="M2.5 13.5l19-8-6 15-3.5-6.5z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M12 14l9.5-8.5" stroke="currentColor" stroke-width="2.2"/>',
+    work: '<rect x="3" y="7" width="18" height="13" rx="2.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 12.5h18" fill="none" stroke="currentColor" stroke-width="2.2"/>',
+    family: '<path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>',
+    culture: '<path d="M9 18V6l11-2v12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><circle cx="6.5" cy="18" r="2.5" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="17.5" cy="16" r="2.5" fill="none" stroke="currentColor" stroke-width="2.2"/>',
+    brain: '<path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="12" r="3.2" fill="currentColor"/>',
+  };
+  const stepHead = (n, title, text) => `<p class="ob-step__count">${esc(ob.stepOf.replace('{n}', n))}</p><h1>${esc(title)}</h1><p class="ob-step__text">${esc(text)}</p>`;
+  const authPage = (extra) => ({ ...common, template: 'auth', ...extra });
+
+  const signup = authPage({
     path: urls.signup(lang),
     alt: urls.signup(otherLang),
     title: `${a.signupTitle} | Hablena`,
     description: a.signupLead,
-    hero: `<h1 class="display display--l">${esc(a.signupTitle)}</h1><p class="hero__lead" style="margin:16px 0 0">${esc(a.signupLead)}</p>`,
+    vars: { sideBubble: esc(a.side.bubbleSignup), topText: esc(a.haveAccount), topHref: urls.login(lang), topLink: esc(a.loginLink) },
     content: `
-<div class="container auth">
-  <form class="auth-card" data-auth-form="signup" data-redirect="${urls.app(lang)}" data-lang="${lang}" data-messages="${messages}" novalidate>
-    ${field({ id: 'name', label: a.name, autocomplete: 'given-name', required: false })}
-    ${field({ id: 'email', label: a.email, type: 'email', autocomplete: 'email' })}
-    ${field({ id: 'password', label: a.password, type: 'password', autocomplete: 'new-password', minlength: 10, hint: a.passwordHint })}
+<form class="ob-form" data-auth-form="signup" data-onboarding data-redirect="${urls.lesson(lang, 'u1-l1')}" data-lang="${lang}" data-messages="${messages}" novalidate>
+  <div class="ob-progress" aria-hidden="true"><span data-ob-bar></span></div>
+  <section class="ob-step" data-ob-step="0">
+    ${stepHead(1, ob.motiveTitle, ob.motiveText)}
+    <div class="ob-choices ob-choices--grid" role="radiogroup" aria-label="${esc(ob.motiveTitle)}">
+      ${Object.entries(ob.motives).map(([k, label]) => `
+      <label class="ob-choice"><input class="ob-choice__input" type="radio" name="motive" value="${k}"><span class="ob-choice__icon ob-choice__icon--${k}"><svg viewBox="0 0 24 24" aria-hidden="true">${ICON[k]}</svg></span><span class="ob-choice__label">${esc(label)}</span></label>`).join('')}
+    </div>
+    <div class="ob-actions">
+      <button class="lp-cta lp-cta--green" type="button" data-ob-next disabled>${esc(ob.continue)}</button>
+      <button class="lp-link" type="button" data-ob-skip>${esc(ob.skip)}</button>
+    </div>
+  </section>
+  <section class="ob-step" data-ob-step="1">
+    ${stepHead(2, ob.goalTitle, ob.goalText)}
+    <div class="ob-choices" role="radiogroup" aria-label="${esc(ob.goalTitle)}">
+      ${ob.goals.map((g) => `
+      <label class="ob-choice ob-choice--row"><input class="ob-choice__input" type="radio" name="dailyGoal" value="${g.v}"${g.v === 20 ? ' checked' : ''}><span class="ob-choice__label"><b>${esc(g.name)}</b><span>${esc(g.time)}</span></span><span class="ob-choice__xp">${g.v} XP</span></label>`).join('')}
+    </div>
+    <div class="ob-actions">
+      <button class="lp-cta lp-cta--green" type="button" data-ob-next>${esc(ob.continue)}</button>
+      <button class="lp-link" type="button" data-ob-back>${esc(ob.back)}</button>
+    </div>
+  </section>
+  <section class="ob-step" data-ob-step="2">
+    ${stepHead(3, ob.accountTitle, ob.accountText)}
+    <div class="ob-fields">
+      ${field({ id: 'name', label: a.name, autocomplete: 'given-name', required: false })}
+      ${field({ id: 'email', label: a.email, type: 'email', autocomplete: 'email' })}
+      ${field({ id: 'password', label: a.password, type: 'password', autocomplete: 'new-password', minlength: 10, hint: a.passwordHint })}
+    </div>
     <p class="auth-error" role="alert" data-auth-error hidden></p>
-    <button class="btn btn--red btn--lg btn--block" type="submit" data-label="${esc(a.signupButton)}" data-busy="${esc(a.busy)}">${esc(a.signupButton)}</button>
+    <button class="lp-cta lp-cta--red ob-submit" type="submit" data-label="${esc(ob.start)}" data-busy="${esc(a.busy)}">${esc(ob.start)}</button>
     <p class="auth-small">${a.privacyNote.replace('{link}', `<a href="${urls.privacy(lang)}">${esc(a.privacyLink)}</a>`)}</p>
-  </form>
-  <p class="auth-switch">${esc(a.haveAccount)} <a href="${urls.login(lang)}">${esc(a.loginLink)}</a></p>
-</div>`,
-  };
+    <button class="lp-link" type="button" data-ob-back>${esc(ob.back)}</button>
+  </section>
+</form>`,
+  });
 
-  const login = {
-    ...common,
+  const login = authPage({
     path: urls.login(lang),
     alt: urls.login(otherLang),
     title: `${a.loginTitle} | Hablena`,
     description: a.loginLead,
-    hero: `<h1 class="display display--l">${esc(a.loginTitle)}</h1><p class="hero__lead" style="margin:16px 0 0">${esc(a.loginLead)}</p>`,
+    vars: { sideBubble: esc(a.side.bubbleLogin), topText: esc(a.noAccount), topHref: urls.signup(lang), topLink: esc(a.signupLink) },
     content: `
-<div class="container auth">
-  <form class="auth-card" data-auth-form="login" data-redirect="${urls.app(lang)}" data-lang="${lang}" data-messages="${messages}" novalidate>
-    ${field({ id: 'email', label: a.email, type: 'email', autocomplete: 'email' })}
-    ${field({ id: 'password', label: a.password, type: 'password', autocomplete: 'current-password' })}
+<form class="ob-form" data-auth-form="login" data-redirect="${urls.app(lang)}" data-lang="${lang}" data-messages="${messages}" novalidate>
+  <section class="ob-step">
+    <h1>${esc(a.loginTitle)}</h1>
+    <p class="ob-step__text">${esc(a.loginLead)}</p>
+    <div class="ob-fields">
+      ${field({ id: 'email', label: a.email, type: 'email', autocomplete: 'email' })}
+      ${field({ id: 'password', label: a.password, type: 'password', autocomplete: 'current-password' })}
+    </div>
     <p class="auth-error" role="alert" data-auth-error hidden></p>
-    <button class="btn btn--red btn--lg btn--block" type="submit" data-label="${esc(a.loginButton)}" data-busy="${esc(a.busy)}">${esc(a.loginButton)}</button>
+    <button class="lp-cta lp-cta--red ob-submit" type="submit" data-label="${esc(a.loginButton)}" data-busy="${esc(a.busy)}">${esc(a.loginButton)}</button>
     <p class="auth-small">${esc(a.forgot)} <a href="mailto:${esc(site.email)}">${esc(site.email)}</a></p>
-  </form>
-  <p class="auth-switch">${esc(a.noAccount)} <a href="${urls.signup(lang)}">${esc(a.signupLink)}</a></p>
-</div>`,
-  };
+  </section>
+</form>`,
+  });
 
   // Zig-zag offsets for the learning path (in units of the node width).
   const OFFSETS = [0, -0.9, -1.4, -0.9, 0, 0.9, 1.4, 0.9];
@@ -122,6 +160,7 @@ export function accountPages(t, urls, otherLang, site) {
 <div class="learn" data-app data-login="${urls.login(lang)}" data-home="${urls.home(lang)}" data-messages="${messages}" data-score-label="${esc(ap.bestScore)}" data-review-label="${esc(ap.review)}" data-start-label="${esc(ap.start)}" data-goal-text="${esc(ap.goalText)}" data-goal-done="${esc(ap.goalDone)}" data-streak-hint="${esc(ap.streakHint)}" data-streak-active="${esc(ap.streakActive)}">
   <div class="learn__path">
     <h1 class="learn__hello" data-greeting data-template="${esc(a.greeting)}" data-fallback="${esc(a.greetingNoName)}">${esc(a.greetingNoName)}</h1>
+    <p class="learn__motive" data-motive-line data-lines="${esc(JSON.stringify(a.motiveLine))}" hidden></p>
     ${UNITS.map(unitHtml).join('')}
     <section class="soon">
       <p class="soon__kicker">${esc(a.courseLabel)}</p>
@@ -164,6 +203,13 @@ export function accountPages(t, urls, otherLang, site) {
         <div><dt>${esc(a.memberSince)}</dt><dd data-user-since>…</dd></div>
         <div><dt>${esc(ap.xpTotal)}</dt><dd><span data-stat-xptotal>0</span> XP</dd></div>
       </dl>
+      <div class="goal-setting">
+        <label for="goal-select">${esc(a.goalSetting)}</label>
+        <div class="goal-setting__row">
+          <select id="goal-select" data-goal-select>${a.ob.goals.map((g) => `<option value="${g.v}"${g.v === 20 ? ' selected' : ''}>${esc(g.name)} · ${esc(g.time)} · ${g.v} XP</option>`).join('')}</select>
+          <span class="goal-setting__saved" data-goal-saved hidden>${esc(a.goalSaved)}</span>
+        </div>
+      </div>
       <button class="lp-cta lp-cta--ghost account__logout" type="button" data-logout>${esc(a.logout)}</button>
       <details class="danger">
         <summary>${esc(a.deleteTitle)}</summary>

@@ -145,7 +145,14 @@ document.documentElement.classList.add('js');
       button.textContent = button.dataset.busy;
       try {
         const body = { email, password };
-        if (mode === 'signup') { body.name = fields.name ? fields.name.value.trim() : ''; body.lang = form.dataset.lang; }
+        if (mode === 'signup') {
+          body.name = fields.name ? fields.name.value.trim() : '';
+          body.lang = form.dataset.lang;
+          const motive = form.querySelector('input[name="motive"]:checked');
+          const goal = form.querySelector('input[name="dailyGoal"]:checked');
+          if (motive) body.motive = motive.value;
+          if (goal) body.dailyGoal = Number(goal.value);
+        }
         const res = await post(`/api/auth/${mode}`, body);
         if (res.ok) { location.href = form.dataset.redirect; return; }
         showError(errorBox, messages, res.data.error || 'server_error');
@@ -155,6 +162,41 @@ document.documentElement.classList.add('js');
       button.disabled = false;
       button.textContent = button.dataset.label;
     });
+  });
+
+  // Sign-up onboarding: why you learn → daily goal → account, one step at a time
+  document.querySelectorAll('[data-onboarding]').forEach((form) => {
+    const steps = [...form.querySelectorAll('[data-ob-step]')];
+    const bar = form.querySelector('[data-ob-bar]');
+    let current = 0;
+    const show = (n) => {
+      current = n;
+      steps.forEach((st, i) => { st.hidden = i !== n; });
+      steps[n].classList.remove('is-enter'); void steps[n].offsetWidth; steps[n].classList.add('is-enter');
+      if (bar) bar.style.width = `${((n + 1) / steps.length) * 100}%`;
+      const focusable = steps[n].querySelector('input:checked, input:not([type=radio]), h1');
+      if (n === steps.length - 1) steps[n].querySelector('input')?.focus({ preventScroll: true });
+      else focusable?.focus?.({ preventScroll: true });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+    const motiveNext = steps[0].querySelector('[data-ob-next]');
+    form.querySelectorAll('input[name="motive"]').forEach((r) => r.addEventListener('change', () => {
+      motiveNext.disabled = false;
+      window.HablenaSfx?.play('tap');
+    }));
+    form.querySelectorAll('input[name="dailyGoal"]').forEach((r) => r.addEventListener('change', () => window.HablenaSfx?.play('tap')));
+    form.querySelectorAll('[data-ob-next], [data-ob-skip]').forEach((b) => b.addEventListener('click', () => show(Math.min(current + 1, steps.length - 1))));
+    form.querySelectorAll('[data-ob-skip]').forEach((b) => b.addEventListener('click', () => form.querySelectorAll('input[name="motive"]').forEach((r) => { r.checked = false; })));
+    form.querySelectorAll('[data-ob-back]').forEach((b) => b.addEventListener('click', () => show(Math.max(current - 1, 0))));
+    // Enter on a choice step moves on instead of submitting the form
+    form.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && current < steps.length - 1) {
+        e.preventDefault();
+        const next = steps[current].querySelector('[data-ob-next]');
+        if (next && !next.disabled) next.click();
+      }
+    });
+    show(0);
   });
 
   // App area: learning path, streak and XP
@@ -251,6 +293,13 @@ document.documentElement.classList.add('js');
       if (greet && user.name) greet.textContent = greet.dataset.template.replace('{name}', user.name);
       const avatar = document.querySelector('[data-avatar]');
       if (avatar) avatar.textContent = (user.name || user.email || '?').trim().charAt(0).toUpperCase();
+      const line = document.querySelector('[data-motive-line]');
+      if (line && user.motive) {
+        try { line.textContent = JSON.parse(line.dataset.lines)[user.motive] || ''; } catch {}
+        line.hidden = !line.textContent;
+      }
+      const goalSelect = app.querySelector('[data-goal-select]');
+      if (goalSelect && user.dailyGoal) goalSelect.value = String(user.dailyGoal);
       app.querySelector('[data-user-email]').textContent = user.email;
       app.querySelector('[data-user-since]').textContent = new Date(user.createdAt).toLocaleDateString(document.documentElement.lang, { year: 'numeric', month: 'long', day: 'numeric' });
       const [progress, stats] = await Promise.all([
@@ -262,6 +311,16 @@ document.documentElement.classList.add('js');
       app.removeAttribute('aria-busy');
     })
     .catch(() => location.replace(D.login));
+
+  const goalSelect = app.querySelector('[data-goal-select]');
+  goalSelect?.addEventListener('change', async () => {
+    const res = await post('/api/me/goal', { dailyGoal: Number(goalSelect.value) }).catch(() => null);
+    if (!res || !res.ok) return;
+    const note = app.querySelector('[data-goal-saved]');
+    if (note) { note.hidden = false; setTimeout(() => { note.hidden = true; }, 2000); }
+    const st = await fetch(`/api/stats?today=${today()}`, { credentials: 'same-origin' }).then((r) => (r.ok ? r.json() : null));
+    if (st) applyStats(st);
+  });
 
   app.querySelector('[data-logout]')?.addEventListener('click', async () => {
     await post('/api/auth/logout').catch(() => {});

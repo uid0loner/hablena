@@ -57,6 +57,14 @@ const stored = env.DB.raw.prepare('SELECT password FROM users').get().password;
 check('password stored hashed', stored.startsWith('pbkdf2$100000$') && !stored.includes('correct horse'));
 const tokenRow = env.DB.raw.prepare('SELECT token_hash FROM sessions').get();
 check('session token stored hashed', tokenRow.token_hash.length === 64 && !s.cookie.includes(tokenRow.token_hash));
+{
+  const g = await call('POST', '/api/auth/signup', { body: { email: 'goal@example.com', password: 'correct horse battery', dailyGoal: 40, motive: 'travel' } });
+  const row = env.DB.raw.prepare("SELECT daily_goal, motive FROM users WHERE email = 'goal@example.com'").get();
+  check('signup stores goal and motive', g.status === 201 && row.daily_goal === 40 && row.motive === 'travel');
+  const h = await call('POST', '/api/auth/signup', { body: { email: 'odd@example.com', password: 'correct horse battery', dailyGoal: 999, motive: '<script>' } });
+  const row2 = env.DB.raw.prepare("SELECT daily_goal, motive FROM users WHERE email = 'odd@example.com'").get();
+  check('signup ignores invalid goal and motive', h.status === 201 && row2.daily_goal === 20 && row2.motive === null);
+}
 check('duplicate email → 409', (await call('POST', '/api/auth/signup', { body: { email: 'nico@example.com', password: 'another password' } })).status === 409);
 
 // Me
@@ -114,6 +122,11 @@ await call('POST', '/api/progress', { cookie: li.cookie, body: { lessonId: 'u1-l
   const forged = (await call('GET', '/api/stats?today=2001-01-01', { cookie: li.cookie })).data;
   check('implausible client date ignored', forged.xpToday > 0);
   check('stats need login', (await call('GET', '/api/stats')).status === 401);
+  check('default daily goal', st.dailyGoal === 20);
+  check('goal rejects odd values', (await call('POST', '/api/me/goal', { cookie: li.cookie, body: { dailyGoal: 25 } })).status === 400);
+  check('goal can be changed', (await call('POST', '/api/me/goal', { cookie: li.cookie, body: { dailyGoal: 30 } })).data.dailyGoal === 30);
+  check('stats use personal goal', (await call('GET', `/api/stats?today=${day(0)}`, { cookie: li.cookie })).data.dailyGoal === 30);
+  check('me returns goal', (await call('GET', '/api/me', { cookie: li.cookie })).data.user.dailyGoal === 30);
   const before = (await call('GET', '/api/progress', { cookie: li.cookie })).data.progress.length;
   const pr = await call('POST', '/api/progress', { cookie: li.cookie, body: { lessonId: 'practice', correct: 8, total: 10, today: day(0) } });
   const after = (await call('GET', '/api/progress', { cookie: li.cookie })).data.progress.length;

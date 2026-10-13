@@ -1,0 +1,30 @@
+{{> head}}
+<body class="ob-body">
+<a class="skip-link" href="#main">{{t.a11y.skip}}</a>
+<div class="ob">
+  <aside class="ob__side">
+    <div class="hh__grain" aria-hidden="true"></div>
+    <a class="brand ob__brand" href="{{base}}" aria-label="Hablena – {{t.a11y.home}}">
+      <svg class="brand__mark" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="7" fill="#FFC400"/><path d="M7 19 C 10 12, 14 12, 17 17 S 24 22, 27 15" fill="none" stroke="#0A1633" stroke-width="3.2" stroke-linecap="round"/></svg>
+      <span class="brand__name">hablena</span>
+    </a>
+    <div class="ob__hero">
+      <p class="ob__bubble" lang="{{lang}}">{{sideBubble}}</p>
+      <div class="ob__mascot" aria-hidden="true">{{> mascot}}</div>
+    </div>
+    <ul class="ob__points">{{#each t.auth.side.points}}<li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>{{this}}</li>{{/each}}</ul>
+    <div class="ob__faces" aria-hidden="true">
+      <span class="cast__face cast__face--lucia">{{cast.lucia}}</span><span class="cast__face cast__face--mateo">{{cast.mateo}}</span><span class="cast__face cast__face--sofia">{{cast.sofia}}</span><span class="cast__face cast__face--pablo">{{cast.pablo}}</span>
+    </div>
+  </aside>
+  <main class="ob__main" id="main">
+    <div class="ob__top">
+      <a class="ob__lang" href="{{altHref}}" hreflang="{{altLang}}" lang="{{altLang}}" aria-label="{{t.a11y.switchLang}}">{{altLabel}}</a>
+      <p>{{topText}} <a href="{{topHref}}">{{topLink}}</a></p>
+    </div>
+    <div class="ob__content">{{content}}</div>
+  </main>
+</div>
+<script src="/assets/js/sfx.js" defer></script>
+</body>
+</html>
