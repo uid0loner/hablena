@@ -1,6 +1,8 @@
 // Imprint and privacy policy. Content must describe what the site actually does:
 // update it whenever accounts, payments, analytics or new third-party services are added.
 
+import { TERMS, REFUND } from './terms.mjs';
+
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 function address(site, lang) {
@@ -63,7 +65,7 @@ const PRIVACY = {
 <p>Außerdem können Sie sich bei einer Datenschutz-Aufsichtsbehörde beschweren, zum Beispiel bei der für uns zuständigen Landesbeauftragten für Datenschutz und Informationsfreiheit der Freien Hansestadt Bremen.</p>
 
 <h2>7. Änderungen</h2>
-<p>Sobald neue Funktionen wie Zahlungen hinzukommen, passen wir diese Datenschutzerklärung an.</p>
+<p>Wenn wir neue Funktionen oder Dienste einführen, die deine Daten betreffen, passen wir diese Datenschutzerklärung an.</p>
 <p class="legal__updated">Stand: ${esc(s.legalUpdated.de)}</p>`,
 
   en: (s) => `
@@ -98,7 +100,7 @@ const PRIVACY = {
 <p>You also have the right to lodge a complaint with a data protection supervisory authority, for example the State Commissioner for Data Protection and Freedom of Information of the Free Hanseatic City of Bremen, which is responsible for us.</p>
 
 <h2>7. Changes</h2>
-<p>As soon as new features such as payments are added, we will update this privacy policy.</p>
+<p>When we add new features or services that affect your data, we will update this privacy policy.</p>
 <p class="legal__updated">Last updated: ${esc(s.legalUpdated.en)}</p>`,
 };
 
@@ -112,7 +114,7 @@ export function legalPages(t, urls, otherLang, site) {
     hero: `
 <nav class="breadcrumb" aria-label="Breadcrumb"><a href="${urls.home(lang)}">Hablena</a><span aria-hidden="true">/</span><span>${esc(t.legal[key].title)}</span></nav>
 <h1 class="display display--l">${esc(t.legal[key].title)}</h1>`,
-    content: `<div class="container legal">${body(site)}</div>`,
+    content: `<div class="container legal">${body(site, { premium: urls.premium(lang), terms: urls.terms(lang), refund: urls.refund(lang) })}</div>`,
   });
-  return [page('imprint', IMPRINT[lang]), page('privacy', PRIVACY[lang])];
+  return [page('imprint', IMPRINT[lang]), page('privacy', PRIVACY[lang]), page('terms', TERMS[lang]), page('refund', REFUND[lang])];
 }

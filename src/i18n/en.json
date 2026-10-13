@@ -39,7 +39,8 @@
     "imprint": "Imprint",
     "privacy": "Privacy",
     "terms": "Terms",
-    "language": "Language"
+    "language": "Language",
+    "refund": "Refunds"
   },
   "notFound": {
     "title": "¡Uy! Lost in translation.",
@@ -55,7 +56,9 @@
     "login": "/login/",
     "vocab": "/vocabulary/",
     "premium": "/app/premium/",
-    "app": "/app/"
+    "app": "/app/",
+    "terms": "/terms/",
+    "refund": "/refunds/"
   },
   "conj": {
     "slug": "conjugation",
@@ -171,6 +174,16 @@
       "slug": "privacy",
       "title": "Privacy policy",
       "description": "How Hablena handles your data: no tracking cookies, no analytics, payments via Paddle."
+    },
+    "terms": {
+      "slug": "terms",
+      "title": "Terms of Service",
+      "description": "Hablena’s terms of service: account, Premium subscription, cancellation and liability."
+    },
+    "refund": {
+      "slug": "refunds",
+      "title": "Cancellation and refunds",
+      "description": "Right of withdrawal, refunds and cancelling your Hablena Premium subscription."
     }
   },
   "auth": {
@@ -848,6 +861,7 @@
     "subActive": "Subscription active ({plan}) – renews automatically.",
     "subCanceled": "Subscription cancelled – Premium runs until the end of the paid period.",
     "planMonthly": "monthly",
-    "planYearly": "yearly"
+    "planYearly": "yearly",
+    "legalNote": "Our {terms} apply. Payment and invoice via Paddle. Cancel any time, effective at the end of the period. {refund}."
   }
 }

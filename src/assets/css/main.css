@@ -1898,3 +1898,7 @@ h1, h2, h3, p { margin: 0; }
 .prem__manage { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 16px; border: 2px solid #EEF0F5; border-radius: 16px; }
 .prem__manage p { margin: 0; font-weight: 700; color: var(--navy); }
 .acct-plan__manage { min-height: 44px; width: 100%; }
+
+.prem__legal { grid-column: 1 / -1; margin: 0; font-size: 13px; line-height: 1.5; color: var(--muted); text-align: center; }
+.prem__legal a { color: inherit; text-decoration: underline; }
+.legal blockquote { margin: 0 0 18px; padding: 14px 18px; border-left: 4px solid var(--gold); background: var(--surface); border-radius: 8px; line-height: 1.7; }

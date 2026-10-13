@@ -172,6 +172,8 @@ async function build() {
     grammar: (l, slug) => `${prefix(l)}${dict[l].gram.slug}/${slug}/`,
     imprint: (l) => `${prefix(l)}${dict[l].legal.imprint.slug}/`,
     privacy: (l) => `${prefix(l)}${dict[l].legal.privacy.slug}/`,
+    terms: (l) => `${prefix(l)}${dict[l].legal.terms.slug}/`,
+    refund: (l) => `${prefix(l)}${dict[l].legal.refund.slug}/`,
     signup: (l) => `${prefix(l)}${dict[l].auth.signupSlug}/`,
     login: (l) => `${prefix(l)}${dict[l].auth.loginSlug}/`,
     app: (l) => `${prefix(l)}app/`,

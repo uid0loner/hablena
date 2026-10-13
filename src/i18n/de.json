@@ -39,7 +39,8 @@
     "imprint": "Impressum",
     "privacy": "Datenschutz",
     "terms": "AGB",
-    "language": "Sprache"
+    "language": "Sprache",
+    "refund": "Widerruf"
   },
   "notFound": {
     "title": "¡Uy! Verlaufen.",
@@ -55,7 +56,9 @@
     "login": "/de/anmelden/",
     "vocab": "/de/wortschatz/",
     "premium": "/de/app/premium/",
-    "app": "/de/app/"
+    "app": "/de/app/",
+    "terms": "/de/agb/",
+    "refund": "/de/widerruf/"
   },
   "conj": {
     "slug": "konjugation",
@@ -171,6 +174,16 @@
       "slug": "datenschutz",
       "title": "Datenschutzerklärung",
       "description": "Wie Hablena mit deinen Daten umgeht: keine Cookies zum Tracking, keine Analyse-Tools, Bezahlung über Paddle."
+    },
+    "terms": {
+      "slug": "agb",
+      "title": "Allgemeine Geschäftsbedingungen",
+      "description": "Die Nutzungsbedingungen von Hablena: Konto, Premium-Abo, Kündigung und Haftung."
+    },
+    "refund": {
+      "slug": "widerruf",
+      "title": "Widerruf und Erstattung",
+      "description": "Widerrufsrecht, Erstattung und Kündigung deines Hablena-Premium-Abos."
     }
   },
   "auth": {
@@ -848,6 +861,7 @@
     "subActive": "Abo aktiv ({plan}) – verlängert sich automatisch.",
     "subCanceled": "Abo gekündigt – Premium läuft bis zum Ende des bezahlten Zeitraums.",
     "planMonthly": "monatlich",
-    "planYearly": "jährlich"
+    "planYearly": "jährlich",
+    "legalNote": "Mit dem Kauf gelten unsere {terms}. Abwicklung und Rechnung über Paddle. Kündigung jederzeit zum Ende des Zeitraums. {refund}."
   }
 }

@@ -60,6 +60,7 @@ export function premiumPage(t, urls, otherLang) {
       <p class="prem-price__note">${esc(p.yearlyNote)}</p>
       <button class="lp-cta lp-cta--gold prem-price__buy" type="button" data-buy="yearly" hidden>${esc(p.buyYearly)}</button>
     </div>
+    <p class="prem__legal">${p.legalNote.replace('{terms}', `<a href="${urls.terms(lang)}">${esc(t.footer.terms)}</a>`).replace('{refund}', `<a href="${urls.refund(lang)}">${esc(t.legal.refund.title)}</a>`)}</p>
     <p class="prem__test" data-prem-test hidden>${esc(p.testMode)}</p>
     <p class="prem__note" role="status" data-prem-note hidden></p>
     <div class="prem__manage" data-prem-manage hidden>
