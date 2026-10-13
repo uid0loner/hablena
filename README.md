@@ -115,6 +115,19 @@ and `expiresAt`.
   (prices, Free vs Premium, voucher codes); its buy button says "soon" until payments (Paddle) are connected.
   Lesson content itself is part of the static pages, so the paywall is a product gate, not DRM.
 
+## Payments (Paddle)
+
+Paddle Billing is the merchant of record. Public settings (environment, client-side token, price IDs) are in
+`src/config/paddle.json`; the Premium page loads Paddle.js only when someone clicks a buy button and opens the
+overlay checkout with the user's email and `customData.userId`. `POST /api/paddle/webhook` (`worker/paddle.js`)
+verifies the `Paddle-Signature` HMAC and maps `subscription.*` events to `premium_until` (period end + 1 day;
+cancelled → ends; lifetime never touched; out-of-order events ignored). `POST /api/me/billing-portal` returns a
+link to Paddle's customer portal. In sandbox only admins see the buy buttons.
+
+Cloudflare: secrets `PADDLE_WEBHOOK_SECRET` and `PADDLE_API_KEY`, variable `PADDLE_ENV` (`sandbox` or `production`).
+Webhook destination in Paddle: `https://hablena.com/api/paddle/webhook`, events `subscription.*`.
+Going live: switch `paddle.json` to the live token and price IDs and set `PADDLE_ENV=production` with live secrets.
+
 ## Course
 
 `scripts/course/units.mjs` holds units, lessons, vocabulary and exercises (intro, choice, reverse,

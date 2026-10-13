@@ -232,8 +232,63 @@ document.documentElement.classList.add('js');
     const status = prem.querySelector('[data-prem-status]');
     const form = prem.querySelector('[data-redeem-form]');
     const label = (p) => (p.lifetime ? T.lifetime : T.until.replace('{date}', longDate(p.until)));
+    const P = JSON.parse(prem.dataset.paddle);
+    const note = prem.querySelector('[data-prem-note]');
+    let current = null;
+    const showNote = (text) => { note.textContent = text; note.hidden = !text; };
+    // Paddle.js is only loaded when someone actually wants to buy (no third-party code on page view).
+    let paddleReady = null;
+    const loadPaddle = () => paddleReady ||= new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.paddle.com/paddle/v2/paddle.js';
+      s.onload = () => {
+        if (P.environment === 'sandbox') window.Paddle.Environment.set('sandbox');
+        window.Paddle.Initialize({
+          token: P.clientToken,
+          eventCallback: (ev) => { if (ev.name === 'checkout.completed') onPaid(); },
+        });
+        resolve(window.Paddle);
+      };
+      s.onerror = () => { paddleReady = null; reject(new Error('paddle')); };
+      document.head.append(s);
+    });
+    const onPaid = () => {
+      showNote(T.success);
+      let tries = 0;
+      const poll = () => fetch('/api/me', { credentials: 'same-origin' }).then((r) => r.json()).then((me) => {
+        if (me.user?.premium?.active) { showNote(T.successDone); window.HablenaSfx?.play?.('complete'); refresh(); return; }
+        if (++tries < 20) setTimeout(poll, 2000);
+      }).catch(() => {});
+      setTimeout(poll, 1500);
+    };
+    prem.querySelectorAll('[data-buy]').forEach((btn) => btn.addEventListener('click', async () => {
+      if (!current) return;
+      btn.disabled = true;
+      try {
+        const Paddle = await loadPaddle();
+        Paddle.Checkout.open({
+          items: [{ priceId: P.prices[btn.dataset.buy], quantity: 1 }],
+          customer: { email: current.user.email },
+          customData: { userId: current.user.id },
+          settings: { displayMode: 'overlay', theme: 'light', locale: document.documentElement.lang === 'de' ? 'de' : 'en', allowLogout: false },
+        });
+      } catch { showNote(T.checkoutError); }
+      btn.disabled = false;
+    }));
     const refresh = () => fetch('/api/me', { credentials: 'same-origin' }).then((r) => (r.ok ? r.json() : null)).then((me) => {
+      current = me;
       if (!me) { form.hidden = true; prem.querySelector('[data-prem-login]').hidden = false; return; }
+      const canBuy = !!me.checkout?.allowed && !me.user.premium?.active;
+      prem.querySelectorAll('[data-buy]').forEach((b) => { b.hidden = !canBuy; });
+      prem.querySelector('[data-prem-soon]').hidden = canBuy || !!me.user.premium?.active;
+      prem.querySelector('[data-prem-test]').hidden = !(canBuy && me.checkout.environment === 'sandbox');
+      const sub = me.subscription;
+      const manage = prem.querySelector('[data-prem-manage]');
+      manage.hidden = !sub?.manage;
+      if (sub) {
+        const plan = sub.plan === 'yearly' ? T.planYearly : T.planMonthly;
+        prem.querySelector('[data-prem-sub]').textContent = ['canceled', 'paused'].includes(sub.status) ? T.subCanceled : T.subActive.replace('{plan}', plan);
+      }
       const p = me.user.premium || {};
       const a = me.access || {};
       const free = a.freeUnits === 1 ? '1' : `1–${a.freeUnits}`;
@@ -387,6 +442,8 @@ document.documentElement.classList.add('js');
       const goalSelect = app.querySelector('[data-goal-select]');
       if (goalSelect && user.dailyGoal) goalSelect.value = String(user.dailyGoal);
       applyPlan(user);
+      const manageBtn = app.querySelector('.acct-plan__manage');
+      if (manageBtn) manageBtn.hidden = !meData.subscription?.manage;
       const nameInput = app.querySelector('#acct-name');
       if (nameInput) nameInput.value = user.name || '';
       app.querySelector('[data-user-email]').textContent = user.email;
@@ -818,3 +875,16 @@ function applyGameStats(scope, s) {
   });
   window.addEventListener('appinstalled', () => { card.hidden = true; });
 })();
+
+// "Manage subscription": a fresh link to Paddle's customer portal.
+document.addEventListener('click', async (e) => {
+  const btn = e.target.closest('[data-portal]');
+  if (!btn) return;
+  btn.disabled = true;
+  try {
+    const res = await fetch('/api/me/billing-portal', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+    const data = await res.json();
+    if (res.ok && data.url) { location.href = data.url; return; }
+  } catch {}
+  btn.disabled = false;
+});

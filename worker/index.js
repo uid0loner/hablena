@@ -2,6 +2,7 @@
 // No dependencies: Web Crypto for password hashing and tokens, D1 for storage.
 import { handleAdmin, redeemCode, isAdmin, premiumOf } from './admin.js';
 import { getSettings, hasPremium, lockReason } from './access.js';
+import { paddleWebhook, billingPortal, paddleEnv } from './paddle.js';
 
 const SESSION_COOKIE = '__Host-hablena_session';
 const SESSION_DAYS = 30;
@@ -55,6 +56,9 @@ async function handleApi(request, env, url, ctx) {
   const audioMatch = request.method === 'GET' && url.pathname.match(/^\/api\/audio\/([a-f0-9]{24})\.mp3$/);
   if (audioMatch) return audio(request, env, url, ctx, audioMatch[1]);
 
+  // Paddle calls this from its servers; it is authenticated by its signature, not by Origin.
+  if (route === 'POST /api/paddle/webhook') return paddleWebhook(request, env, json);
+
   if (request.method !== 'GET' && request.method !== 'HEAD') {
     const bad = checkSameOrigin(request, url);
     if (bad) return bad;
@@ -65,6 +69,7 @@ async function handleApi(request, env, url, ctx) {
 
   switch (route) {
     case 'POST /api/me/redeem': return redeemCode(request, env, helpers);
+    case 'POST /api/me/billing-portal': return portal(request, env);
     case 'POST /api/auth/signup': return signup(request, env);
     case 'POST /api/auth/login': return login(request, env);
     case 'POST /api/auth/logout': return logout(request, env);
@@ -179,7 +184,21 @@ async function me(request, env) {
       premium: premiumOf(user), admin: isAdmin(user, env), isTest: !!user.is_test, expiresAt: user.expires_at || null,
     },
     access: { ...(await getSettings(env)), premium: hasPremium(user, env) },
+    subscription: await subscriptionOf(env, user),
+    checkout: { environment: paddleEnv(env), allowed: paddleEnv(env) === 'production' || isAdmin(user, env) },
   }, 200, { 'Cache-Control': 'no-store' });
+}
+
+async function subscriptionOf(env, user) {
+  const r = await env.DB.prepare('SELECT paddle_status, paddle_plan, paddle_customer_id FROM users WHERE id = ?').bind(user.id).first();
+  return r && r.paddle_status ? { status: r.paddle_status, plan: r.paddle_plan, manage: !!r.paddle_customer_id } : null;
+}
+
+async function portal(request, env) {
+  const user = await currentUser(request, env);
+  if (!user) return json({ error: 'unauthorized' }, 401);
+  const row = await env.DB.prepare('SELECT paddle_customer_id, paddle_subscription_id FROM users WHERE id = ?').bind(user.id).first();
+  return billingPortal(request, env, row || {}, json);
 }
 
 // What the current visitor may use: paywall settings plus, when logged in, premium and today's practice count.

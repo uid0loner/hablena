@@ -358,6 +358,47 @@ await call('POST', '/api/progress', { cookie: li.cookie, body: { lessonId: 'u1-l
   check('password: guessing is rate limited', limited);
 }
 
+// Paddle webhook
+{
+  const secret = 'pdl_ntfset_test_secret';
+  const penv = { ...env, PADDLE_WEBHOOK_SECRET: secret, ADMIN_EMAILS: 'boss@example.com' };
+  const sign = async (body, ts = Math.floor(Date.now() / 1000)) => {
+    const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+    const mac = new Uint8Array(await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(`${ts}:${body}`)));
+    return `ts=${ts};h1=${[...mac].map((b) => b.toString(16).padStart(2, '0')).join('')}`;
+  };
+  const hook = async (event, sig) => {
+    const body = JSON.stringify(event);
+    const res = await worker.fetch(new Request(ORIGIN + '/api/paddle/webhook', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Paddle-Signature': sig ?? await sign(body) }, body }), penv);
+    return { status: res.status, data: await res.json() };
+  };
+  const su = await call('POST', '/api/auth/signup', { body: { email: 'buyer@example.com', password: 'correct horse battery' }, ip: '8.8.8.1' });
+  const uid = env.DB.raw.prepare("SELECT id FROM users WHERE email = 'buyer@example.com'").get().id;
+  const end = new Date(Date.now() + 30 * 86_400_000).toISOString();
+  const ev = (type, status, extra = {}) => ({ event_type: type, occurred_at: new Date().toISOString(), data: { id: 'sub_01test', customer_id: 'ctm_01test', status, custom_data: { userId: uid }, billing_cycle: { interval: 'month', frequency: 1 }, current_billing_period: { starts_at: new Date().toISOString(), ends_at: end }, ...extra } });
+  check('paddle: unsigned webhook refused', (await hook(ev('subscription.created', 'active'), 'ts=1;h1=00')).status === 401);
+  const old = Math.floor(Date.now() / 1000) - 3600;
+  check('paddle: old signature refused', (await hook(ev('subscription.created', 'active'), await sign(JSON.stringify(ev('subscription.created', 'active')), old))).status === 401);
+  check('paddle: webhook needs no Origin header', (await hook(ev('subscription.created', 'active'))).status === 200);
+  const row = () => env.DB.raw.prepare('SELECT * FROM users WHERE id = ?').get(uid);
+  check('paddle: premium until period end', row().premium_source === 'paddle' && row().premium_until > Date.parse(end) && row().paddle_plan === 'monthly' && row().paddle_customer_id === 'ctm_01test');
+  const me1 = await call('GET', '/api/me', { cookie: su.cookie });
+  check('paddle: me shows subscription', me1.data.subscription?.status === 'active' && me1.data.subscription.manage === true && me1.data.user.premium.active === true);
+  check('paddle: sandbox checkout only for admins', me1.data.checkout.allowed === false && me1.data.checkout.environment === 'sandbox');
+  // a stale event (older than the last applied one) is ignored
+  const stale = ev('subscription.past_due', 'canceled'); stale.occurred_at = '2000-01-01T00:00:00Z';
+  check('paddle: stale event ignored', (await hook(stale)).data.ignored === 'stale' && row().paddle_status === 'active');
+  await hook(ev('subscription.canceled', 'canceled'));
+  check('paddle: cancellation ends premium', row().premium_until <= Date.now() && row().paddle_status === 'canceled');
+  check('paddle: other events ignored', (await hook({ event_type: 'transaction.completed', data: {} })).data.ignored === true);
+  // lifetime granted by an admin is never touched
+  env.DB.raw.prepare("UPDATE users SET premium_until = 253402214400000, premium_source = 'admin' WHERE id = ?").run(uid);
+  await hook(ev('subscription.updated', 'canceled'));
+  check('paddle: lifetime untouched', row().premium_until === 253402214400000);
+  check('paddle: portal without key', (await call('POST', '/api/me/billing-portal', { cookie: su.cookie, body: {} })).status === 503);
+  check('paddle: unknown user ignored', (await hook({ event_type: 'subscription.created', occurred_at: new Date().toISOString(), data: { id: 'sub_x', status: 'active', custom_data: {} } })).data.ignored === 'unknown_user');
+}
+
 // Account deletion
 check('delete needs password', (await call('POST', '/api/me/delete', { cookie: li.cookie, body: { password: 'nope' } })).status === 401);
 const del = await call('POST', '/api/me/delete', { cookie: li.cookie, body: { password: 'correct horse battery' } });

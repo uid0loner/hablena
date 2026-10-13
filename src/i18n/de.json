@@ -170,7 +170,7 @@
     "privacy": {
       "slug": "datenschutz",
       "title": "Datenschutzerklärung",
-      "description": "Wie Hablena mit deinen Daten umgeht: keine Cookies, kein Tracking, keine Inhalte von Drittanbietern."
+      "description": "Wie Hablena mit deinen Daten umgeht: keine Cookies zum Tracking, keine Analyse-Tools, Bezahlung über Paddle."
     }
   },
   "auth": {
@@ -837,6 +837,17 @@
     "active": "Du hast Premium – aktiv bis {date}.",
     "lifetimeActive": "Du hast Premium Lifetime. ¡Gracias!",
     "freeOpen": "Gerade ist alles freigeschaltet – lern einfach los.",
-    "yearlyPrice": "59,99 €"
+    "yearlyPrice": "59,99 €",
+    "buyMonthly": "Monatlich starten",
+    "buyYearly": "Jährlich starten",
+    "testMode": "Testmodus (Sandbox): nur für Admins sichtbar. Bezahlen mit der Testkarte 4242 4242 4242 4242, beliebiges Ablaufdatum in der Zukunft, CVC 100.",
+    "manage": "Abo verwalten",
+    "success": "Danke! Deine Zahlung ist da – Premium wird gerade freigeschaltet …",
+    "successDone": "¡Bienvenido a Premium! Alles ist freigeschaltet.",
+    "checkoutError": "Der Checkout konnte nicht geladen werden. Bitte versuch es gleich noch einmal.",
+    "subActive": "Abo aktiv ({plan}) – verlängert sich automatisch.",
+    "subCanceled": "Abo gekündigt – Premium läuft bis zum Ende des bezahlten Zeitraums.",
+    "planMonthly": "monatlich",
+    "planYearly": "jährlich"
   }
 }

@@ -170,7 +170,7 @@
     "privacy": {
       "slug": "privacy",
       "title": "Privacy policy",
-      "description": "How Hablena handles your data: no cookies, no tracking, no third-party content."
+      "description": "How Hablena handles your data: no tracking cookies, no analytics, payments via Paddle."
     }
   },
   "auth": {
@@ -837,6 +837,17 @@
     "active": "You have Premium – active until {date}.",
     "lifetimeActive": "You have Premium Lifetime. ¡Gracias!",
     "freeOpen": "Everything is unlocked right now – just start learning.",
-    "yearlyPrice": "€59.99"
+    "yearlyPrice": "€59.99",
+    "buyMonthly": "Start monthly",
+    "buyYearly": "Start yearly",
+    "testMode": "Test mode (sandbox): only visible to admins. Pay with test card 4242 4242 4242 4242, any future expiry date, CVC 100.",
+    "manage": "Manage subscription",
+    "success": "Thank you! Your payment is in – unlocking Premium …",
+    "successDone": "¡Bienvenido a Premium! Everything is unlocked.",
+    "checkoutError": "The checkout could not be loaded. Please try again in a moment.",
+    "subActive": "Subscription active ({plan}) – renews automatically.",
+    "subCanceled": "Subscription cancelled – Premium runs until the end of the paid period.",
+    "planMonthly": "monthly",
+    "planYearly": "yearly"
   }
 }

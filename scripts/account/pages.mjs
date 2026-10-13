@@ -262,6 +262,7 @@ export function accountPages(t, urls, otherLang, site) {
         <span class="acct-plan__text"><strong data-plan-name>${esc(a.plan.free)}</strong><span data-plan-sub>${esc(a.plan.freeText)}</span></span>
       </div>
       <a class="acct-plan__more" href="${urls.premium(lang)}" data-plan-more>${esc(t.premium.see)} →</a>
+      <button class="lp-cta lp-cta--ghost acct-plan__manage" type="button" data-portal hidden>${esc(t.premium.manage)}</button>
       <p class="acct-plan__test" data-plan-test hidden></p>
       <dl class="account__facts">
         <div><dt>${esc(a.email)}</dt><dd data-user-email>…</dd></div>

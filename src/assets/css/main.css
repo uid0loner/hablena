@@ -1890,3 +1890,11 @@ h1, h2, h3, p { margin: 0; }
 .install p { margin: 0; font-size: 15px; line-height: 1.5; color: var(--ink-2); }
 .install__actions { display: flex; align-items: center; gap: 12px; }
 .install__actions .lp-cta { flex: 1; min-height: 46px; }
+
+/* Paddle checkout on the Premium page */
+.prem-price__buy { margin-top: 12px; width: 100%; }
+.prem__test { grid-column: 1 / -1; margin: 0; padding: 12px 14px; border-radius: 12px; background: #EAF1FF; color: #1E4FB0; font-size: 14px; font-weight: 700; }
+.prem__note { grid-column: 1 / -1; margin: 0; padding: 12px 14px; border-radius: 12px; background: var(--ok-tint); color: var(--ok-dark); font-weight: 800; text-align: center; }
+.prem__manage { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 16px; border: 2px solid #EEF0F5; border-radius: 16px; }
+.prem__manage p { margin: 0; font-weight: 700; color: var(--navy); }
+.acct-plan__manage { min-height: 44px; width: 100%; }
