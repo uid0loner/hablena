@@ -233,21 +233,88 @@ async function saveProgress(request, env) {
     ).bind(user.id, w.w, w.ok ? 1 : 0, w.ok ? 0 : 1, now)));
   }
 
-  const xp = xpFor(correct, total);
   const day = localDay(body.today, now);
+  const kind = practice ? 'practice' : /-s\d+$/.test(lessonId) ? 'story' : 'lesson';
+  const maxCombo = Number.isInteger(Number(body.maxCombo)) ? Math.min(Math.max(Number(body.maxCombo), 0), total) : 0;
+  const breakdown = xpBreakdown(correct, total, maxCombo);
+  const xp = breakdown.base + breakdown.accuracy + breakdown.combo;
+
+  // First session today? Then missed days since the last active day may be covered by streak freezes.
+  const todayRow = await env.DB.prepare('SELECT day FROM activity WHERE user_id = ? AND day = ?').bind(user.id, day).first();
+  const firstToday = !todayRow;
+  let freezes = user.freezes || 0;
+  let freezesUsed = 0;
+  if (firstToday && freezes > 0) {
+    const last = await env.DB.prepare('SELECT day FROM activity WHERE user_id = ? AND day < ? ORDER BY day DESC LIMIT 1').bind(user.id, day).first();
+    if (last) {
+      const gap = [];
+      for (let c = prevDay(day); c > last.day && gap.length <= MAX_FREEZES; c = prevDay(c)) gap.push(c);
+      if (gap.length > 0 && gap.length <= freezes) {
+        await env.DB.batch([
+          ...gap.map((d) => env.DB.prepare('INSERT OR IGNORE INTO activity (user_id, day, xp, lessons, frozen) VALUES (?, ?, 0, 0, 1)').bind(user.id, d)),
+          env.DB.prepare('UPDATE users SET freezes = freezes - ? WHERE id = ?').bind(gap.length, user.id),
+        ]);
+        freezesUsed = gap.length;
+        freezes -= gap.length;
+      }
+    }
+  }
+
   await env.DB.prepare(
-    `INSERT INTO activity (user_id, day, xp, lessons) VALUES (?, ?, ?, 1)
-     ON CONFLICT (user_id, day) DO UPDATE SET xp = xp + excluded.xp, lessons = lessons + 1`
-  ).bind(user.id, day, xp).run();
-  return json({ ok: true, xp, ...(await statsFor(env, user.id, day, user.daily_goal)) });
+    `INSERT INTO activity (user_id, day, xp, lessons, perfect, practice, stories) VALUES (?, ?, ?, 1, ?, ?, ?)
+     ON CONFLICT (user_id, day) DO UPDATE SET xp = xp + excluded.xp, lessons = lessons + 1,
+       perfect = perfect + excluded.perfect, practice = practice + excluded.practice, stories = stories + excluded.stories`
+  ).bind(user.id, day, xp, correct === total ? 1 : 0, kind === 'practice' ? 1 : 0, kind === 'story' ? 1 : 0).run();
+
+  // Daily quests: finishing all three pays a bonus once per day
+  const row = await env.DB.prepare('SELECT xp, lessons, perfect, practice, stories, bonus FROM activity WHERE user_id = ? AND day = ?').bind(user.id, day).first();
+  let questBonus = 0;
+  if (!row.bonus && questsFor(day, user.daily_goal).every((q) => questProgress(q, row) >= q.target)) {
+    questBonus = QUEST_BONUS_XP;
+    await env.DB.prepare('UPDATE activity SET bonus = ?, xp = xp + ? WHERE user_id = ? AND day = ?').bind(questBonus, questBonus, user.id, day).run();
+  }
+
+  let stats = await statsFor(env, { ...user, freezes }, day);
+  // Every full week of streak earns a streak freeze (at most two in stock)
+  let freezeEarned = false;
+  if (firstToday && stats.streak > 0 && stats.streak % 7 === 0 && freezes < MAX_FREEZES) {
+    await env.DB.prepare('UPDATE users SET freezes = freezes + 1 WHERE id = ?').bind(user.id).run();
+    freezeEarned = true;
+    stats = { ...stats, freezes: freezes + 1 };
+  }
+  return json({ ...stats, ok: true, xp, breakdown: { ...breakdown, quest: questBonus }, questBonus, questBonusToday: stats.questBonus, firstToday, freezesUsed, freezeEarned });
 }
 
-// 5 XP for finishing, up to 10 more for accuracy.
+// 5 XP for finishing, up to 10 for accuracy, up to 3 for a streak of right answers in a row.
 export const xpFor = (correct, total) => 5 + Math.round((10 * correct) / total);
+export const xpBreakdown = (correct, total, maxCombo = 0) => ({
+  base: 5,
+  accuracy: Math.round((10 * correct) / total),
+  combo: maxCombo >= 8 ? 3 : maxCombo >= 5 ? 2 : maxCombo >= 3 ? 1 : 0,
+});
 export const DAILY_GOAL_XP = 20;
 const MAX_WORDS_PER_SAVE = 80;
+const MAX_FREEZES = 2;
+const QUEST_BONUS_XP = 10;
 const DAILY_GOALS = [10, 20, 30, 40]; // about 5, 10, 15 and 20 minutes a day
 const MOTIVES = ['travel', 'work', 'family', 'culture', 'brain'];
+
+// Three quests a day: always "earn XP", plus two of the others, picked by the date.
+const QUEST_POOL = [
+  { id: 'lessons', target: 2 },
+  { id: 'perfect', target: 1 },
+  { id: 'practice', target: 1 },
+];
+export function questsFor(day, goal = DAILY_GOAL_XP) {
+  const seed = [...day].reduce((n, c) => n + c.charCodeAt(0), 0);
+  const skip = seed % QUEST_POOL.length;
+  return [{ id: 'xp', target: Math.max(10, Math.round((goal * 1.5) / 5) * 5) }, ...QUEST_POOL.filter((_, i) => i !== skip)];
+}
+const questProgress = (q, row) => {
+  if (!row) return 0;
+  if (q.id === 'xp') return row.xp - (row.bonus || 0);
+  return row[q.id] || 0;
+};
 
 // The learner's local date (sent by the browser), accepted only within a day of the server's date.
 function localDay(value, now) {
@@ -259,9 +326,10 @@ function localDay(value, now) {
 
 const prevDay = (day) => new Date(Date.parse(day + 'T00:00:00Z') - 86_400_000).toISOString().slice(0, 10);
 
-async function statsFor(env, userId, today, goal = DAILY_GOAL_XP) {
-  const { results } = await env.DB.prepare('SELECT day, xp FROM activity WHERE user_id = ? ORDER BY day DESC LIMIT 400').bind(userId).all();
-  const days = new Map(results.map((r) => [r.day, r.xp]));
+async function statsFor(env, user, today) {
+  const goal = user.daily_goal || DAILY_GOAL_XP;
+  const { results } = await env.DB.prepare('SELECT day, xp, lessons, perfect, practice, stories, bonus, frozen FROM activity WHERE user_id = ? ORDER BY day DESC LIMIT 400').bind(user.id).all();
+  const days = new Map(results.map((r) => [r.day, r]));
   let streak = 0;
   let cursor = days.has(today) ? today : prevDay(today);
   while (days.has(cursor)) { streak++; cursor = prevDay(cursor); }
@@ -275,7 +343,26 @@ async function statsFor(env, userId, today, goal = DAILY_GOAL_XP) {
     prev = day;
   }
   const xpTotal = results.reduce((n, r) => n + r.xp, 0);
-  return { streak, bestStreak: Math.max(bestStreak, streak), xpTotal, xpToday: days.get(today) || 0, dailyGoal: goal, activeToday: days.has(today) };
+  const todayRow = days.get(today);
+  // The last seven days, oldest first, for the week view
+  const week = [];
+  for (let i = 6, d = today; i >= 0; i--) {
+    week.unshift({ day: d, xp: days.get(d)?.xp || 0, frozen: !!days.get(d)?.frozen });
+    d = prevDay(d);
+  }
+  const quests = questsFor(today, goal).map((q) => ({ ...q, progress: Math.min(q.target, questProgress(q, todayRow)) }));
+  return {
+    streak,
+    bestStreak: Math.max(bestStreak, streak),
+    xpTotal,
+    xpToday: todayRow?.xp || 0,
+    dailyGoal: goal,
+    activeToday: !!todayRow && !todayRow.frozen,
+    freezes: user.freezes || 0,
+    week,
+    quests,
+    questBonus: todayRow?.bonus || 0,
+  };
 }
 
 async function getWords(request, env) {
@@ -288,7 +375,7 @@ async function getWords(request, env) {
 async function getStats(request, env, url) {
   const user = await currentUser(request, env);
   if (!user) return json({ error: 'unauthorized' }, 401);
-  return json(await statsFor(env, user.id, localDay(url.searchParams.get('today'), Date.now()), user.daily_goal));
+  return json(await statsFor(env, user, localDay(url.searchParams.get('today'), Date.now())));
 }
 
 // ---------------------------------------------------------------------------
@@ -493,7 +580,7 @@ function readSessionToken(request) {
 async function currentUser(request, env, withPassword = false) {
   const token = readSessionToken(request);
   if (!token || token.length > 100) return null;
-  const cols = `u.id, u.email, u.name, u.lang, u.created_at, u.daily_goal, u.motive${withPassword ? ', u.password' : ''}`;
+  const cols = `u.id, u.email, u.name, u.lang, u.created_at, u.daily_goal, u.motive, u.freezes${withPassword ? ', u.password' : ''}`;
   return env.DB.prepare(`SELECT ${cols} FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token_hash = ? AND s.expires_at > ?`)
     .bind(await sha256Hex(token), Date.now())
     .first();

@@ -193,6 +193,22 @@ export function accountPages(t, urls, otherLang, site) {
         <div><strong data-stat-streak>0</strong><span>${esc(ap.streak)}</span></div>
       </div>
       <p data-streak-msg>${esc(ap.streakHint)}</p>
+      <ol class="week" data-app-week aria-hidden="true">${ap.weekdays.map(() => '<li><span></span></li>').join('')}</ol>
+      <p class="freeze" title="${esc(ap.freezesHint)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20M4 6.5l16 11M20 6.5l-16 11M9 3.5l3 2.5 3-2.5M9 20.5l3-2.5 3 2.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span data-freezes data-one="${esc(ap.freezes)}" data-none="${esc(ap.freezesNone)}">${esc(ap.freezesNone)}</span></p>
+    </section>
+
+    <section class="side-card side-card--quests" aria-labelledby="quests-title" data-quests data-labels="${esc(JSON.stringify({ xp: ap.questXp, lessons: ap.questLessons, perfect: ap.questPerfect, practice: ap.questPractice }))}">
+      <div class="side-card__head"><h2 id="quests-title">${esc(ap.questsTitle)}</h2></div>
+      <ul class="quests" data-quest-list></ul>
+      <p class="quests__bonus" data-quest-bonus data-done="${esc(ap.questBonusDone)}"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="10" width="18" height="11" rx="2" fill="#FFC400" stroke="#C99700" stroke-width="1.6"/><path d="M3 10l2-5h14l2 5" fill="#E0A800" stroke="#C99700" stroke-width="1.6" stroke-linejoin="round"/><rect x="10" y="12" width="4" height="5" rx="1" fill="#0A1633"/></svg><span>${esc(ap.questBonus)}</span></p>
+    </section>
+
+    <section class="side-card side-card--level" aria-labelledby="level-title" data-level-card data-text="${esc(ap.levelText)}">
+      <div class="side-card__level">
+        <span class="lvl-badge lvl-badge--md" aria-hidden="true"><svg viewBox="0 0 48 52"><path d="M24 2l20 8v16c0 13-9 21-20 24C13 47 4 39 4 26V10z" fill="#1E6BD6" stroke="#1554AE" stroke-width="3"/></svg><b data-stat-level>1</b></span>
+        <div><h2 id="level-title">${esc(ap.levelTitle)} <span data-stat-level>1</span></h2><p data-level-msg></p></div>
+      </div>
+      <div class="lp-level__bar"><span data-level-fill></span></div>
     </section>
 
     <section class="side-card">

@@ -298,6 +298,7 @@ document.documentElement.classList.add('js');
     bar.classList.toggle('is-full', pct >= 100);
     app.querySelector('[data-goal-msg]').textContent = pct >= 100 ? D.goalDone : D.goalText.replace('{xp}', s.xpToday).replace('{goal}', s.dailyGoal);
     app.querySelector('[data-streak-msg]').textContent = s.activeToday ? D.streakActive : D.streakHint;
+    applyGameStats(app, s);
   };
 
   const applyBadges = (progress, s) => {
@@ -432,6 +433,7 @@ document.documentElement.classList.add('js');
     document.querySelectorAll('[data-stat-streak]').forEach((el) => { el.textContent = String(s.streak); });
     document.querySelectorAll('[data-stat-xptotal]').forEach((el) => { el.textContent = String(s.xpTotal); });
     document.querySelector('[data-chip-streak]')?.classList.toggle('is-active', s.activeToday);
+    applyGameStats(document, s);
   }).catch(() => {});
 })();
 
@@ -594,3 +596,49 @@ async function hablenaLearnedWords(allWords) {
     render();
   }).catch(() => location.replace(vault.dataset.login));
 })();
+
+// Levels, week view, streak freezes and daily quests (app pages)
+const HABLENA_LEVEL_START = (n) => 25 * (n - 1) * n / 2 + 5 * (n - 1);
+const hablenaLevelOf = (xp) => { let n = 1; while (HABLENA_LEVEL_START(n + 1) <= xp) n++; return n; };
+function applyGameStats(scope, s) {
+  const level = hablenaLevelOf(s.xpTotal || 0);
+  document.querySelectorAll('[data-stat-level]').forEach((el) => { el.textContent = String(level); });
+  const card = scope.querySelector('[data-level-card]');
+  if (card) {
+    const start = HABLENA_LEVEL_START(level);
+    const next = HABLENA_LEVEL_START(level + 1);
+    card.querySelector('[data-level-msg]').textContent = card.dataset.text.replace('{left}', next - s.xpTotal).replace('{next}', level + 1);
+    card.querySelector('[data-level-fill]').style.width = `${Math.round(((s.xpTotal - start) / (next - start)) * 100)}%`;
+  }
+  const week = scope.querySelector('[data-app-week]');
+  if (week && s.week) {
+    let labels = [];
+    try { labels = JSON.parse(document.documentElement.lang === 'de' ? '["Mo","Di","Mi","Do","Fr","Sa","So"]' : '["Mo","Tu","We","Th","Fr","Sa","Su"]'); } catch {}
+    [...week.children].forEach((li, i) => {
+      const d = s.week[i];
+      li.className = `${d.frozen ? 'is-frozen' : d.xp > 0 ? 'is-on' : ''}${i === 6 ? ' is-today' : ''}`;
+      li.querySelector('span').textContent = labels[(new Date(d.day + 'T12:00:00Z').getUTCDay() + 6) % 7] || '';
+    });
+  }
+  const fz = scope.querySelector('[data-freezes]');
+  if (fz) fz.textContent = s.freezes > 0 ? fz.dataset.one.replace('{n}', s.freezes) : fz.dataset.none;
+  const quests = scope.querySelector('[data-quests]');
+  if (quests && s.quests) {
+    const labels = JSON.parse(quests.dataset.labels);
+    const list = quests.querySelector('[data-quest-list]');
+    list.innerHTML = '';
+    s.quests.forEach((q) => {
+      const li = document.createElement('li');
+      const doneQ = q.progress >= q.target;
+      li.className = `quest${doneQ ? ' is-done' : ''}`;
+      li.innerHTML = '<span class="quest__check" aria-hidden="true"></span><span class="quest__body"><span class="quest__label"></span><span class="quest__bar"><span></span></span></span><span class="quest__count"></span>';
+      li.querySelector('.quest__label').textContent = (labels[q.id] || q.id).replace('{n}', q.target);
+      li.querySelector('.quest__bar span').style.width = `${Math.round((q.progress / q.target) * 100)}%`;
+      li.querySelector('.quest__count').textContent = `${q.progress}/${q.target}`;
+      list.append(li);
+    });
+    const bonus = quests.querySelector('[data-quest-bonus]');
+    bonus.classList.toggle('is-done', s.questBonus > 0);
+    if (s.questBonus > 0) bonus.querySelector('span').textContent = bonus.dataset.done;
+  }
+}

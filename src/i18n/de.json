@@ -355,7 +355,27 @@
     "tapToTranslate": "Tipp auf einen Satz, um die Übersetzung zu sehen",
     "storyNode": "Geschichte",
     "storyLocked": "Schließ alle Lektionen dieser Einheit ab, um die Geschichte freizuschalten.",
-    "listenStory": "Anhören"
+    "listenStory": "Anhören",
+    "rewardBase": "Lektion geschafft",
+    "rewardAccuracy": "Genauigkeit",
+    "rewardCombo": "Combo-Bonus",
+    "rewardQuest": "Tagesaufgaben geschafft",
+    "levelUp": "Level {n} erreicht!",
+    "levelUpText": "Weiter so, du wirst richtig gut.",
+    "levelProgress": "Level {n} · noch {left} XP bis Level {next}",
+    "streakExtended": "{n} Tage am Stück!",
+    "streakStart": "Dein Streak beginnt!",
+    "freezeEarned": "Eine volle Woche: +1 Streakschutz",
+    "freezeUsed": "Dein Streakschutz hat deinen Streak gerettet.",
+    "weekdays": [
+      "Mo",
+      "Di",
+      "Mi",
+      "Do",
+      "Fr",
+      "Sa",
+      "So"
+    ]
   },
   "app": {
     "learnTab": "Lernen",
@@ -421,7 +441,28 @@
           "500 XP gesammelt"
         ]
       }
-    }
+    },
+    "questsTitle": "Tagesaufgaben",
+    "questXp": "Sammle {n} XP",
+    "questLessons": "Schaffe {n} Lektionen",
+    "questPerfect": "Eine Lektion ohne Fehler",
+    "questPractice": "Einmal üben",
+    "questBonus": "Alle drei: +10 XP Bonus",
+    "questBonusDone": "Bonus kassiert!",
+    "freezes": "{n}× Streakschutz",
+    "freezesNone": "Noch kein Streakschutz",
+    "freezesHint": "Für jede volle Streak-Woche bekommst du einen Streakschutz (höchstens 2). Er rettet deinen Streak, wenn du mal einen Tag aussetzt.",
+    "levelTitle": "Level",
+    "levelText": "Noch {left} XP bis Level {next}",
+    "weekdays": [
+      "Mo",
+      "Di",
+      "Mi",
+      "Do",
+      "Fr",
+      "Sa",
+      "So"
+    ]
   },
   "course": {
     "kicker": "01 — Der Kurs",

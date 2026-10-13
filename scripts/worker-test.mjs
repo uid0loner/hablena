@@ -141,13 +141,54 @@ await call('POST', '/api/progress', { cookie: li.cookie, body: { lessonId: 'u1-l
   check('practice earns XP without lesson progress', pr.status === 200 && pr.data.xp === 13 && after === before);
 }
 
+// Combo bonus, daily quests, streak freezes
+{
+  const day = (offset) => new Date(Date.now() + offset * 86_400_000).toISOString().slice(0, 10);
+  const su = await call('POST', '/api/auth/signup', { body: { email: 'quest@example.com', password: 'correct horse battery', dailyGoal: 10 }, ip: '9.9.9.1' });
+  const cookie = su.cookie;
+  const uid = env.DB.raw.prepare("SELECT id FROM users WHERE email = 'quest@example.com'").get().id;
+  const save = (body) => call('POST', '/api/progress', { cookie, body: { today: day(0), ...body } });
+  const r1 = (await save({ lessonId: 'u1-l1', correct: 10, total: 10, maxCombo: 9 })).data;
+  check('combo bonus', r1.breakdown.combo === 3 && r1.xp === 18 && r1.firstToday === true);
+  check('stats: week of seven days', r1.week.length === 7 && r1.week[6].day === day(0) && r1.week[6].xp >= 18);
+  check('stats: three quests', r1.quests.length === 3 && r1.quests[0].id === 'xp' && r1.quests[0].target === 15);
+  const r2 = (await save({ lessonId: 'u1-l2', correct: 9, total: 10, maxCombo: 99 })).data;
+  check('combo capped by total', r2.breakdown.combo === 3 && r2.firstToday === false);
+  // finish whatever quests are left
+  await save({ lessonId: 'practice', correct: 10, total: 10 });
+  const r3 = (await save({ lessonId: 'practice', correct: 10, total: 10 })).data;
+  const st = (await call('GET', `/api/stats?today=${day(0)}`, { cookie })).data;
+  check('all quests done', st.quests.every((q) => q.progress >= q.target));
+  check('quest bonus paid once', st.questBonus === 10 && env.DB.raw.prepare('SELECT bonus FROM activity WHERE user_id = ? AND day = ?').get(uid, day(0)).bonus === 10);
+  const r4 = (await save({ lessonId: 'practice', correct: 10, total: 10 })).data;
+  check('no second quest bonus', r4.questBonus === 0, JSON.stringify({ r1: r1.questBonus, r2: r2.questBonus, r3: r3.questBonus, r4: r4.questBonus, q: r4.quests }));
+
+  // Streak freeze earned at 7 days
+  env.DB.raw.exec(`DELETE FROM activity WHERE user_id = '${uid}'`);
+  for (let i = 1; i <= 6; i++) env.DB.raw.prepare('INSERT INTO activity (user_id, day, xp, lessons) VALUES (?, ?, 10, 1)').run(uid, day(-i));
+  const f1 = (await save({ lessonId: 'u1-l3', correct: 10, total: 10 })).data;
+  check('7-day streak earns a freeze', f1.streak === 7 && f1.freezeEarned === true && f1.freezes === 1);
+
+  // Freezes cover missed days
+  env.DB.raw.exec(`DELETE FROM activity WHERE user_id = '${uid}'`);
+  env.DB.raw.prepare('UPDATE users SET freezes = 2 WHERE id = ?').run(uid);
+  for (const i of [3, 4]) env.DB.raw.prepare('INSERT INTO activity (user_id, day, xp, lessons) VALUES (?, ?, 10, 1)').run(uid, day(-i));
+  const f2 = (await save({ lessonId: 'u1-l3', correct: 10, total: 10 })).data;
+  check('freezes bridge a two-day gap', f2.freezesUsed === 2 && f2.streak === 5 && f2.freezes === 0 && f2.week.filter((w) => w.frozen).length === 2);
+  env.DB.raw.exec(`DELETE FROM activity WHERE user_id = '${uid}'`);
+  env.DB.raw.prepare('UPDATE users SET freezes = 1 WHERE id = ?').run(uid);
+  for (const i of [3, 4]) env.DB.raw.prepare('INSERT INTO activity (user_id, day, xp, lessons) VALUES (?, ?, 10, 1)').run(uid, day(-i));
+  const f3 = (await save({ lessonId: 'u1-l3', correct: 10, total: 10 })).data;
+  check('not enough freezes: streak restarts', f3.freezesUsed === 0 && f3.streak === 1 && f3.freezes === 1);
+}
+
 // Account deletion
 check('delete needs password', (await call('POST', '/api/me/delete', { cookie: li.cookie, body: { password: 'nope' } })).status === 401);
 const del = await call('POST', '/api/me/delete', { cookie: li.cookie, body: { password: 'correct horse battery' } });
 check('delete 200', del.status === 200);
 check('user removed', !env.DB.raw.prepare("SELECT 1 FROM users WHERE email = 'nico@example.com'").get());
-check('progress removed', !env.DB.raw.prepare('SELECT 1 FROM progress').get());
-check('activity removed', !env.DB.raw.prepare('SELECT 1 FROM activity').get());
+check('progress removed', !env.DB.raw.prepare('SELECT 1 FROM progress p LEFT JOIN users u ON u.id = p.user_id WHERE u.id IS NULL').get());
+check('activity removed', !env.DB.raw.prepare('SELECT 1 FROM activity a LEFT JOIN users u ON u.id = a.user_id WHERE u.id IS NULL').get());
 check('word stats removed', !env.DB.raw.prepare("SELECT 1 FROM word_stats WHERE word = 'hola'").get());
 check('sessions removed', !env.DB.raw.prepare('SELECT 1 FROM sessions s LEFT JOIN users u ON u.id = s.user_id WHERE u.id IS NULL').get());
 

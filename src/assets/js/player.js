@@ -110,6 +110,7 @@
   let index = 0;
   let correct = 0;
   let combo = 0;
+  let maxCombo = 0;
   let current = null;
   let phase = 'answer';
   let startedAt = Date.now();
@@ -152,6 +153,7 @@
     if (ok) {
       correct++;
       combo++;
+      maxCombo = Math.max(maxCombo, combo);
       sfx(combo >= 3 && [3, 5, 8, 12].includes(combo) ? 'combo' : 'correct');
     } else {
       combo = 0;
@@ -560,6 +562,78 @@
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   };
 
+  // ---------- rewards: XP breakdown, streak, level ----------
+  const levelStart = (n) => 25 * (n - 1) * n / 2 + 5 * (n - 1);
+  const levelOf = (xp) => { let n = 1; while (levelStart(n + 1) <= xp) n++; return n; };
+  const wait = (ms) => new Promise((r) => setTimeout(r, reduceMotion ? 0 : ms));
+  const weekdayOf = (day) => (new Date(day + 'T12:00:00Z').getUTCDay() + 6) % 7;
+
+  async function showRewards(data) {
+    const b = data.breakdown || { base: 5, accuracy: data.xp - 5, combo: 0, quest: 0 };
+    const gained = data.xp + (data.questBonus || 0);
+    countUp($('[data-stat-xp]'), gained);
+
+    // XP breakdown, line by line
+    const list = $('[data-rewards]');
+    list.innerHTML = '';
+    list.hidden = false;
+    const rows = [[S.rewardBase, b.base], [S.rewardAccuracy, b.accuracy], [S.rewardCombo, b.combo], [S.rewardQuest, b.quest]].filter(([, v]) => v > 0);
+    for (const [label, v] of rows) {
+      await wait(260);
+      list.append(h('li', { class: label === S.rewardQuest ? 'is-quest' : '' }, h('span', {}, label), h('b', {}, `+${v} XP`)));
+      sfx('tap');
+    }
+
+    // Streak: celebrate the first session of the day
+    if (data.streak && data.firstToday) {
+      const card = $('[data-streak]');
+      const num = $('[data-streak-num]');
+      $('[data-streak-text]').textContent = data.streak === 1 ? S.streakStart : S.streakExtended.replace('{n}', data.streak);
+      const sub = $('[data-streak-sub]');
+      sub.hidden = !(data.freezesUsed || data.freezeEarned);
+      sub.textContent = data.freezesUsed ? S.freezeUsed : data.freezeEarned ? S.freezeEarned : '';
+      const week = $('[data-week]');
+      week.innerHTML = '';
+      (data.week || []).forEach((d, i) => {
+        week.append(h('li', { class: `${d.frozen ? 'is-frozen' : d.xp > 0 ? 'is-on' : ''}${i === 6 ? ' is-today' : ''}` },
+          h('span', {}, S.weekdays[weekdayOf(d.day)])));
+      });
+      await wait(300);
+      card.hidden = false;
+      if (data.firstToday && data.streak > 1 && !reduceMotion) {
+        num.textContent = String(data.streak - 1);
+        await wait(500);
+        num.textContent = String(data.streak);
+        replay(card, 'is-bump');
+        sfx('combo');
+      } else num.textContent = String(data.streak);
+    }
+
+    // Level and level-up
+    if (typeof data.xpTotal === 'number') {
+      const now = levelOf(data.xpTotal);
+      const before = levelOf(Math.max(0, data.xpTotal - gained));
+      const start = levelStart(now);
+      const next = levelStart(now + 1);
+      $('[data-level-num]').textContent = String(now);
+      $('[data-level-text]').textContent = S.levelProgress.replace('{n}', now).replace('{left}', next - data.xpTotal).replace('{next}', now + 1);
+      const bar = $('[data-level-bar]');
+      bar.style.width = `${Math.round(((Math.max(0, data.xpTotal - gained) - start) / (next - start)) * 100)}%`;
+      await wait(250);
+      $('[data-level]').hidden = false;
+      requestAnimationFrame(() => { bar.style.width = `${Math.round(((data.xpTotal - start) / (next - start)) * 100)}%`; });
+      if (now > before) {
+        await wait(700);
+        $('[data-levelup-num]').textContent = String(now);
+        $('[data-levelup-title]').textContent = S.levelUp.replace('{n}', now);
+        $('[data-levelup]').hidden = false;
+        replay($('[data-levelup]'), 'is-bump');
+        sfx('complete');
+        confetti();
+      }
+    }
+  }
+
   async function finish() {
     index = steps.length;
     setProgress();
@@ -584,7 +658,7 @@
     try {
       const res = await fetch('/api/progress', {
         method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lessonId: L.id, correct, total: scored, today: localToday(), words: wordResults }),
+        body: JSON.stringify({ lessonId: L.id, correct, total: scored, today: localToday(), words: wordResults, maxCombo }),
       });
       if (res.status === 401) {
         note.innerHTML = '';
@@ -594,10 +668,7 @@
       }
       if (!res.ok) throw new Error();
       const data = await res.json();
-      if (data.streak) {
-        $('[data-streak-text]').textContent = S.streakDays.replace('{n}', data.streak);
-        $('[data-streak]').hidden = false;
-      }
+      await showRewards(data);
     } catch {
       note.textContent = S.saveFailed;
       note.hidden = false;
@@ -670,7 +741,9 @@
     if (L.mode === 'story') { stage.innerHTML = ''; thread = null; }
     correct = 0;
     combo = 0;
+    maxCombo = 0;
     wordResults = [];
+    ['[data-rewards]', '[data-levelup]', '[data-level]'].forEach((sel) => { $(sel).hidden = true; });
     startedAt = Date.now();
     done.hidden = true;
     stage.hidden = false;

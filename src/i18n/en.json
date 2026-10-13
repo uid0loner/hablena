@@ -355,7 +355,27 @@
     "tapToTranslate": "Tap a line to see the translation",
     "storyNode": "Story",
     "storyLocked": "Finish all lessons of this unit to unlock the story.",
-    "listenStory": "Listen"
+    "listenStory": "Listen",
+    "rewardBase": "Lesson complete",
+    "rewardAccuracy": "Accuracy",
+    "rewardCombo": "Combo bonus",
+    "rewardQuest": "Daily quests complete",
+    "levelUp": "Level {n} reached!",
+    "levelUpText": "Keep it up, you’re getting really good.",
+    "levelProgress": "Level {n} · {left} XP to level {next}",
+    "streakExtended": "{n} days in a row!",
+    "streakStart": "Your streak starts now!",
+    "freezeEarned": "A full week: +1 streak freeze",
+    "freezeUsed": "Your streak freeze saved your streak.",
+    "weekdays": [
+      "Mo",
+      "Tu",
+      "We",
+      "Th",
+      "Fr",
+      "Sa",
+      "Su"
+    ]
   },
   "app": {
     "learnTab": "Learn",
@@ -421,7 +441,28 @@
           "500 XP earned"
         ]
       }
-    }
+    },
+    "questsTitle": "Daily quests",
+    "questXp": "Earn {n} XP",
+    "questLessons": "Finish {n} lessons",
+    "questPerfect": "A lesson without mistakes",
+    "questPractice": "Practise once",
+    "questBonus": "All three: +10 bonus XP",
+    "questBonusDone": "Bonus collected!",
+    "freezes": "{n}× streak freeze",
+    "freezesNone": "No streak freeze yet",
+    "freezesHint": "Every full week of streak earns a streak freeze (up to 2). It saves your streak if you miss a day.",
+    "levelTitle": "Level",
+    "levelText": "{left} XP to level {next}",
+    "weekdays": [
+      "Mo",
+      "Tu",
+      "We",
+      "Th",
+      "Fr",
+      "Sa",
+      "Su"
+    ]
   },
   "course": {
     "kicker": "01 — The course",
