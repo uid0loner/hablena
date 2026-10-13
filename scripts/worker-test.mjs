@@ -215,6 +215,19 @@ check('unknown route → 404', (await call('GET', '/api/nothing')).status === 40
     const st2 = await (await worker.fetch(new Request(`${ORIGIN}/api/audio/status`), all)).json();
     check('audio status: done', st2.done === true);
 
+    // Monthly budget: generation stops before the limit; placeholder clips are skipped by the cron
+    env.DB.raw.exec('DELETE FROM audio_cache');
+    manifest.clips[h('9')] = ['texto de prueba', 'elevenlabs', 'voice123', 1];
+    const tight = manifestEnv({ TTS_API_KEY: 'secret', AZURE_TTS_KEY: 'akey', GOOGLE_TTS_KEY: 'gkey', TTS_MONTHLY_CHAR_LIMIT: '20' });
+    const wb = await warmAudio(tight);
+    check('budget: warm-up stops at the monthly limit', wb.made === 3 && wb.error?.budget === true);
+    check('budget: on-demand request refused when over budget', (await get(tight, h('e'))).status === 503);
+    const big = manifestEnv({ TTS_API_KEY: 'secret', AZURE_TTS_KEY: 'akey', GOOGLE_TTS_KEY: 'gkey' });
+    const wc = await warmAudio(big);
+    check('placeholder clips are not pre-generated', !env.DB.raw.prepare('SELECT 1 FROM audio_cache WHERE hash = ?').get(h('9')) && wc.made === 1);
+    check('placeholder clip is generated on demand', (await get(big, h('9'))).status === 200);
+    delete manifest.clips[h('9')];
+
     // Errors: reported per request, and the warm-up stops early on a bad key
     env.DB.raw.exec('DELETE FROM audio_cache');
     calls = 0;

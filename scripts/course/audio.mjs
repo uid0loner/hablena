@@ -40,20 +40,26 @@ export function lessonAudioMap(lesson, lessonIndex) {
 // What the Worker may synthesise: hash → [text, provider, voiceId]
 export function audioManifest() {
   const clips = {};
+  const roles = {}; // hash → roles that need the clip
+  const note = (hash, role) => { (roles[hash] ||= new Set()).add(role); };
   ALL_LESSONS.forEach((lesson, li) => {
     for (const [role, texts] of Object.entries(speakableTexts(lesson, li))) {
       const voice = voiceOf(role);
-      for (const t of texts) clips[clipHash(voice, t)] = [t, voice.provider, voice.id];
+      for (const t of texts) { const h = clipHash(voice, t); clips[h] = [t, voice.provider, voice.id]; note(h, role); }
     }
   });
   const main = voiceOf(MAIN);
-  for (const t of guideTexts()) clips[clipHash(main, t)] = [t, main.provider, main.id];
+  for (const t of guideTexts()) { const h = clipHash(main, t); clips[h] = [t, main.provider, main.id]; note(h, MAIN); }
   // story scenes: every line in its speaker's voice
-  for (const st of STORIES) for (const line of st.steps.filter((x) => x.t === 'line')) { const v = voiceOf(line.s); clips[clipHash(v, line.es)] = [line.es, v.provider, v.id]; }
+  for (const st of STORIES) for (const line of st.steps.filter((x) => x.t === 'line')) { const v = voiceOf(line.s); const h = clipHash(v, line.es); clips[h] = [line.es, v.provider, v.id]; note(h, line.s); }
   // homepage demo and character introductions
-  for (const [role, t] of demoClips()) { const v = voiceOf(role); clips[clipHash(v, t)] = [t, v.provider, v.id]; }
+  for (const [role, t] of demoClips()) { const v = voiceOf(role); const h = clipHash(v, t); clips[h] = [t, v.provider, v.id]; note(h, role); }
   // practice mode speaks every word in Hablena's voice
-  for (const lesson of ALL_LESSONS) for (const v of lesson.vocab) clips[clipHash(main, v.es)] = [v.es, main.provider, main.id];
+  for (const lesson of ALL_LESSONS) for (const v of lesson.vocab) { const h = clipHash(main, v.es); clips[h] = [v.es, main.provider, main.id]; note(h, MAIN); }
+  // Clips needed only by speakers that have no voice of their own yet are generated on demand,
+  // not in advance: they would be thrown away once the real voice is set.
+  const placeholder = (role) => !VOICE_CONFIG.voices[role]?.id;
+  for (const [h, set] of Object.entries(roles)) if ([...set].every(placeholder)) clips[h] = [...clips[h], 1];
   // voice id → speaker names, so /api/audio/status can report progress per voice
   const voices = {};
   for (const [role, v] of Object.entries(VOICE_CONFIG.voices)) {

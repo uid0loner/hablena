@@ -299,6 +299,16 @@ async function getStats(request, env, url) {
 
 const SITE_ORIGIN = 'https://hablena.com';
 const WARM_BATCH = 20; // clips per cron run (stays well inside the subrequest limit)
+// Characters we allow ourselves to generate per calendar month (the provider plan is the hard limit;
+// this keeps a safety margin). Override with the TTS_MONTHLY_CHAR_LIMIT variable.
+const DEFAULT_MONTHLY_CHARS = 25_000;
+const monthlyLimit = (env) => Number(env.TTS_MONTHLY_CHAR_LIMIT) || DEFAULT_MONTHLY_CHARS;
+async function charsThisMonth(env, manifest, now = Date.now()) {
+  const d = new Date(now);
+  const start = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1);
+  const { results } = await env.DB.prepare('SELECT hash FROM audio_cache WHERE created_at >= ?').bind(start).all();
+  return results.reduce((n, r) => n + (manifest.clips[r.hash]?.[0].length || 0), 0);
+}
 const PROVIDER_KEYS = { elevenlabs: 'TTS_API_KEY', azure: 'AZURE_TTS_KEY', google: 'GOOGLE_TTS_KEY' };
 const providerKey = (env, provider) => env[PROVIDER_KEYS[provider]];
 
@@ -346,6 +356,7 @@ async function audio(request, env, url, ctx, hash) {
   const clip = manifest.clips[hash];
   if (!clip) return json({ error: 'not_found' }, 404);
   if (!providerKey(env, clip[1])) return json({ error: 'audio_not_configured' }, 503);
+  if ((await charsThisMonth(env, manifest)) + clip[0].length > monthlyLimit(env)) return json({ error: 'audio_budget_reached' }, 503);
 
   try {
     return keep(audioResponse(await generateClip(env, hash, clip, manifest)));
@@ -369,7 +380,11 @@ export async function warmAudio(env, limit = WARM_BATCH) {
   let made = 0;
   let failed = 0;
   let error = null;
-  for (const [hash, clip] of missing.filter(([, c]) => providerKey(env, c[1])).slice(0, limit)) {
+  let budget = monthlyLimit(env) - (await charsThisMonth(env, manifest));
+  // Skip clips for placeholder voices (flag at index 3): they are generated on demand only.
+  for (const [hash, clip] of missing.filter(([, c]) => providerKey(env, c[1]) && !c[3]).slice(0, limit)) {
+    if (clip[0].length > budget) { error = { budget: true }; break; }
+    budget -= clip[0].length;
     try {
       await generateClip(env, hash, clip, manifest);
       made++;
@@ -400,7 +415,8 @@ async function audioStatus(env) {
     if (stored.has(hash)) { p.ready++; v.ready++; }
   }
   const ready = clips.filter(([hash]) => stored.has(hash)).length;
-  return json({ total: clips.length, ready, done: ready === clips.length, voices: byVoice, providers: byProvider }, 200, { 'Cache-Control': 'no-store' });
+  const pending = clips.filter(([hash, c]) => c[3] && !stored.has(hash)).length;
+  return json({ total: clips.length, ready, done: ready + pending === clips.length, onDemandOnly: pending, charsThisMonth: await charsThisMonth(env, manifest), monthlyLimit: monthlyLimit(env), voices: byVoice, providers: byProvider }, 200, { 'Cache-Control': 'no-store' });
 }
 
 class TtsError extends Error {
