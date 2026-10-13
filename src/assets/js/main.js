@@ -154,7 +154,11 @@ document.documentElement.classList.add('js');
           if (goal) body.dailyGoal = Number(goal.value);
         }
         const res = await post(`/api/auth/${mode}`, body);
-        if (res.ok) { location.href = form.dataset.redirect; return; }
+        if (res.ok) {
+          const next = new URLSearchParams(location.search).get('next') || '';
+          location.href = /^\/[a-z0-9/_-]*$/i.test(next) && !next.startsWith('//') ? next : form.dataset.redirect;
+          return;
+        }
         showError(errorBox, messages, res.data.error || 'server_error');
       } catch {
         showError(errorBox, messages, 'network');
@@ -335,6 +339,7 @@ document.documentElement.classList.add('js');
       }
       const goalSelect = app.querySelector('[data-goal-select]');
       if (goalSelect && user.dailyGoal) goalSelect.value = String(user.dailyGoal);
+      applyPlan(user);
       app.querySelector('[data-user-email]').textContent = user.email;
       app.querySelector('[data-user-since]').textContent = new Date(user.createdAt).toLocaleDateString(document.documentElement.lang, { year: 'numeric', month: 'long', day: 'numeric' });
       const [progress, stats] = await Promise.all([
@@ -359,6 +364,46 @@ document.documentElement.classList.add('js');
       app.removeAttribute('aria-busy');
     })
     .catch(() => location.replace(D.login));
+
+  // Plan (Free / Premium / Lifetime), test-access notice, admin link and voucher codes
+  const planCard = app.querySelector('[data-plan]');
+  const planT = (() => { try { return JSON.parse(planCard.dataset.t); } catch { return {}; } })();
+  const longDate = (ms) => new Date(ms).toLocaleDateString(document.documentElement.lang, { year: 'numeric', month: 'long', day: 'numeric' });
+  const planLabel = (p) => (p.lifetime ? planT.lifetime : planT.until.replace('{date}', longDate(p.until)));
+  function applyPlan(user) {
+    if (!planCard) return;
+    const p = user.premium || {};
+    planCard.classList.toggle('is-premium', !!p.active);
+    planCard.classList.toggle('is-lifetime', !!p.lifetime);
+    planCard.querySelector('[data-plan-name]').textContent = p.lifetime ? planT.lifetime : p.active ? planT.premium : planT.free;
+    planCard.querySelector('[data-plan-sub]').textContent = p.lifetime ? planT.lifetimeText : p.active ? planT.until.replace('{date}', longDate(p.until)) : planT.freeText;
+    document.querySelectorAll('[data-avatar]').forEach((a) => a.classList.toggle('is-premium', !!p.active));
+    const test = app.querySelector('[data-plan-test]');
+    if (test) { test.hidden = !user.expiresAt; if (user.expiresAt) test.textContent = planT.testUntil.replace('{date}', longDate(user.expiresAt)); }
+    const adminLink = app.querySelector('[data-admin-link]');
+    if (adminLink) adminLink.hidden = !user.admin;
+  }
+  const redeemForm = app.querySelector('[data-redeem-form]');
+  redeemForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const box = redeemForm.querySelector('[data-auth-error]');
+    const okBox = redeemForm.querySelector('[data-redeem-ok]');
+    const input = redeemForm.elements.code;
+    const btn = redeemForm.querySelector('button');
+    box.hidden = true; okBox.hidden = true;
+    const code = input.value.trim();
+    if (!code) { input.focus(); return; }
+    btn.disabled = true;
+    const res = await post('/api/me/redeem', { code }).catch(() => null);
+    btn.disabled = false;
+    if (!res || !res.ok) { showError(box, messages, res ? res.data.error || 'server_error' : 'network'); return; }
+    input.value = '';
+    okBox.textContent = planT.redeemed.replace('{plan}', planLabel(res.data.premium));
+    okBox.hidden = false;
+    const me = await fetch('/api/me', { credentials: 'same-origin' }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+    if (me) applyPlan(me.user);
+    window.HablenaSfx?.play?.('complete');
+  });
 
   const goalSelect = app.querySelector('[data-goal-select]');
   goalSelect?.addEventListener('change', async () => {
@@ -425,6 +470,7 @@ document.documentElement.classList.add('js');
     const avatar = document.querySelector('[data-avatar]');
     if (avatar) {
       avatar.textContent = (me.user.name || me.user.email || '?').trim().charAt(0).toUpperCase();
+      avatar.classList.toggle('is-premium', !!me.user.premium?.active);
       avatar.href = document.querySelector('.ah__brand')?.getAttribute('href') + '#account';
     }
     return fetch(`/api/stats?today=${today}`, { credentials: 'same-origin' }).then((r) => (r.ok ? r.json() : null));

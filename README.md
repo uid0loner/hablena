@@ -66,6 +66,8 @@ no tracking, self-hosted fonts). Update it whenever accounts, payments or new se
 | `POST /api/auth/logout` | end session |
 | `GET /api/me` | current user |
 | `POST /api/me/delete` | delete account (password required) |
+| `POST /api/me/redeem` | redeem a premium voucher code |
+| `/api/admin/*` | admin portal API (see below) |
 | `GET /api/progress` | lesson progress of the current user |
 | `POST /api/progress` | save a lesson result, returns XP and streak |
 | `GET /api/stats?today=YYYY-MM-DD` | streak, total XP, today's XP and daily goal |
@@ -81,6 +83,28 @@ Setup once:
 1. Cloudflare dashboard → **Storage & Databases → D1** → create `hablena` (location: **EU jurisdiction**)
 2. Add the binding to `wrangler.jsonc` (see the comment there) with the database ID
 3. Set the Cloudflare deploy command to `npx wrangler d1 migrations apply hablena --remote && npx wrangler deploy`
+
+## Admin portal
+
+`/admin/` (static page `src/admin/index.html`, script `src/assets/js/admin.js`, styles `src/assets/css/admin.css`,
+German, noindex) manages accounts through `/api/admin/*` (`worker/admin.js`):
+
+- **Übersicht**: users, new sign-ups, premium/lifetime, active learners, lessons and XP, a 30-day chart and the
+  monthly voice budget.
+- **Benutzer**: search (email, name, note), filters (premium, free, lifetime, test, blocked, expired, admins),
+  sorting, paging and CSV export. Each user opens a panel to add premium (1 day, 1 week, 1 month, 1 year, custom
+  days, until a date, lifetime) or revoke it, limit the account to a date, block/unblock, make admin, mark as
+  test account, edit name and internal note, create a new password (shown once), log out everywhere and delete.
+- **Testzugänge**: time-limited accounts with a generated password and optional premium; the credentials are
+  shown once with a copy button. Expired accounts are logged out and cannot log in.
+- **Gutscheincodes**: premium codes (days or lifetime, uses per code, redeemable until, prefix, note), copy/CSV,
+  enable/disable. Users redeem them in "Dein Konto" (`POST /api/me/redeem`).
+- **Protokoll**: every admin action and code redemption (kept 12 months).
+
+Who is admin: everyone whose login email is listed in the Cloudflare variable `ADMIN_EMAILS`
+(comma-separated, Worker → Settings → Variables and Secrets), plus users given the admin role in the portal.
+Premium is stored as `users.premium_until` (lifetime = year 9999); `GET /api/me` returns `premium`, `admin`
+and `expiresAt`. A paywall is not active yet (`PAYWALL` is reserved for it); payments come later.
 
 ## Course
 
@@ -123,6 +147,7 @@ finished lessons and earns XP without touching lesson progress. The landing page
 npm test           # conjugation engine + Worker API tests
 npm run build      # builds dist/
 npm run dev        # builds and runs site + API locally (SQLite) on http://localhost:4321
+ADMIN_EMAILS=you@example.com npm run dev   # same, with that account as admin
 ```
 
 ## Deploy (Cloudflare)

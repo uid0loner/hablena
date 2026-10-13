@@ -13,7 +13,7 @@ export function createD1(migrationsDir, file = ':memory:') {
     bind: (...p) => stmt(sql, p),
     first: async () => db.prepare(sql).get(...params) ?? null,
     all: async () => ({ results: db.prepare(sql).all(...params) }),
-    run: async () => { db.prepare(sql).run(...params); return { success: true }; },
+    run: async () => { const r = db.prepare(sql).run(...params); return { success: true, meta: { changes: Number(r.changes) } }; },
     _exec: () => db.prepare(sql).run(...params),
   });
   return {

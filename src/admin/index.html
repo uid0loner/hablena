@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Admin | Hablena</title>
+<meta name="theme-color" content="#0A1633">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/fonts/archivo-var.woff" as="font" type="font/woff" crossorigin>
+<link rel="preload" href="/fonts/geist-var.woff" as="font" type="font/woff" crossorigin>
+<link rel="stylesheet" href="/assets/css/admin.css">
+<script src="/assets/js/admin.js" defer></script>
+</head>
+<body>
+<div class="adm" data-adm>
+  <aside class="adm-side">
+    <a class="adm-brand" href="#/overview">
+      <svg viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="7" fill="#FFC400"/><path d="M7 19 C 10 12, 14 12, 17 17 S 24 22, 27 15" fill="none" stroke="#0A1633" stroke-width="3.2" stroke-linecap="round"/></svg>
+      <span>hablena</span><em>Admin</em>
+    </a>
+    <nav class="adm-nav" aria-label="Admin">
+      <a href="#/overview" data-nav="overview"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="10" rx="2"/><rect x="13" y="3" width="8" height="6" rx="2"/><rect x="13" y="11" width="8" height="10" rx="2"/><rect x="3" y="15" width="8" height="6" rx="2"/></svg><span>Übersicht</span></a>
+      <a href="#/users" data-nav="users"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-7 7-7s7 3 7 7"/><path d="M16 4a4 4 0 0 1 0 8M22 21c0-3-1.5-5.5-4-6.5"/></svg><span>Benutzer</span></a>
+      <a href="#/test" data-nav="test"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg><span>Testzugänge</span></a>
+      <a href="#/codes" data-nav="codes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 0 0-4z"/><path d="M14 5v14" stroke-dasharray="2 2.5"/></svg><span>Gutscheincodes</span></a>
+      <a href="#/log" data-nav="log"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7M9 7h3"/></svg><span>Protokoll</span></a>
+    </nav>
+    <div class="adm-me">
+      <span class="adm-me__avatar" data-me-avatar>?</span>
+      <span class="adm-me__email" data-me-email></span>
+      <div class="adm-me__links">
+        <a href="/de/app/">Zur App</a>
+        <button type="button" data-logout>Abmelden</button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="adm-main" id="main" tabindex="-1">
+    <div class="adm-view" data-view>
+      <div class="adm-loading"><span class="adm-spin"></span></div>
+    </div>
+  </main>
+</div>
+
+<div class="adm-gate" data-gate hidden>
+  <div class="adm-gate__card">
+    <svg viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="7" fill="#FFC400"/><path d="M7 19 C 10 12, 14 12, 17 17 S 24 22, 27 15" fill="none" stroke="#0A1633" stroke-width="3.2" stroke-linecap="round"/></svg>
+    <h1 data-gate-title>Admin-Bereich</h1>
+    <p data-gate-text></p>
+    <a class="adm-btn adm-btn--primary" data-gate-link href="/de/anmelden/?next=/admin/">Anmelden</a>
+  </div>
+</div>
+
+<aside class="adm-drawer" data-drawer hidden aria-label="Benutzerdetails">
+  <div class="adm-drawer__scrim" data-drawer-close></div>
+  <div class="adm-drawer__panel" role="dialog" aria-modal="true" aria-labelledby="drawer-title" tabindex="-1">
+    <div class="adm-drawer__body" data-drawer-body></div>
+  </div>
+</aside>
+
+<dialog class="adm-dialog" data-dialog>
+  <form method="dialog" data-dialog-form>
+    <h2 data-dialog-title></h2>
+    <div data-dialog-text></div>
+    <div class="adm-dialog__actions">
+      <button class="adm-btn" value="cancel" type="submit">Abbrechen</button>
+      <button class="adm-btn adm-btn--danger" value="ok" type="submit" data-dialog-ok>Bestätigen</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="adm-toasts" data-toasts aria-live="polite"></div>
+</body>
+</html>

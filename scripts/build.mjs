@@ -196,6 +196,11 @@ async function build() {
     }
   }
 
+  // Admin portal: one static German page, never indexed (all data comes from /api/admin/*)
+  await mkdir(join(DIST, 'admin'), { recursive: true });
+  await cp(join(SRC, 'admin', 'index.html'), join(DIST, 'admin', 'index.html'));
+  generated++;
+
   await mkdir(join(DIST, 'audio'), { recursive: true });
   const manifest = audioManifest();
   await writeFile(join(DIST, 'audio', 'manifest.json'), JSON.stringify(manifest));

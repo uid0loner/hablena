@@ -1,5 +1,6 @@
 // Hablena Worker: serves the static site and the /api/* endpoints.
 // No dependencies: Web Crypto for password hashing and tokens, D1 for storage.
+import { handleAdmin, redeemCode, isAdmin, premiumOf } from './admin.js';
 
 const SESSION_COOKIE = '__Host-hablena_session';
 const SESSION_DAYS = 30;
@@ -37,6 +38,8 @@ export default {
   async scheduled(event, env, ctx) {
     if (!env.DB || !env.ASSETS) return;
     ctx.waitUntil(warmAudio(env).then((r) => console.log('audio_warm', JSON.stringify(r))));
+    // Admin log entries are kept for 12 months (see privacy policy).
+    ctx.waitUntil(env.DB.prepare('DELETE FROM admin_log WHERE at < ?').bind(Date.now() - 365 * 86_400_000).run().catch(() => {}));
   },
 };
 
@@ -56,7 +59,11 @@ async function handleApi(request, env, url, ctx) {
     if (bad) return bad;
   }
 
+  const helpers = { json, readJson, currentUser, hashPassword, normalizeEmail };
+  if (url.pathname.startsWith('/api/admin/')) return handleAdmin(request, env, url, route, helpers);
+
   switch (route) {
+    case 'POST /api/me/redeem': return redeemCode(request, env, helpers);
     case 'POST /api/auth/signup': return signup(request, env);
     case 'POST /api/auth/login': return login(request, env);
     case 'POST /api/auth/logout': return logout(request, env);
@@ -135,7 +142,7 @@ async function login(request, env) {
     return json({ error: 'too_many_requests' }, 429);
   }
 
-  const user = await env.DB.prepare('SELECT id, email, name, lang, password FROM users WHERE email = ?').bind(email).first();
+  const user = await env.DB.prepare('SELECT id, email, name, lang, password, blocked, expires_at FROM users WHERE email = ?').bind(email).first();
   // Verify against a dummy hash when the user does not exist, so timing does not reveal it.
   const ok = await verifyPassword(password, user ? user.password : DUMMY_HASH);
   if (!user || !ok) {
@@ -143,6 +150,8 @@ async function login(request, env) {
     return json({ error: 'invalid_credentials' }, 401);
   }
 
+  if (user.blocked) return json({ error: 'account_disabled' }, 403);
+  if (user.expires_at && user.expires_at <= now) return json({ error: 'account_expired' }, 403);
   await env.DB.prepare('UPDATE users SET last_login_at = ? WHERE id = ?').bind(now, user.id).run();
   const cookie = await createSession(env, user.id, now);
   // Occasionally clean up old rate-limit events and expired sessions.
@@ -159,7 +168,13 @@ async function logout(request, env) {
 async function me(request, env) {
   const user = await currentUser(request, env);
   if (!user) return json({ error: 'unauthorized' }, 401, { 'Set-Cookie': clearCookie() });
-  return json({ user: { email: user.email, name: user.name, lang: user.lang, createdAt: user.created_at, dailyGoal: user.daily_goal, motive: user.motive } });
+  return json({
+    user: {
+      id: user.id, email: user.email, name: user.name, lang: user.lang, createdAt: user.created_at, dailyGoal: user.daily_goal, motive: user.motive,
+      premium: premiumOf(user), admin: isAdmin(user, env), isTest: !!user.is_test, expiresAt: user.expires_at || null,
+    },
+    paywall: env.PAYWALL === 'on',
+  }, 200, { 'Cache-Control': 'no-store' });
 }
 
 async function setGoal(request, env) {
@@ -183,6 +198,7 @@ async function deleteAccount(request, env) {
     env.DB.prepare('DELETE FROM progress WHERE user_id = ?').bind(user.id),
     env.DB.prepare('DELETE FROM activity WHERE user_id = ?').bind(user.id),
     env.DB.prepare('DELETE FROM word_stats WHERE user_id = ?').bind(user.id),
+    env.DB.prepare('DELETE FROM code_redemptions WHERE user_id = ?').bind(user.id),
     env.DB.prepare('DELETE FROM sessions WHERE user_id = ?').bind(user.id),
     env.DB.prepare('DELETE FROM users WHERE id = ?').bind(user.id),
   ]);
@@ -580,9 +596,12 @@ function readSessionToken(request) {
 async function currentUser(request, env, withPassword = false) {
   const token = readSessionToken(request);
   if (!token || token.length > 100) return null;
-  const cols = `u.id, u.email, u.name, u.lang, u.created_at, u.daily_goal, u.motive, u.freezes${withPassword ? ', u.password' : ''}`;
-  return env.DB.prepare(`SELECT ${cols} FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token_hash = ? AND s.expires_at > ?`)
-    .bind(await sha256Hex(token), Date.now())
+  const cols = `u.id, u.email, u.name, u.lang, u.created_at, u.daily_goal, u.motive, u.freezes, u.role, u.premium_until, u.premium_source, u.expires_at, u.is_test${withPassword ? ', u.password' : ''}`;
+  const now = Date.now();
+  // Blocked and expired (test) accounts are treated as logged out
+  return env.DB.prepare(`SELECT ${cols} FROM sessions s JOIN users u ON u.id = s.user_id
+      WHERE s.token_hash = ? AND s.expires_at > ? AND u.blocked = 0 AND (u.expires_at IS NULL OR u.expires_at > ?)`)
+    .bind(await sha256Hex(token), now, now)
     .first();
 }
 

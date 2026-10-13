@@ -27,7 +27,7 @@ const ASSETS = {
   },
 };
 
-const env = { DB: createD1(join(root, 'migrations'), process.env.DB_FILE || ':memory:'), ASSETS };
+const env = { DB: createD1(join(root, 'migrations'), process.env.DB_FILE || ':memory:'), ASSETS, ADMIN_EMAILS: process.env.ADMIN_EMAILS || '', PAYWALL: process.env.PAYWALL || '' };
 
 createServer(async (req, res) => {
   const chunks = [];

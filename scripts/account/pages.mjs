@@ -248,6 +248,11 @@ export function accountPages(t, urls, otherLang, site) {
 
     <section class="side-card account" id="account" aria-labelledby="account-title">
       <h2 id="account-title">${esc(a.accountTitle)}</h2>
+      <div class="acct-plan" data-plan data-t="${esc(JSON.stringify(a.plan))}">
+        <span class="acct-plan__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 7l4.5 4L12 4l4.5 7L21 7l-2 12H5z" fill="currentColor"/></svg></span>
+        <span class="acct-plan__text"><strong data-plan-name>${esc(a.plan.free)}</strong><span data-plan-sub>${esc(a.plan.freeText)}</span></span>
+      </div>
+      <p class="acct-plan__test" data-plan-test hidden></p>
       <dl class="account__facts">
         <div><dt>${esc(a.email)}</dt><dd data-user-email>…</dd></div>
         <div><dt>${esc(a.memberSince)}</dt><dd data-user-since>…</dd></div>
@@ -260,6 +265,19 @@ export function accountPages(t, urls, otherLang, site) {
           <span class="goal-setting__saved" data-goal-saved hidden>${esc(a.goalSaved)}</span>
         </div>
       </div>
+      <details class="redeem" data-redeem>
+        <summary>${esc(a.plan.redeemTitle)}</summary>
+        <form class="redeem__form" data-redeem-form novalidate>
+          <label class="sr-only" for="redeem-code">${esc(a.plan.redeemTitle)}</label>
+          <div class="redeem__row">
+            <input id="redeem-code" name="code" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="40" placeholder="${esc(a.plan.redeemPlaceholder)}" required>
+            <button class="btn btn--navy" type="submit">${esc(a.plan.redeemButton)}</button>
+          </div>
+          <p class="auth-error" role="alert" data-auth-error hidden></p>
+          <p class="redeem__ok" role="status" data-redeem-ok hidden></p>
+        </form>
+      </details>
+      <a class="side-link side-link--admin" href="/admin/" data-admin-link hidden><span class="side-link__icon side-link__icon--navy" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z" fill="currentColor"/></svg></span><span><strong>${esc(a.plan.admin)}</strong></span></a>
       <button class="lp-cta lp-cta--ghost account__logout" type="button" data-logout>${esc(a.logout)}</button>
       <details class="danger">
         <summary>${esc(a.deleteTitle)}</summary>

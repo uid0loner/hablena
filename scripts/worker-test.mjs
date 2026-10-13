@@ -182,6 +182,124 @@ await call('POST', '/api/progress', { cookie: li.cookie, body: { lessonId: 'u1-l
   check('not enough freezes: streak restarts', f3.freezesUsed === 0 && f3.streak === 1 && f3.freezes === 1);
 }
 
+// Admin portal
+{
+  const day = (offset) => new Date(Date.now() + offset * 86_400_000).toISOString().slice(0, 10);
+  const aenv = { ...env, ADMIN_EMAILS: 'boss@example.com, other@example.com' };
+  const acall = (method, path, opts = {}) => {
+    const headers = { 'CF-Connecting-IP': opts.ip || '5.5.5.5' };
+    headers.Origin = ORIGIN;
+    if (opts.body !== undefined) headers['Content-Type'] = 'application/json';
+    if (opts.cookie) headers.Cookie = opts.cookie;
+    return worker.fetch(new Request(ORIGIN + path, { method, headers, body: opts.body === undefined ? undefined : JSON.stringify(opts.body) }), aenv)
+      .then(async (res) => ({ status: res.status, data: await res.json().catch(() => ({})), setCookie: res.headers.get('Set-Cookie') || '' }));
+  };
+  const cookieOf = (r) => { const m = r.setCookie.match(/__Host-hablena_session=([^;]*)/); return m ? `__Host-hablena_session=${m[1]}` : null; };
+  const boss = await acall('POST', '/api/auth/signup', { body: { email: 'boss@example.com', password: 'correct horse battery' }, ip: '7.7.7.1' });
+  const bossCookie = cookieOf(boss);
+  const pleb = await acall('POST', '/api/auth/signup', { body: { email: 'pleb@example.com', password: 'correct horse battery' }, ip: '7.7.7.2' });
+  const plebCookie = cookieOf(pleb);
+  const plebId = env.DB.raw.prepare("SELECT id FROM users WHERE email = 'pleb@example.com'").get().id;
+  const bossId = env.DB.raw.prepare("SELECT id FROM users WHERE email = 'boss@example.com'").get().id;
+
+  check('admin: needs login', (await acall('GET', '/api/admin/overview')).status === 401);
+  check('admin: normal user forbidden', (await acall('GET', '/api/admin/overview', { cookie: plebCookie })).status === 403);
+  const ov = await acall('GET', '/api/admin/overview', { cookie: bossCookie });
+  check('admin: overview', ov.status === 200 && ov.data.totals.users >= 2 && ov.data.days.length === 30);
+  check('me: admin flag', (await acall('GET', '/api/me', { cookie: bossCookie })).data.user.admin === true && (await acall('GET', '/api/me', { cookie: plebCookie })).data.user.admin === false);
+
+  const list = await acall('GET', '/api/admin/users?q=pleb', { cookie: bossCookie });
+  check('admin: search users', list.status === 200 && list.data.users.length === 1 && list.data.users[0].email === 'pleb@example.com');
+
+  // Premium
+  const P = (body) => acall('POST', `/api/admin/users/${plebId}/premium`, { cookie: bossCookie, body });
+  const g1 = await P({ mode: 'days', days: 7 });
+  const u1 = g1.data.user.premium.until;
+  check('premium: grant 7 days', g1.status === 200 && g1.data.user.premium.active && Math.abs(u1 - (Date.now() + 7 * 86_400_000)) < 60_000);
+  const g2 = await P({ mode: 'days', days: 1 });
+  check('premium: extends from current end', Math.abs(g2.data.user.premium.until - (u1 + 86_400_000)) < 5_000);
+  check('premium: visible to the user', (await acall('GET', '/api/me', { cookie: plebCookie })).data.user.premium.active === true);
+  const g3 = await P({ mode: 'lifetime' });
+  check('premium: lifetime', g3.data.user.premium.lifetime === true);
+  check('premium: filter lifetime', (await acall('GET', '/api/admin/users?filter=lifetime', { cookie: bossCookie })).data.users.some((u) => u.email === 'pleb@example.com'));
+  const g4 = await P({ mode: 'until', until: '2001-01-01' });
+  check('premium: past date rejected', g4.status === 400);
+  const g5 = await P({ mode: 'revoke' });
+  check('premium: revoke', g5.data.user.premium.active === false && g5.data.user.premium.until === null);
+
+  // Block / unblock
+  const U = (body, id = plebId) => acall('POST', `/api/admin/users/${id}/update`, { cookie: bossCookie, body });
+  await U({ blocked: true });
+  check('block: sessions ended', (await acall('GET', '/api/me', { cookie: plebCookie })).status === 401);
+  const blockedLogin = await acall('POST', '/api/auth/login', { body: { email: 'pleb@example.com', password: 'correct horse battery' }, ip: '7.7.7.3' });
+  check('block: login refused', blockedLogin.status === 403 && blockedLogin.data.error === 'account_disabled');
+  await U({ blocked: false });
+  const relog = await acall('POST', '/api/auth/login', { body: { email: 'pleb@example.com', password: 'correct horse battery' }, ip: '7.7.7.3' });
+  check('unblock: login works', relog.status === 200);
+  const pleb2 = cookieOf(relog);
+  // Expiry
+  await U({ expiresAt: new Date(Date.now() - 60_000).toISOString() });
+  check('expiry: expired account is logged out', (await acall('GET', '/api/me', { cookie: pleb2 })).status === 401);
+  const expLogin = await acall('POST', '/api/auth/login', { body: { email: 'pleb@example.com', password: 'correct horse battery' }, ip: '7.7.7.3' });
+  check('expiry: login refused', expLogin.status === 403 && expLogin.data.error === 'account_expired');
+  await U({ expiresAt: null });
+  // Self-protection
+  check('admin cannot block self', (await U({ blocked: true }, bossId)).status === 400);
+  check('admin cannot demote self', (await U({ role: 'user' }, bossId)).status === 400);
+  // Roles
+  await U({ role: 'admin' });
+  check('promote to admin', env.DB.raw.prepare('SELECT role FROM users WHERE id = ?').get(plebId).role === 'admin');
+  await U({ role: 'user' });
+
+  // Password reset and logout-all
+  const reset = await acall('POST', `/api/admin/users/${plebId}/password-reset`, { cookie: bossCookie, body: {} });
+  check('password reset returns a temporary password', reset.status === 200 && /^[a-z]+-[a-z]+-[a-z]+-\d{3}$/.test(reset.data.password));
+  check('old password no longer works', (await acall('POST', '/api/auth/login', { body: { email: 'pleb@example.com', password: 'correct horse battery' }, ip: '7.7.7.4' })).status === 401);
+  const withTemp = await acall('POST', '/api/auth/login', { body: { email: 'pleb@example.com', password: reset.data.password }, ip: '7.7.7.4' });
+  check('temporary password works', withTemp.status === 200);
+  await acall('POST', `/api/admin/users/${plebId}/logout-all`, { cookie: bossCookie, body: {} });
+  check('logout-all ends sessions', (await acall('GET', '/api/me', { cookie: cookieOf(withTemp) })).status === 401);
+
+  // Detail view
+  const det = await acall('GET', `/api/admin/users/${plebId}`, { cookie: bossCookie });
+  check('user detail with log', det.status === 200 && det.data.user.email === 'pleb@example.com' && det.data.log.length >= 5);
+
+  // Test accounts
+  const ta = await acall('POST', '/api/admin/test-accounts', { cookie: bossCookie, body: { accountDays: 3, premiumDays: 3, note: 'Tester Max' } });
+  check('test account created', ta.status === 200 && /@test\.hablena\.com$/.test(ta.data.user.email) && ta.data.user.password);
+  const taLogin = await acall('POST', '/api/auth/login', { body: { email: ta.data.user.email, password: ta.data.user.password }, ip: '7.7.7.5' });
+  check('test account can log in with premium', taLogin.status === 200 && (await acall('GET', '/api/me', { cookie: cookieOf(taLogin) })).data.user.premium.active === true);
+  check('test filter', (await acall('GET', '/api/admin/users?filter=test', { cookie: bossCookie })).data.users.length === 1);
+  const taNamed = await acall('POST', '/api/admin/test-accounts', { cookie: bossCookie, body: { email: 'pleb@example.com', accountDays: 1 } });
+  check('test account: taken email rejected', taNamed.status === 409);
+
+  // Codes
+  const cc = await acall('POST', '/api/admin/codes', { cookie: bossCookie, body: { count: 2, days: 30, maxUses: 1, note: 'Messe' } });
+  check('codes created', cc.status === 200 && cc.data.codes.length === 2 && /^HABLA-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(cc.data.codes[0]));
+  const plebLogin = await acall('POST', '/api/auth/login', { body: { email: 'pleb@example.com', password: reset.data.password }, ip: '7.7.7.6' });
+  const pc = cookieOf(plebLogin);
+  const red = await acall('POST', '/api/me/redeem', { cookie: pc, body: { code: cc.data.codes[0].toLowerCase() } });
+  check('code redeemed (case-insensitive)', red.status === 200 && red.data.premium.active === true);
+  check('code used up', (await acall('POST', '/api/me/redeem', { cookie: cookieOf(taLogin), body: { code: cc.data.codes[0] } })).data.error === 'code_used');
+  check('code cannot be redeemed twice', (await acall('POST', '/api/me/redeem', { cookie: pc, body: { code: cc.data.codes[0] } })).status === 400);
+  await acall('POST', `/api/admin/codes/${cc.data.codes[1]}/disable`, { cookie: bossCookie, body: {} });
+  check('disabled code refused', (await acall('POST', '/api/me/redeem', { cookie: pc, body: { code: cc.data.codes[1] } })).data.error === 'code_invalid');
+  const life = await acall('POST', '/api/admin/codes', { cookie: bossCookie, body: { count: 1, lifetime: true, maxUses: 5 } });
+  await acall('POST', '/api/me/redeem', { cookie: pc, body: { code: life.data.codes[0] } });
+  check('lifetime code', (await acall('GET', '/api/me', { cookie: pc })).data.user.premium.lifetime === true);
+  check('codes list', (await acall('GET', '/api/admin/codes', { cookie: bossCookie })).data.codes.length === 3);
+  check('bad code format', (await acall('POST', '/api/me/redeem', { cookie: pc, body: { code: '<x>' } })).status === 400);
+
+  // Log and deletion
+  const lg = await acall('GET', '/api/admin/log', { cookie: bossCookie });
+  check('audit log', lg.status === 200 && lg.data.entries.some((e) => e.action === 'premium_granted') && lg.data.entries.some((e) => e.action === 'code_redeemed'));
+  check('delete needs confirmation', (await acall('POST', `/api/admin/users/${plebId}/delete`, { cookie: bossCookie, body: { confirm: 'nope' } })).status === 400);
+  check('admin cannot delete self', (await acall('POST', `/api/admin/users/${bossId}/delete`, { cookie: bossCookie, body: { confirm: 'boss@example.com' } })).status === 400);
+  const del = await acall('POST', `/api/admin/users/${plebId}/delete`, { cookie: bossCookie, body: { confirm: 'pleb@example.com' } });
+  check('admin deletes user', del.status === 200 && !env.DB.raw.prepare('SELECT 1 FROM users WHERE id = ?').get(plebId));
+  check('unknown admin route', (await acall('GET', '/api/admin/nope', { cookie: bossCookie })).status === 404);
+}
+
 // Account deletion
 check('delete needs password', (await call('POST', '/api/me/delete', { cookie: li.cookie, body: { password: 'nope' } })).status === 401);
 const del = await call('POST', '/api/me/delete', { cookie: li.cookie, body: { password: 'correct horse battery' } });
@@ -281,11 +399,13 @@ check('unknown route → 404', (await call('GET', '/api/nothing')).status === 40
     check('warm: stops after an auth error', calls === 1 && w2.made === 0 && w2.error.status === 401);
 
     // Cron entry point
-    let waited = null;
+    const waited = [];
     globalThis.fetch = async (url) => (String(url).includes('googleapis') ? Response.json({ audioContent: btoa('ID3x') }) : mp3());
-    await worker.scheduled({}, all, { waitUntil: (p) => { waited = p; } });
-    await waited;
+    env.DB.raw.prepare("INSERT INTO admin_log (at, action) VALUES (?, 'old_entry'), (?, 'new_entry')").run(Date.now() - 400 * 86_400_000, Date.now());
+    await worker.scheduled({}, all, { waitUntil: (p) => { waited.push(p); } });
+    await Promise.all(waited);
     check('cron: scheduled handler warms audio', env.DB.raw.prepare('SELECT COUNT(*) AS n FROM audio_cache').get().n >= 3);
+    check('cron: prunes admin log after 12 months', !env.DB.raw.prepare("SELECT 1 FROM admin_log WHERE action = 'old_entry'").get() && !!env.DB.raw.prepare("SELECT 1 FROM admin_log WHERE action = 'new_entry'").get());
   } finally {
     globalThis.fetch = realFetch;
   }
