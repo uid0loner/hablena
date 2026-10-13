@@ -245,7 +245,11 @@ document.documentElement.classList.add('js');
         if (P.environment === 'sandbox') window.Paddle.Environment.set('sandbox');
         window.Paddle.Initialize({
           token: P.clientToken,
-          eventCallback: (ev) => { if (ev.name === 'checkout.completed') onPaid(); },
+          eventCallback: (ev) => {
+            if (ev.name !== 'checkout.completed') return;
+            onPaid();
+            setTimeout(() => { try { window.Paddle.Checkout.close(); } catch {} }, 3000);
+          },
         });
         resolve(window.Paddle);
       };
